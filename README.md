@@ -37,7 +37,7 @@ Function GeneralSpecs(wb As IWBProxy) As SpecSuite
         .Expect(wb.CellRef("Red").Interior.Color).toEqual(RGB(255,0,0))
     End With
     
-    With specs.It("shouldn"t carryover between tests")
+    With specs.It("shouldn't carryover between tests")
         wb.Value("A") = 4
         wb.Value("B") = 3
         .Expect(wb.Value("Sum")).toEqual(7)
