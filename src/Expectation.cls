@@ -19,25 +19,27 @@ Attribute VB_Exposed = False
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' --------------------------------------------- '
-' Types
-' --------------------------------------------- '
+
 Public Enum ExpectResult
     Pass
     Fail
 End Enum
 
+
 ' --------------------------------------------- '
 ' Public Properties
 ' --------------------------------------------- '
+
 
 Public ExpectValue As Variant
 Public Result As ExpectResult
 Public FailureMessage As String
 
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
+
 
 ''
 ' Check if the defined value is equal to the test value
@@ -190,9 +192,11 @@ Public Sub ToBeGTE(value As Variant)
     Call ToBeGreaterThanOrEqualTo(value)
 End Sub
 
+
 ' ============================================= '
 ' Private Methods
 ' ============================================= '
+
 
 Private Function GetStringForValue(value As Variant) As String
     GetStringForValue = CStr(value)

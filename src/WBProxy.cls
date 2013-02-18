@@ -21,18 +21,16 @@ Attribute VB_Exposed = False
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Implements IWBProxy
 
-' --------------------------------------------- '
-' Constants and Private Variables
-' --------------------------------------------- '
-
 Private pMapping As Dictionary
 Private pInstance As Workbook
 Private pPath As String
 Private pPassword As String
 
+
 ' --------------------------------------------- '
 ' Properties
 ' --------------------------------------------- '
+
 
 Private Property Get IWBProxy_mapping() As Scripting.IDictionary
     If pMapping Is Nothing Then: Set pMapping = New Dictionary
@@ -129,9 +127,11 @@ Private Property Let IWBProxy_CellRef(mappingKey As String, value As Variant)
 
 End Property
 
+
 ' --------------------------------------------- '
 ' Methods
 ' --------------------------------------------- '
+
 
 Private Sub IWBProxy_DefineWB(path As String, Optional password As String)
     pPath = path
@@ -199,14 +199,6 @@ Private Sub IWBProxy_DefineMapping(sheetName As String)
     
 End Sub
 
-Private Function GetCellRef(mappingKey As String) As Variant
-    
-End Function
-
-
 Private Sub Class_Terminate()
     Set pInstance = Nothing
 End Sub
-
-
-

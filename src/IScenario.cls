@@ -30,4 +30,10 @@ Attribute VB_Exposed = False
 
 Public Function RunScenario(wb As IWBProxy, Optional name As String = "") As SpecSuite
 
+''
+' Load scenario from given sheet
+'
+' @param {String} sheetName to load scenario from
+' --------------------------------------------- '
+
 Public Sub Load(sheetName As String)

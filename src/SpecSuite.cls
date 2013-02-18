@@ -19,16 +19,15 @@ Attribute VB_Exposed = False
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' --------------------------------------------- '
-' Constants and Private Variables
-' --------------------------------------------- '
 
 Private pSpecsCol As Collection
 Private pWB As IWBProxy
 
+
 ' --------------------------------------------- '
 ' Properties
 ' --------------------------------------------- '
+
 
 Public TeardownWB As Boolean
 
@@ -47,9 +46,11 @@ Public Property Let SpecsCol(value As Collection)
     Set pSpecsCol = value
 End Property
 
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
+
 
 ''
 ' Create a new spec definition with description

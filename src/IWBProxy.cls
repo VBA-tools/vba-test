@@ -21,6 +21,7 @@ Attribute VB_Exposed = False
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
+
 Public Property Get mapping() As Dictionary
 Public Property Let mapping(value As Dictionary)
 
@@ -65,25 +66,35 @@ Public Property Let cellRef(mappingKey As String, newValue As Variant)
 
 ''
 ' Define mapping
+'
+' @param {String} sheetName to load mapping from
 ' --------------------------------------------- '
+
 Public Sub DefineMapping(sheetName As String)
 
 ''
 ' Define workbook
+'
+' @param {String} path full path to workbook
+' @param {String} [password]
 ' --------------------------------------------- '
+
 Public Sub DefineWB(path As String, Optional password As String)
 
 ''
 ' Load instance of defined workbook
 ' --------------------------------------------- '
+
 Public Sub LoadWB()
 
 ''
 ' Reload workbook into instance
 ' --------------------------------------------- '
+
 Public Sub ReloadWB()
 
 ''
 ' Close current workbook instance
 ' --------------------------------------------- '
+
 Public Sub CloseWB()

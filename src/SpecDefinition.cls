@@ -1,6 +1,6 @@
 VERSION 1.0 CLASS
 BEGIN
-  MultiUse = -1  'True
+  MultiUse = -1
 END
 Attribute VB_Name = "SpecDefinition"
 Attribute VB_GlobalNameSpace = False
@@ -19,12 +19,10 @@ Attribute VB_Exposed = False
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' --------------------------------------------- '
-' Constants and Private Variables
-' --------------------------------------------- '
 
 Private pExpectations As Collection
 Private pFailedExpectations As Collection
+
 
 ' --------------------------------------------- '
 ' Types
@@ -35,6 +33,7 @@ Public Enum SpecResult
     Fail
     Pending
 End Enum
+
 
 ' --------------------------------------------- '
 ' Properties
@@ -63,9 +62,11 @@ Private Property Let FailedExpectations(value As Collection)
     Set pFailedExpectations = value
 End Property
 
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
+
 
 ''
 ' Create a new expectation to test the defined value
