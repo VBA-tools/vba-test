@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' Expectation v1.0.0
+' Expectation v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value
@@ -19,27 +19,19 @@ Attribute VB_Exposed = False
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-
 Public Enum ExpectResult
     Pass
     Fail
 End Enum
-
-
-' --------------------------------------------- '
-' Public Properties
-' --------------------------------------------- '
-
 
 Public ExpectValue As Variant
 Public Result As ExpectResult
 Public FailureMessage As String
 
 
-' ============================================= '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Public Methods
-' ============================================= '
-
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 ''
 ' Check if the defined value is equal to the test value
@@ -47,32 +39,31 @@ Public FailureMessage As String
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToEqual(value As Variant)
+Public Sub ToEqual(Value As Variant)
     Dim failed As Boolean
     failed = False
     
-    If IsError(Me.ExpectValue) Or IsError(value) Then
+    If IsError(Me.ExpectValue) Or IsError(Value) Then
         failed = True
     
     ' If both the values are doubles, use decimal notequal comparison
-    ElseIf VarType(Me.ExpectValue) = vbDouble And VarType(value) = vbDouble Then
-        If CDec(Me.ExpectValue) <> CDec(value) Then
+    ElseIf VarType(Me.ExpectValue) = vbDouble And VarType(Value) = vbDouble Then
+        If CDec(Me.ExpectValue) <> CDec(Value) Then
             failed = True
         End If
         
     ' Otherwise use standard notequal comparison
     Else
-        If Me.ExpectValue <> value Then
+        If Me.ExpectValue <> Value Then
             failed = True
         End If
     End If
     
     ' If test fails, create failure message
     If failed Then
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to equal", value)
+        Fails CreateFailureMessage("to equal", Value)
     Else
-        Me.Result = ExpectResult.Pass
+        Passes
     End If
 End Sub
 
@@ -82,12 +73,11 @@ End Sub
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToNotEqual(value As Variant)
-    If Not IsError(Me.ExpectValue) And Not IsError(value) And Me.ExpectValue <> value Then
-        Me.Result = ExpectResult.Pass
+Public Sub ToNotEqual(Value As Variant)
+    If Not IsError(Me.ExpectValue) And Not IsError(Value) And Me.ExpectValue <> Value Then
+        Passes
     Else
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to not equal", value)
+        Fails CreateFailureMessage("to not equal", Value)
     End If
 End Sub
 
@@ -99,10 +89,16 @@ Public Sub ToBeDefined()
     ' Make sure the value isn't empty or null
     ' (There may be other things that need to checked as well)
     If Not IsEmpty(Me.ExpectValue) And Not IsNull(Me.ExpectValue) Then
-        Me.Result = ExpectResult.Pass
+        Passes
     Else
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be defined")
+        If VarType(Me.ExpectValue) = vbObject Then
+            If Not Me.ExpectValue Is Nothing Then
+                Passes
+                Exit Sub
+            End If
+        End If
+        
+        Fails CreateFailureMessage("to be defined")
     End If
 End Sub
 
@@ -112,11 +108,17 @@ End Sub
 
 Public Sub ToBeUndefined()
     ' If the value is empty or null, it is undefined
-    If IsEmpty(Me.ExpectValue) Or IsNull(Me.ExpectValue) Then
-        Me.Result = ExpectResult.Pass
+    If IsEmpty(Me.ExpectValue) Or IsNull(Me.ExpectValue) Or IsMissing(Me.ExpectValue) Then
+        Passes
     Else
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be undefined")
+        If VarType(Me.ExpectValue) = vbObject Then
+            If Me.ExpectValue Is Nothing Then
+                Passes
+                Exit Sub
+            End If
+        End If
+        
+        Fails CreateFailureMessage("to be undefined")
     End If
 End Sub
 
@@ -126,16 +128,15 @@ End Sub
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToBeLessThan(value As Variant)
-    If IsError(Me.ExpectValue) Or IsError(value) Or Me.ExpectValue >= value Then
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be less than", value)
+Public Sub ToBeLessThan(Value As Variant)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Me.ExpectValue >= Value Then
+        Fails CreateFailureMessage("to be less than", Value)
     Else
-        Me.Result = ExpectResult.Pass
+        Passes
     End If
 End Sub
-Public Sub ToBeLT(value As Variant)
-    Call ToBeLessThan(value)
+Public Sub ToBeLT(Value As Variant)
+    Call ToBeLessThan(Value)
 End Sub
 
 ''
@@ -144,16 +145,15 @@ End Sub
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToBeLessThanOrEqualTo(value As Variant)
-    If IsError(Me.ExpectValue) Or IsError(value) Or Me.ExpectValue > value Then
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be less than or equal to", value)
+Public Sub ToBeLessThanOrEqualTo(Value As Variant)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Me.ExpectValue > Value Then
+        Fails CreateFailureMessage("to be less than or equal to", Value)
     Else
-        Me.Result = ExpectResult.Pass
+        Passes
     End If
 End Sub
-Public Sub ToBeLTE(value As Variant)
-    Call ToBeLessThanOrEqualTo(value)
+Public Sub ToBeLTE(Value As Variant)
+    Call ToBeLessThanOrEqualTo(Value)
 End Sub
 
 ''
@@ -162,16 +162,15 @@ End Sub
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToBeGreaterThan(value As Variant)
-    If IsError(Me.ExpectValue) Or IsError(value) Or Me.ExpectValue <= value Then
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be greater than", value)
+Public Sub ToBeGreaterThan(Value As Variant)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Me.ExpectValue <= Value Then
+        Fails CreateFailureMessage("to be greater than", Value)
     Else
-        Me.Result = ExpectResult.Pass
+        Passes
     End If
 End Sub
-Public Sub ToBeGT(value As Variant)
-    Call ToBeGreaterThan(value)
+Public Sub ToBeGT(Value As Variant)
+    Call ToBeGreaterThan(Value)
 End Sub
 
 ''
@@ -180,35 +179,43 @@ End Sub
 ' @param {Variant} Value
 ' --------------------------------------------- '
 
-Public Sub ToBeGreaterThanOrEqualTo(value As Variant)
-    If IsError(Me.ExpectValue) Or IsError(value) Or Me.ExpectValue < value Then
-        Me.Result = ExpectResult.Fail
-        Me.FailureMessage = CreateFailureMessage("to be greater than or equal to", value)
+Public Sub ToBeGreaterThanOrEqualTo(Value As Variant)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Me.ExpectValue < Value Then
+        Fails CreateFailureMessage("to be greater than or equal to", Value)
     Else
-        Me.Result = ExpectResult.Pass
+        Passes
     End If
 End Sub
-Public Sub ToBeGTE(value As Variant)
-    Call ToBeGreaterThanOrEqualTo(value)
+Public Sub ToBeGTE(Value As Variant)
+    Call ToBeGreaterThanOrEqualTo(Value)
 End Sub
 
-
-' ============================================= '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Private Methods
-' ============================================= '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
+Private Sub Passes()
+    Me.Result = ExpectResult.Pass
+    If Err.Number <> 0 Then: Err.Clear
+End Sub
 
-Private Function GetStringForValue(value As Variant) As String
-    GetStringForValue = CStr(value)
+Private Sub Fails(Message As String)
+    Me.Result = ExpectResult.Fail
+    Me.FailureMessage = Message
+    If Err.Number <> 0 Then: Err.Clear
+End Sub
+
+Private Function GetStringForValue(Value As Variant) As String
+    GetStringForValue = CStr(Value)
     If GetStringForValue = "" Then
         GetStringForValue = "(Undefined)"
     End If
 End Function
 
-Private Function CreateFailureMessage(message As String, Optional value As Variant) As String
-    CreateFailureMessage = "Expected " & GetStringForValue(Me.ExpectValue) & " " & message
-    If Not IsMissing(value) Then
-        CreateFailureMessage = CreateFailureMessage & " " & GetStringForValue(value)
+Private Function CreateFailureMessage(Message As String, Optional Value As Variant) As String
+    CreateFailureMessage = "Expected " & GetStringForValue(Me.ExpectValue) & " " & Message
+    If Not IsMissing(Value) Then
+        CreateFailureMessage = CreateFailureMessage & " " & GetStringForValue(Value)
     End If
 End Function
 

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' Scenario v1.0.0
+' Scenario v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Generic implementation of scenario
@@ -21,77 +21,77 @@ Attribute VB_Exposed = False
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Implements IScenario
 
-Private inputValues As Dictionary
-Private expectedValues As Dictionary
+Private Const ScenarioInputStartRow As Integer = 4
+Private Const ScenarioInputStartCol As Integer = 1
+Private Const ScenarioExpectedStartRow As Integer = 4
+Private Const ScenarioExpectedStartCol As Integer = 3
+
+Private InputValues As Dictionary
+Private ExpectedValues As Dictionary
 
 ''
 ' Generate a spec suite to run through a scenario for the given wb
 '
-' @param {IWBProxy} wb to perform scenario on
-' @param {String} name of scenario
-' @return {SpecSuite}
+' @param {IWBProxy} WB to perform scenario on
+' @param {String} Name of scenario
+' @returns {SpecSuite}
 ' --------------------------------------------- '
 
-Private Function IScenario_RunScenario(wb As IWBProxy, Optional name As String = "") As SpecSuite
+Private Function IScenario_RunScenario(WB As IWBProxy, Optional Name As String = "") As SpecSuite
     
-    Dim specs As New SpecSuite
+    Dim Specs As New SpecSuite
     Dim keyValue As Variant
     
-    specs.wb = wb
+    Specs.WB = WB
     
-    With specs.It("Should pass scenario")
+    With Specs.It("Should pass scenario")
         ' Load input values
-        For Each keyValue In inputValues.Keys
-            specs.wb.value(CStr(keyValue)) = inputValues.Item(CStr(keyValue))
+        For Each keyValue In InputValues.Keys
+            Specs.WB.Value(CStr(keyValue)) = InputValues.Item(CStr(keyValue))
         Next keyValue
         
         ' Run expectations
-        For Each keyValue In expectedValues.Keys
-            .Expect(specs.wb.value(CStr(keyValue))).ToEqual expectedValues.Item(CStr(keyValue))
+        For Each keyValue In ExpectedValues.Keys
+            .Expect(Specs.WB.Value(CStr(keyValue))).ToEqual ExpectedValues.Item(CStr(keyValue))
         Next keyValue
     End With
     
-    specs.wb.CloseWB
-    Set IScenario_RunScenario = specs
+    Specs.WB.CloseWB
+    Set IScenario_RunScenario = Specs
 End Function
 
 ''
 ' Load the scenario from a sheet
 '
-' @param {String} sheetName
+' @param {String} SheetName
 ' --------------------------------------------- '
 
-Private Sub IScenario_Load(sheetName As String)
-    
-    Dim inputRow As Integer
-    Dim inputCol As Integer
-    Dim expectedRow As Integer
-    Dim expectedCol As Integer
-    
-    inputRow = 4
-    inputCol = 1
-    expectedRow = 4
-    expectedCol = 3
-    
-    Set inputValues = New Dictionary
-    Set expectedValues = New Dictionary
-    
-    If Utils.SheetExists(sheetName, ThisWorkbook) Then
+Private Sub IScenario_Load(SheetName As String)
         
-        Do While ThisWorkbook.Sheets(sheetName).Cells(inputRow, inputCol) <> ""
-            inputValues.Add _
-                CStr(ThisWorkbook.Sheets(sheetName).Cells(inputRow, inputCol)), _
-                ThisWorkbook.Sheets(sheetName).Cells(inputRow, inputCol + 1).value
+    Dim ScenarioSheet As Worksheet
+    Dim Row As Integer
+    Set InputValues = New Dictionary
+    Set ExpectedValues = New Dictionary
+    
+    If SpecHelpers.SheetExists(SheetName, ThisWorkbook) Then
+        Set ScenarioSheet = ThisWorkbook.Sheets(SheetName)
+        
+        Row = ScenarioInputStartRow
+        Do While ScenarioSheet.Cells(Row, ScenarioInputStartCol) <> ""
+            InputValues.Add _
+                CStr(ScenarioSheet.Cells(Row, ScenarioInputStartCol)), _
+                ScenarioSheet.Cells(Row, ScenarioInputStartCol + 1).Value
             
-            inputRow = inputRow + 1
+            Row = Row + 1
         Loop
         
-        Do While ThisWorkbook.Sheets(sheetName).Cells(expectedRow, expectedCol) <> ""
-            expectedValues.Add _
-                CStr(ThisWorkbook.Sheets(sheetName).Cells(expectedRow, expectedCol)), _
-                ThisWorkbook.Sheets(sheetName).Cells(expectedRow, expectedCol + 1).value
+        Row = ScenarioExpectedStartRow
+        Do While ScenarioSheet.Cells(Row, ScenarioExpectedStartCol) <> ""
+            ExpectedValues.Add _
+                CStr(ScenarioSheet.Cells(Row, ScenarioExpectedStartCol)), _
+                ScenarioSheet.Cells(Row, ScenarioExpectedStartCol + 1).Value
             
-            expectedRow = expectedRow + 1
+            Row = Row + 1
         Loop
         
     End If

@@ -1,6 +1,6 @@
-Attribute VB_Name = "Utils"
+Attribute VB_Name = "SpecHelpers"
 ''
-' Utils v1.0.0
+' SpecHelpers v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/ExcelHelpers
 '
 ' General utilities for specs
@@ -14,16 +14,16 @@ Attribute VB_Name = "Utils"
 ''
 ' Check if named range exists and return sheet index if it does
 '
-' @param {String} rangeName
+' @param {String} RangeName
 ' @param {String} [WB] Workbook to check or active workbook
-' @return {Integer} Index of sheet that named range is found on or -1
+' @returns {Integer} Index of sheet that named range is found on or -1
 ' --------------------------------------------- '
 
-Public Function NamedRangeExists(rangeName As String, Optional wb As Workbook) As Integer
+Public Function NamedRangeExists(RangeName As String, Optional WB As Workbook) As Integer
     Dim rngTest As Range, i As Long
      
-    If wb Is Nothing Then: Set wb = ActiveWorkbook
-    With wb
+    If WB Is Nothing Then: Set WB = ActiveWorkbook
+    With WB
         On Error Resume Next
         ' Loop through all sheets in workbook. In VBA, you MUST specify
         ' the worksheet name which the named range is found on. Using
@@ -31,7 +31,7 @@ Public Function NamedRangeExists(rangeName As String, Optional wb As Workbook) A
         ' without explicit reference.
         For i = 1 To .Sheets.Count Step 1
             ' Try to set our variable as the named range.
-            Set rngTest = .Sheets(i).Range(rangeName)
+            Set rngTest = .Sheets(i).Range(RangeName)
              
             ' If there is no error then the name exists.
             If Err = 0 Then
@@ -54,20 +54,20 @@ End Function
 '
 ' @param {String} sheetName
 ' @param {Workbook} [WB] Workbook to check or active workbook
-' @return {Boolean}
+' @returns {Boolean}
 ' --------------------------------------------- '
 
-Public Function SheetExists(sheetName As String, Optional wb As Workbook) As Boolean
-    Dim sheet As Worksheet
+Public Function SheetExists(SheetName As String, Optional WB As Workbook) As Boolean
+    Dim Sheet As Worksheet
     
-    If wb Is Nothing Then: Set wb = ActiveWorkbook
-    If Not wb Is Nothing Then
-        For Each sheet In wb.Sheets
-            If sheet.name = sheetName Then
+    If WB Is Nothing Then: Set WB = ActiveWorkbook
+    If Not WB Is Nothing Then
+        For Each Sheet In WB.Sheets
+            If Sheet.Name = SheetName Then
                 SheetExists = True
                 Exit Function
             End If
-        Next sheet
+        Next Sheet
     End If
 End Function
 
@@ -76,17 +76,17 @@ End Function
 '
 ' @param {String} sheetName
 ' @param {Workbook} [WB] Workbook to check or active workbook
-' @return {Boolean}
+' @returns {Boolean}
 ' --------------------------------------------- '
 
-Public Function SheetIsVisible(sheetName As String, Optional wb As Workbook) As Boolean
+Public Function SheetIsVisible(SheetName As String, Optional WB As Workbook) As Boolean
     
-    If wb Is Nothing Then: Set wb = ActiveWorkbook
-    If SheetExists(sheetName, wb) Then
-        Dim sheet As Worksheet
-        Set sheet = wb.Sheets(sheetName)
+    If WB Is Nothing Then: Set WB = ActiveWorkbook
+    If SheetExists(SheetName, WB) Then
+        Dim Sheet As Worksheet
+        Set Sheet = WB.Sheets(SheetName)
         
-        Select Case wb.Sheets(sheetName).Visible
+        Select Case WB.Sheets(SheetName).Visible
         Case XlSheetVisibility.xlSheetVisible: SheetIsVisible = True
         End Select
     End If
@@ -96,14 +96,14 @@ End Function
 ' Check if workbook is protected
 '
 ' @param {Workbook} [WB] Workbook to check or active workbook
-' @return {Boolean}
+' @returns {Boolean}
 ' --------------------------------------------- '
 
-Public Function WBIsProtected(Optional wb As Workbook) As Boolean
+Public Function WBIsProtected(Optional WB As Workbook) As Boolean
     
-    If wb Is Nothing Then: Set wb = ActiveWorkbook
-    If wb.ProtectWindows Then WBIsProtected = True
-    If wb.ProtectStructure Then WBIsProtected = True
+    If WB Is Nothing Then: Set WB = ActiveWorkbook
+    If WB.ProtectWindows Then WBIsProtected = True
+    If WB.ProtectStructure Then WBIsProtected = True
 End Function
 
 ''
@@ -111,22 +111,24 @@ End Function
 '
 ' @param {String} sheetName
 ' @param {Workbook} [WB] Workbook to check or active workbook
-' @return {Boolean}
+' @returns {Boolean}
 ' --------------------------------------------- '
-Public Function SheetIsProtected(sheetName As String, Optional wb As Workbook) As Boolean
+
+Public Function SheetIsProtected(SheetName As String, Optional WB As Workbook) As Boolean
     
-    If wb Is Nothing Then: Set wb = ActiveWorkbook
-    If Me.wb.Sheets(sheetName).ProtectContents Then SheetIsProtected = True
-    If Me.wb.Sheets(sheetName).ProtectDrawingObjects Then SheetIsProtected = True
-    If Me.wb.Sheets(sheetName).ProtectScenarios Then SheetIsProtected = True
+    If WB Is Nothing Then: Set WB = ActiveWorkbook
+    If WB.Sheets(SheetName).ProtectContents Then SheetIsProtected = True
+    If WB.Sheets(SheetName).ProtectDrawingObjects Then SheetIsProtected = True
+    If WB.Sheets(SheetName).ProtectScenarios Then SheetIsProtected = True
 End Function
 
 ''
 ' Check if file exists
 '
 ' @param {String} filePath
-' @return {Boolean}
+' @returns {Boolean}
 ' --------------------------------------------- '
+
 Public Function FileExists(filePath As String) As Boolean
     On Error GoTo ErrorHandling
     If Not Dir(filePath, vbDirectory) = vbNullString Then FileExists = True
@@ -141,13 +143,14 @@ End Function
 ' @param {String} sheetName
 ' @param {Integer} row
 ' @param {Integer} col
-' @return {Dictionary}
+' @returns {Dictionary}
 ' --------------------------------------------- '
-Public Function SheetCell(sheetName As String, row As Integer, col As Integer) As Dictionary
+
+Public Function SheetCell(SheetName As String, Row As Integer, Col As Integer) As Dictionary
     Set SheetCell = New Dictionary
-    SheetCell.Add "sheetName", sheetName
-    SheetCell.Add "row", row
-    SheetCell.Add "col", col
+    SheetCell.Add "sheetName", SheetName
+    SheetCell.Add "row", Row
+    SheetCell.Add "col", Col
 End Function
 
 ''
@@ -155,18 +158,19 @@ End Function
 '
 ' @param {Collection} collection1
 ' @param {Collection} collection2
-' @return {Collection}
+' @returns {Collection}
 ' --------------------------------------------- '
+
 Public Function CombineCollections(collection1 As Collection, collection2 As Collection) As Collection
     Dim combined As New Collection
-    Dim value As Variant
+    Dim Value As Variant
     
-    For Each value In collection1
-        combined.Add value
-    Next value
-    For Each value In collection2
-        combined.Add value
-    Next value
+    For Each Value In collection1
+        combined.Add Value
+    Next Value
+    For Each Value In collection2
+        combined.Add Value
+    Next Value
     
     Set CombineCollections = combined
 End Function
@@ -175,10 +179,11 @@ End Function
 ' Get last row for sheet
 '
 ' @param {Worksheet} sheet
-' @return {Integer}
+' @returns {Integer}
 ' --------------------------------------------- '
-Public Function lastRow(sheet As Worksheet) As Integer
-    Dim numRows As Integer
-    numRows = sheet.UsedRange.Rows.Count
-    lastRow = sheet.UsedRange.Rows(numRows).row
+
+Public Function LastRow(Sheet As Worksheet) As Integer
+    Dim NumRows As Integer
+    NumRows = Sheet.UsedRange.Rows.Count
+    LastRow = Sheet.UsedRange.Rows(NumRows).Row
 End Function

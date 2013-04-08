@@ -1,6 +1,6 @@
 VERSION 1.0 CLASS
 BEGIN
-  MultiUse = -1
+  MultiUse = -1  'True
 END
 Attribute VB_Name = "SpecDefinition"
 Attribute VB_GlobalNameSpace = False
@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' SpecDefinition v1.0.0
+' SpecDefinition v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides helpers and acts as workbook proxy
@@ -48,8 +48,8 @@ Public Property Get Expectations() As Collection
     End If
     Set Expectations = pExpectations
 End Property
-Private Property Let Expectations(value As Collection)
-    Set pExpectations = value
+Private Property Let Expectations(Value As Collection)
+    Set pExpectations = Value
 End Property
 
 Public Property Get FailedExpectations() As Collection
@@ -58,40 +58,43 @@ Public Property Get FailedExpectations() As Collection
     End If
     Set FailedExpectations = pFailedExpectations
 End Property
-Private Property Let FailedExpectations(value As Collection)
-    Set pFailedExpectations = value
+Private Property Let FailedExpectations(Value As Collection)
+    Set pFailedExpectations = Value
 End Property
 
 
-' ============================================= '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Public Methods
-' ============================================= '
-
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 ''
 ' Create a new expectation to test the defined value
 '
 ' @param {Variant} value Value to be tested by expectation
-' @return {Expectation}
+' @returns {Expectation}
 ' --------------------------------------------- '
 
-Public Function Expect(value As Variant) As Expectation
-    Dim exp As New Expectation
+Public Function Expect(Optional Value As Variant) As Expectation
+    Dim Exp As New Expectation
     
-    exp.ExpectValue = value
-    Me.Expectations.Add exp
+    If VarType(Value) = vbObject Then
+        Set Exp.ExpectValue = Value
+    Else
+        Exp.ExpectValue = Value
+    End If
+    Me.Expectations.Add Exp
     
-    Set Expect = exp
+    Set Expect = Exp
 End Function
 
 ''
 ' Run each expectation, store failed expectations, and return result
 '
-' @return {SpecResult} Pass/Fail/Pending
+' @returns {SpecResult} Pass/Fail/Pending
 ' --------------------------------------------- '
 
 Public Function Result() As SpecResult
-    Dim exp As Expectation
+    Dim Exp As Expectation
     
     ' Reset failed expectations
     FailedExpectations = New Collection
@@ -101,12 +104,12 @@ Public Function Result() As SpecResult
         Result = Pending
     Else
         ' Loop through all expectations
-        For Each exp In Me.Expectations
+        For Each Exp In Me.Expectations
             ' If expectation fails, store it
-            If exp.Result = Fail Then
-                FailedExpectations.Add exp
+            If Exp.Result = Fail Then
+                FailedExpectations.Add Exp
             End If
-        Next exp
+        Next Exp
         
         ' If no expectations failed, spec passes
         If Me.FailedExpectations.Count > 0 Then
@@ -120,7 +123,7 @@ End Function
 ''
 ' Helper to get result name (i.e. "Pass", "Fail", "Pending")
 '
-' @return {String}
+' @returns {String}
 ' --------------------------------------------- '
 
 Public Function ResultName() As String

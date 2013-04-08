@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' IWBProxy v1.0.0
+' IWBProxy v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Interface for generic workbook proxies
@@ -22,20 +22,25 @@ Attribute VB_Exposed = False
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 
-Public Property Get mapping() As Dictionary
-Public Property Let mapping(value As Dictionary)
+Public Property Get Mapping() As Dictionary
+End Property
+Public Property Let Mapping(Value As Dictionary)
+End Property
 
-Public Property Get instance() As Workbook
-Public Property Let instance(value As Workbook)
+Public Property Get Instance() As Workbook
+End Property
+Public Property Let Instance(Value As Workbook)
+End Property
 
 ''
 ' Get value from workbook for provided mapping key
 '
 ' @param {String} mappingKey
-' @return {Variant} value from WB
+' @returns {Variant} value from WB
 ' --------------------------------------------- '
 
-Public Property Get value(mappingKey As String) As Variant
+Public Property Get Value(MappingKey As String) As Variant
+End Property
 
 ''
 ' Set value in workbook for provided mapping key
@@ -44,16 +49,18 @@ Public Property Get value(mappingKey As String) As Variant
 ' @param {Variant} newValue Value to set in WB
 ' --------------------------------------------- '
 
-Public Property Let value(mappingKey As String, newValue As Variant)
+Public Property Let Value(MappingKey As String, NewValue As Variant)
+End Property
 
 ''
 ' Get reference to cell from workbook for provided mapping key
 '
 ' @param {String} mappingKey
-' @return {Variant} cell from WB
+' @returns {Variant} cell from WB
 ' --------------------------------------------- '
 
-Public Property Get cellRef(mappingKey As String) As Variant
+Public Property Get CellRef(MappingKey As String) As Variant
+End Property
 
 ''
 ' Set cell in workbook for provided mapping key
@@ -62,7 +69,8 @@ Public Property Get cellRef(mappingKey As String) As Variant
 ' @param {Variant} newValue Value to set in WB
 ' --------------------------------------------- '
 
-Public Property Let cellRef(mappingKey As String, newValue As Variant)
+Public Property Let CellRef(MappingKey As String, NewValue As Variant)
+End Property
 
 ''
 ' Define mapping
@@ -70,7 +78,8 @@ Public Property Let cellRef(mappingKey As String, newValue As Variant)
 ' @param {String} sheetName to load mapping from
 ' --------------------------------------------- '
 
-Public Sub DefineMapping(sheetName As String)
+Public Sub DefineMapping(SheetName As String)
+End Sub
 
 ''
 ' Define workbook
@@ -79,22 +88,33 @@ Public Sub DefineMapping(sheetName As String)
 ' @param {String} [password]
 ' --------------------------------------------- '
 
-Public Sub DefineWB(path As String, Optional password As String)
+Public Sub DefineWB(Path As String, Optional Password As String)
+End Sub
 
 ''
 ' Load instance of defined workbook
 ' --------------------------------------------- '
 
 Public Sub LoadWB()
+End Sub
 
 ''
 ' Reload workbook into instance
 ' --------------------------------------------- '
 
 Public Sub ReloadWB()
+End Sub
+
+''
+' Reset workbook
+' --------------------------------------------- '
+
+Public Sub ResetWB()
+End Sub
 
 ''
 ' Close current workbook instance
 ' --------------------------------------------- '
 
 Public Sub CloseWB()
+End Sub

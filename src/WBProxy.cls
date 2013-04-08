@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' WBProxy v1.0.0
+' WBProxy v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Generic implementation of workbook proxy
@@ -21,6 +21,11 @@ Attribute VB_Exposed = False
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Implements IWBProxy
 
+Private Const MappingSheetCellsStartRow As Integer = 4
+Private Const MappingSheetCellsStartCol As Integer = 4
+Private Const MappingValuesStartRow As Integer = 4
+Private Const MappingValuesStartCol As Integer = 4
+
 Private pMapping As Dictionary
 Private pInstance As Workbook
 Private pPath As String
@@ -31,20 +36,19 @@ Private pPassword As String
 ' Properties
 ' --------------------------------------------- '
 
-
 Private Property Get IWBProxy_mapping() As Scripting.IDictionary
     If pMapping Is Nothing Then: Set pMapping = New Dictionary
-    Set mapping = pMapping
+    Set Mapping = pMapping
 End Property
-Private Property Let IWBProxy_mapping(value As Scripting.IDictionary)
-    Set pMapping = value
+Private Property Let IWBProxy_mapping(Value As Scripting.IDictionary)
+    Set pMapping = Value
 End Property
 
 Private Property Get IWBProxy_instance() As Workbook
-    Set instance = pInstance
+    Set Instance = pInstance
 End Property
-Private Property Let IWBProxy_instance(value As Workbook)
-    Set pInstance = value
+Private Property Let IWBProxy_instance(Value As Workbook)
+    Set pInstance = Value
 End Property
 
 ''
@@ -52,15 +56,15 @@ End Property
 '
 ' @param {Workbook} WB
 ' @param {String} mappingKey
-' @return {Variant} value from WB
+' @returns {Variant} value from WB
 ' --------------------------------------------- '
 
-Private Property Get IWBProxy_Value(mappingKey As String) As Variant
+Private Property Get IWBProxy_Value(MappingKey As String) As Variant
     
-    Dim cellRef As Variant
-    Set cellRef = IWBProxy_CellRef(mappingKey)
-    If Not cellRef Is Nothing Then
-        IWBProxy_Value = cellRef.value
+    Dim CellRef As Variant
+    Set CellRef = IWBProxy_CellRef(MappingKey)
+    If Not CellRef Is Nothing Then
+        IWBProxy_Value = CellRef.Value
     End If
     
 End Property
@@ -73,12 +77,12 @@ End Property
 ' @param {Variant} newValue Value to set in WB
 ' --------------------------------------------- '
 
-Private Property Let IWBProxy_Value(mappingKey As String, value As Variant)
+Private Property Let IWBProxy_Value(MappingKey As String, Value As Variant)
 
-    Dim cellRef As Variant
-    Set cellRef = IWBProxy_CellRef(mappingKey)
-    If Not cellRef Is Nothing Then
-        cellRef.value = value
+    Dim CellRef As Variant
+    Set CellRef = IWBProxy_CellRef(MappingKey)
+    If Not CellRef Is Nothing Then
+        CellRef.Value = Value
     End If
     
 End Property
@@ -88,23 +92,23 @@ End Property
 '
 ' @param {Workbook} WB
 ' @param {String} mappingKey
-' @return {Variant} cell from WB
+' @returns {Variant} cell from WB
 ' --------------------------------------------- '
 
-Private Property Get IWBProxy_CellRef(mappingKey As String) As Variant
-    Dim mappingValue As Dictionary
-    Dim namedRangeSheetIndex As Integer
+Private Property Get IWBProxy_CellRef(MappingKey As String) As Variant
+    Dim MappingValue As Dictionary
+    Dim NamedRangeSheetIndex As Integer
 
-    If pMapping.Exists(mappingKey) Then
+    If pMapping.Exists(MappingKey) Then
         ' If mapping contains entry for key, use it to find value
-        Set mappingValue = pMapping.Item(mappingKey)
-        Set IWBProxy_CellRef = pInstance.Sheets(mappingValue("sheetName")) _
-            .Cells(mappingValue("row"), mappingValue("col"))
+        Set MappingValue = pMapping.Item(MappingKey)
+        Set IWBProxy_CellRef = pInstance.Sheets(MappingValue("sheetName")) _
+            .Cells(MappingValue("row"), MappingValue("col"))
     Else
         ' Check for named range matching mapping key
-        namedRangeSheetIndex = NamedRangeExists(mappingKey, pInstance)
-        If namedRangeSheetIndex > 0 Then
-            Set IWBProxy_CellRef = pInstance.Sheets(namedRangeSheetIndex).Range(mappingKey)
+        NamedRangeSheetIndex = NamedRangeExists(MappingKey, pInstance)
+        If NamedRangeSheetIndex > 0 Then
+            Set IWBProxy_CellRef = pInstance.Sheets(NamedRangeSheetIndex).Range(MappingKey)
         End If
     End If
 End Property
@@ -117,12 +121,12 @@ End Property
 ' @param {Variant} newValue Value to set in WB
 ' --------------------------------------------- '
 
-Private Property Let IWBProxy_CellRef(mappingKey As String, value As Variant)
+Private Property Let IWBProxy_CellRef(MappingKey As String, Value As Variant)
     
-    Dim cellRef As Variant
-    cellRef = IWBProxy_CellRef(mappingKey)
-    If Not IsEmpty(cellRef) Then
-        Set cellRef = value
+    Dim CellRef As Variant
+    CellRef = IWBProxy_CellRef(MappingKey)
+    If Not IsEmpty(CellRef) Then
+        Set CellRef = Value
     End If
 
 End Property
@@ -132,10 +136,9 @@ End Property
 ' Methods
 ' --------------------------------------------- '
 
-
-Private Sub IWBProxy_DefineWB(path As String, Optional password As String)
-    pPath = path
-    pPassword = password
+Private Sub IWBProxy_DefineWB(Path As String, Optional Password As String)
+    pPath = Path
+    pPassword = Password
 End Sub
 
 Private Sub IWBProxy_LoadWB()
@@ -145,7 +148,7 @@ Private Sub IWBProxy_LoadWB()
     IWBProxy_CloseWB
     
     ' Open and unprotect workbook
-    Set pInstance = Workbooks.Open(pPath, False, True, password:=pPassword)
+    Set pInstance = Workbooks.Open(pPath, False, True, Password:=pPassword)
     
     ' Turn screen updating off in case WB turned it on
     Application.ScreenUpdating = False
@@ -155,6 +158,10 @@ Private Sub IWBProxy_ReloadWB()
     IWBProxy_LoadWB
 End Sub
 
+Private Sub IWBProxy_ResetWB()
+    Call IWBProxy_ReloadWB
+End Sub
+
 Private Sub IWBProxy_CloseWB()
     If Not pInstance Is Nothing Then
         pInstance.Close False
@@ -162,40 +169,39 @@ Private Sub IWBProxy_CloseWB()
     End If
 End Sub
 
-Private Sub IWBProxy_DefineMapping(sheetName As String)
+Private Sub IWBProxy_DefineMapping(SheetName As String)
     
-    Dim sheetCellRow As Integer
-    Dim sheetCellCol As Integer
-    Dim valueRow As Integer
-    Dim valueCol As Integer
-    
-    sheetCellRow = 4
-    sheetCellCol = 1
-    valueRow = 4
-    valueCol = 5
+    Dim MappingSheet As Worksheet
+    Dim Row As Integer
     Set pMapping = New Dictionary
     
-    Do While ThisWorkbook.Sheets(sheetName).Cells(sheetCellRow, sheetCellCol) <> ""
-        Call pMapping.Add( _
-            Trim(CStr(ThisWorkbook.Sheets(sheetName).Cells(sheetCellRow, sheetCellCol))), _
-            SheetCell( _
-                ThisWorkbook.Sheets(sheetName).Cells(sheetCellRow, sheetCellCol + 1), _
-                ThisWorkbook.Sheets(sheetName).Cells(sheetCellRow, sheetCellCol + 2), _
-                ThisWorkbook.Sheets(sheetName).Cells(sheetCellRow, sheetCellCol + 3) _
-            ) _
-        )
+    If SpecUtils.SheetExists(SheetName) Then
+        Set MappingSheet = ThisWorkbook.Sheets(SheetName)
         
-        sheetCellRow = sheetCellRow + 1
-    Loop
-    
-    Do While ThisWorkbook.Sheets(sheetName).Cells(valueRow, valueCol) <> ""
-        Call pMapping.Add( _
-            Trim(CStr(ThisWorkbook.Sheets(sheetName).Cells(valueRow, valueCol))), _
-            ThisWorkbook.Sheets(sheetName).Cells(valueRow, valueCol + 1) _
-        )
+        Row = MappingSheetCellsStartRow
+        Do While MappingSheet.Cells(Row, MappingSheetCellsStartCol) <> ""
+            Call pMapping.Add( _
+                Trim(CStr(MappingSheet.Cells(Row, MappingSheetCellsStartCol))), _
+                SheetCell( _
+                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 1), _
+                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 2), _
+                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 3) _
+                ) _
+            )
+            
+            Row = Row + 1
+        Loop
         
-        valueRow = valueRow + 1
-    Loop
+        Row = MappingValuesStartRow
+        Do While MappingSheet.Cells(Row, MappingValuesStartCol) <> ""
+            Call pMapping.Add( _
+                Trim(CStr(MappingSheet.Cells(Row, MappingValuesStartCol))), _
+                MappingSheet.Cells(Row, MappingValuesStartCol + 1) _
+            )
+            
+            Row = Row + 1
+        Loop
+    End If
     
 End Sub
 
