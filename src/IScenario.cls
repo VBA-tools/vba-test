@@ -6,7 +6,7 @@ Attribute VB_Name = "IScenario"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' IScenario v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD

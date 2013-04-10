@@ -6,7 +6,7 @@ Attribute VB_Name = "IWBProxy"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' IWBProxy v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
@@ -59,7 +59,7 @@ End Property
 ' @returns {Variant} cell from WB
 ' --------------------------------------------- '
 
-Public Property Get CellRef(MappingKey As String) As Variant
+Public Property Get CellRef(MappingKey As String) As Range
 End Property
 
 ''
@@ -69,7 +69,7 @@ End Property
 ' @param {Variant} newValue Value to set in WB
 ' --------------------------------------------- '
 
-Public Property Let CellRef(MappingKey As String, NewValue As Variant)
+Public Property Set CellRef(MappingKey As String, NewValue As Range)
 End Property
 
 ''

@@ -6,7 +6,7 @@ Attribute VB_Name = "Scenario"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' Scenario v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
@@ -44,7 +44,7 @@ Private Function IScenario_RunScenario(WB As IWBProxy, Optional Name As String =
     
     Specs.WB = WB
     
-    With Specs.It("Should pass scenario")
+    With Specs.It("should pass scenario")
         ' Load input values
         For Each keyValue In InputValues.Keys
             Specs.WB.Value(CStr(keyValue)) = InputValues.Item(CStr(keyValue))

@@ -6,7 +6,7 @@ Attribute VB_Name = "SpecSuite"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' SpecSuite v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
@@ -21,10 +21,11 @@ Attribute VB_Exposed = False
 
 Private pSpecsCol As Collection
 Private pWB As IWBProxy
+Private pTempWorkbookPath As String
 
-' --------------------------------------------- '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Properties
-' --------------------------------------------- '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 Public TeardownWB As Boolean
 

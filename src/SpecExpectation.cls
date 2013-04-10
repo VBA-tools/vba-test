@@ -2,13 +2,13 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "Expectation"
+Attribute VB_Name = "SpecExpectation"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
-' Expectation v1.1.0
+' SpecExpectation v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value
@@ -190,8 +190,9 @@ Public Sub ToBeGTE(Value As Variant)
     Call ToBeGreaterThanOrEqualTo(Value)
 End Sub
 
+
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-' Private Methods
+' Internal Methods
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 Private Sub Passes()

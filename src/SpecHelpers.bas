@@ -1,7 +1,7 @@
 Attribute VB_Name = "SpecHelpers"
 ''
 ' SpecHelpers v1.1.0
-' (c) Tim Hall - https://github.com/timhall/ExcelHelpers
+' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' General utilities for specs
 '
@@ -186,4 +186,26 @@ Public Function LastRow(Sheet As Worksheet) As Integer
     Dim NumRows As Integer
     NumRows = Sheet.UsedRange.Rows.Count
     LastRow = Sheet.UsedRange.Rows(NumRows).Row
+End Function
+
+''
+' Check if workbook is open
+'
+' @param {String} Path
+' @returns {Boolean}
+' --------------------------------------------- '
+
+Public Function WorkbookIsOpen(Path As String) As Boolean
+    On Error Resume Next
+    Dim WB As Workbook
+    Set WB = Application.Workbooks(Filename)
+    On Error GoTo 0
+    
+    ' If failed to load already open workbook, open it
+    If Err.Number = 0 Then
+        WorkbookIsOpen = True
+    End If
+    
+    Set WB = Nothing
+    Err.Clear
 End Function

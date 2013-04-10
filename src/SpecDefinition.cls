@@ -6,7 +6,7 @@ Attribute VB_Name = "SpecDefinition"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
+Attribute VB_Exposed = True
 ''
 ' SpecDefinition v1.1.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
@@ -23,11 +23,6 @@ Attribute VB_Exposed = False
 Private pExpectations As Collection
 Private pFailedExpectations As Collection
 
-
-' --------------------------------------------- '
-' Types
-' --------------------------------------------- '
-
 Public Enum SpecResult
     Pass
     Fail
@@ -35,9 +30,9 @@ Public Enum SpecResult
 End Enum
 
 
-' --------------------------------------------- '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Properties
-' --------------------------------------------- '
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 Public Description As String
 Public Id As String
@@ -74,8 +69,8 @@ End Property
 ' @returns {Expectation}
 ' --------------------------------------------- '
 
-Public Function Expect(Optional Value As Variant) As Expectation
-    Dim Exp As New Expectation
+Public Function Expect(Optional Value As Variant) As SpecExpectation
+    Dim Exp As New SpecExpectation
     
     If VarType(Value) = vbObject Then
         Set Exp.ExpectValue = Value
@@ -94,7 +89,7 @@ End Function
 ' --------------------------------------------- '
 
 Public Function Result() As SpecResult
-    Dim Exp As Expectation
+    Dim Exp As SpecExpectation
     
     ' Reset failed expectations
     FailedExpectations = New Collection
