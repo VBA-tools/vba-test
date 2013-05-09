@@ -46,7 +46,7 @@ Function GeneralSpecs(wb As IWBProxy) As SpecSuite
     End With
     With specs.It("should be a fresh start")
         specs.wb.Value("B") = 4
-        .Expect(specs.wb.Value("Sum")).toEqual 8 ' => False, it"s actually 0 + 4 = 4
+        .Expect(specs.wb.Value("Sum")).toNotEqual 8 ' It"s actually 0 + 4 = 4
     End With
     
     ' Finally, return the suite. Happy testing!
