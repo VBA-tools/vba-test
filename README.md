@@ -1,56 +1,147 @@
 Excel-TDD: Excel Testing Library
 ================================
 
-Bring the reliability of other programming realms to Excel.
+Bring the reliability of other programming realms to Excel with Test-Driven Development for Excel.
 
-(API design based heavily on [Jasmine](http://pivotal.github.com/jasmine/))
-
-Example:
+Quick example:
 
 ```VB
-Function GeneralSpecs(wb As IWBProxy) As SpecSuite
+Sub Specs()
+    On Error Resume Next
 
-    ' Create new specs suite and attach the the workbook to it
-    Dim specs As New SpecsSuite
-    specs.wb = wb
-    
-    With specs.It("should test something simple")
-        ' Set up the test by setting values in the workbook
-        specs.wb.Value("NamedRangeA") = 2
-        specs.wb.Value("MappingKeyB") = 2
-        
-        ' Then check that it matches what is expected
-        .Expect(specs.wb.Value("Sum")).toEqual 4
+    ' Create a new collection of specs
+    Dim Specs As New SpecSuite
+
+    ' Describe the desired behavior
+    With Specs.It("should add two numbers")
+        ' Test the desired behavior
+        .Expect(Add(2, 2)).ToEqual 4
+        .Expect(Add(3, -1)).ToEqual 2
+        .Expect(Add(-1, -2)).ToEqual -3
     End With
-    
-    With specs.It("has lots of ways to check values!")
-        .Expect(2 + 2).toEqual 4
-        .Expect(2 + 2).toNotEqual 5
-        .Expect("Howdy!").toBeDefined
-        .Expect(Nothing).toBeUndefined
-        .Expect(2 + 2).toBeLessThan 10 ' Alias: .toBeLT()
-        .Expect(2 + 2).toBeLessThanOrEqualTo 4 ' Alias: .toBeLTE()
-        .Expect(2 + 2).toBeGreaterThan 2 ' Alias: .toBeGT()
-        .Expect(2 + 2).toBeGreaterThanOrEqualTo 4 ' Alias: .toBeGTE()
+
+    With Specs.It("should add any number of numbers")
+        .Expect(Add(1, 2, 3)).ToEqual 6
+        .Expect(Add(1, 2, 3, 4)).ToEqual 10
     End With
+
+    InlineRunner.RunSuite Specs
+End Sub
+
+Public Function Add(ParamArray Values() As Variant) As Double
+    Dim i As Integer
+    Add = 0
     
-    With specs.It("should test something complex")
-        .Expect(specs.wb.Instance().Sheets("Hidden").toNotEqual XlSheetVisibility.xlSheetVisible
-        .Expect(specs.wb.CellRef("Red").Interior.Color).toEqual RGB(255,0,0)
-    End With
-    
-    With specs.It("shouldn't carryover between tests")
-        specs.wb.Value("A") = 4
-        specs.wb.Value("B") = 3
-        .Expect(specs.wb.Value("Sum")).toEqual 7
-    End With
-    With specs.It("should be a fresh start")
-        specs.wb.Value("B") = 4
-        .Expect(specs.wb.Value("Sum")).toNotEqual 8 ' It's actually 0 + 4 = 4
-    End With
-    
-    ' Finally, return the suite. Happy testing!
-    Set GeneralSpecs = specs
-    
+    For i = LBound(Values) To UBound(Values)
+        Add = Add + Values(i)
+    Next i
 End Function
+
+' Open the Immediate Window (Ctrl+g or View > Immediate Window) and Run Specs (F5)'
+' = PASS (2 of 2 passed) ==========================
 ```
+
+For details of the process of reaching this example, see the [TDD Example](https://github.com/timhall/Excel-TDD/wiki/TDD-Example)
+
+### Getting Started
+
+For testing macros:
+
+- The lightweight Inline Runner is recommended and should be added directly to the workbook that is being tested
+- Add `InlineRunner.bas`, `SpecDefinition.cls`, `SpecExpectation.cls`, and `SpecSuite.cls` to your workbook
+- If starting from scratch, the `Excel-TDD - Blank - Inline.xlsm` workbook includes all of the required classes and modules
+
+For testing workbooks:
+
+- The full Workbook Runner is recommended in order to keep testing behavior separate from the workbook that is being tested
+- Use the `Excel-TDD - Blank.xlsm` workbook
+- See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Workbook-Runner-Example) for details
+
+### Inline Runner
+
+The inline runner is a lightweight test runner that is intended to be loaded directly into the workbook that is being tested and is for testing macros and simple behaviors in the workbook
+All results are displayed in the Immediate Window (Ctrl+g or View > Immediate Window) and the runner requires no setup to run test suites
+
+```VB
+InlineRunner.RunSuite Specs
+
+' = PASS (2 of 2 passed) ==========================
+
+' Configurable
+ShowFailureDetails = True
+ShowPassed = True
+ShowSuiteDetails = True
+InlineRunner.RunSuite Specs, ShowFailureDetails, ShowPassed, ShowSuiteDetails
+
+' = PASS (2 of 2 passed) ==========================
+' + 2 specs
+'   + should add two numbers
+'   + should add any number of numbers
+' ===
+```
+
+### Workbook Runner
+
+The workbook runner is a full test runner that is intended to be used separately of the workbook that is being tested to keep testing behavior separate. 
+It is for testing advanced workbook behaviors and allows for reseting the test workbook between tests, using scenarios for tests (see below), and running tests against different test workbooks.
+See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Workbook-Runner-Example) for details
+
+### It and Expect
+
+`It` is how you describe desired behavior and once a collection of specs is written, it should read like a list of requirements.
+
+```VB
+With Specs.It("should allow user to continue if they are authorized and up-to-date on their payments")
+    ' ...
+End With
+
+With Specs.It("should show an X if the user rolls a strike")
+    ' ...
+End With
+```
+
+`Expect` is how you test desired behavior 
+
+```VB
+With Specs.It("should check values")
+    .Expect(2 + 2).ToEqual 4
+    .Expect(2 + 2).ToNotEqual 5
+    .Expect(2 + 2).ToBeLessThan 7
+    .Expect(2 + 2).ToBeLT 6
+    .Expect(2 + 2).ToBeLessThanOrEqualTo 5
+    .Expect(2 + 2).ToBeLTE 4
+    .Expect(2 + 2).ToBeGreaterThan 1
+    .Expect(2 + 2).ToBeGT 2
+    .Expect(2 + 2).ToBeGreaterThanOrEqualTo 3
+    .Expect(2 + 2).ToBeGTE 4
+End With
+
+With Specs.It("should check defined/undefined")
+    .Expect(Nothing).ToBeUndefined
+    .Expect(Empty).ToBeUndefined
+    .Expect().ToBeUndefined
+    
+    ' Classes are undefined until they are instantiated
+    Dim Sheet As Worksheet
+    .Expect(Sheet).ToBeUndefined
+    
+    .Expect("Howdy!").ToBeDefined
+    .Expect(4).ToBeDefined
+    
+    Set Sheet = ThisWorkbook.Sheets(1)
+    .Expect(Sheet).ToBeDefined
+End With
+
+With Specs.It("should test complex things")
+    .Expect(ThisWorkbook.Sheets("Hidden").Visible).ToNotEqual XlSheetVisibility.xlSheetVisible
+    .Expect(ThisWorkbook.Sheets("Main").Cells(1, 1).Interior.Color).ToEqual RGB(255, 0, 0)
+End With
+```
+
+For more details, check out the [Wiki](https://github.com/timhall/Excel-TDD/wiki)
+
+API design based heavily on [Jasmine](http://pivotal.github.com/jasmine/)
+
+Author: Tim Hall
+
+License: MIT
