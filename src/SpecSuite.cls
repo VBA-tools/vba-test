@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecSuite v1.1.0
+' SpecSuite v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' A collection of specs with the workbook that they act on
@@ -20,21 +20,15 @@ Attribute VB_Exposed = True
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
 Private pSpecsCol As Collection
-Private pWB As IWBProxy
-Private pTempWorkbookPath As String
 
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Properties
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-Public TeardownWB As Boolean
+Public Description As String
 
-Public Property Get WB() As IWBProxy
-    Set WB = pWB
-End Property
-Public Property Let WB(Value As IWBProxy)
-    Set pWB = Value
-End Property
+Public BeforeEachCallback As String
+Public BeforeEachCallbackArgs As Variant
 
 Public Property Get SpecsCol() As Collection
     If pSpecsCol Is Nothing Then: Set pSpecsCol = New Collection
@@ -60,10 +54,8 @@ End Property
 Public Function It(Description As String, Optional SpecId As String = "") As SpecDefinition
     Dim Spec As New SpecDefinition
     
-    ' Reset the workbook before spec
-    If Not Me.WB Is Nothing Then
-        Me.WB.ResetWB
-    End If
+    ' Call BeforeEach if defined
+    ExecuteBeforeEach
     
     ' Initialize spec
     Spec.Description = Description
@@ -72,12 +64,33 @@ Public Function It(Description As String, Optional SpecId As String = "") As Spe
     Set It = Spec
 End Function
 
-Private Sub Class_Initialize()
-    Me.TeardownWB = True
+''
+' Setup a callback to run before each spec
+'
+' @param {String} Callback
+' @param {...} CallbackArgs any additional arguments to pass as array to callback each time
+'
+' Example:
+' BeforeEach "Cleanup", 100, 200
+'
+' ' Cleanup is called before each spec with Args = [100, 200]
+' Sub Cleanup(Args As Variant)
+'   ThisWorkbook.Sheets("Main").Cells(1, 1) = Args(0) ' (100)
+'   ThisWorkbook.Sheets("Main").Cells(2, 1) = Args(1) ' (200)
+' End Sub
+' --------------------------------------------- '
+
+Public Sub BeforeEach(Callback As String, ParamArray CallbackArgs() As Variant)
+    Me.BeforeEachCallback = Callback
+    Me.BeforeEachCallbackArgs = CallbackArgs
 End Sub
 
-Private Sub Class_Terminate()
-    If TeardownWB = True And Not Me.WB Is Nothing Then
-        Me.WB.CloseWB
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' Internal Methods
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+
+Private Sub ExecuteBeforeEach()
+    If Me.BeforeEachCallback <> "" Then
+        Application.Run Me.BeforeEachCallback, Me.BeforeEachCallbackArgs
     End If
 End Sub
