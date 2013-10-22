@@ -213,8 +213,9 @@ Private Sub ClearOutput()
     PrevUpdating = Application.ScreenUpdating
     Application.ScreenUpdating = False
     
+    EndRow = NewOutputRow
     If EndRow >= OutputStartRow Then
-        Sheet.Range(Cells(OutputStartRow, IdCol), Cells(NewOutputRow, ResultCol)).ClearContents
+        Sheet.Range(Cells(OutputStartRow, IdCol), Cells(EndRow, ResultCol)).ClearContents
     End If
     
     Application.ScreenUpdating = PrevUpdating
