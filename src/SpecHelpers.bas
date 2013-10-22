@@ -294,13 +294,17 @@ End Function
 ' --------------------------------------------- '
 
 Public Function RunScenariosByMatcher(Scenario As IScenario, WB As IWBProxy, Matcher As String, _
-    Optional MatchCase As Boolean = False) As Collection
+    Optional MatchCase As Boolean = False, Optional IgnoreBlank As Boolean = True) As Collection
     
     Set RunScenariosByMatcher = New Collection
     
     Dim Sheet As Worksheet
     For Each Sheet In ThisWorkbook.Sheets
-        If MatchCase Then
+        If Sheet.Name = "Blank Scenario" Then
+            If Not IgnoreBlank Then
+                RunScenariosByMatcher.Add SpecHelpers.RunScenario(Scenario, WB, Sheet.Name)
+            End If
+        ElseIf MatchCase Then
             If InStr(Sheet.Name, Matcher) Then
                 RunScenariosByMatcher.Add SpecHelpers.RunScenario(Scenario, WB, Sheet.Name)
             End If
@@ -413,7 +417,11 @@ Public Sub OpenIWBProxy(WBOrInArray As Variant)
     Dim PrevUpdating As Boolean
     PrevUpdating = SpecHelpers.ToggleUpdating
     
-    Set WB.Instance = Workbooks.Open(WB.Path, UpdateLinks:=False, Password:=WB.Password)
+    If WB.Path <> "" Then
+        Set WB.Instance = Workbooks.Open(WB.Path, UpdateLinks:=False, Password:=WB.Password)
+    Else
+        Err.Raise vbObjectError + 1, "Specs", "Error: No workbook path defined"
+    End If
     
     SpecHelpers.ToggleUpdating PrevUpdating
 End Sub
