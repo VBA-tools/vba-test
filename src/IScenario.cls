@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' IScenario v1.1.0
+' IScenario v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Interface for creating and running scenarios on workbooks
@@ -24,11 +24,10 @@ Attribute VB_Exposed = True
 ' Generate a spec suite to run through a scenario for the given wb
 '
 ' @param {IWBProxy} WB to perform scenario on
-' @param {String} Name of scenario
 ' @returns {SpecSuite}
 ' --------------------------------------------- '
 
-Public Function RunScenario(WB As IWBProxy, Optional Name As String = "") As SpecSuite
+Public Function RunScenario(WB As IWBProxy) As SpecSuite
 End Function
 
 ''

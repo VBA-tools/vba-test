@@ -1,9 +1,9 @@
 Attribute VB_Name = "DisplayRunner"
 ''
-' DisplayRunner v1.1.0
+' DisplayRunner v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
-' Runner for outputting results of specs to worksheet
+' Runner with sheet output
 '
 ' @dependencies
 ' @author tim.hall.engr@gmail.com
@@ -11,27 +11,99 @@ Attribute VB_Name = "DisplayRunner"
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-Private Const RunnerSheetName As String = "Spec Runner"
-Private Const OutputStartRow As Integer = 6
-Private Const IdCol As Integer = 1
-Private Const DescCol As Integer = 2
-Private Const ResultCol As Integer = 3
+Private Const DefaultSheetName As String = "Spec Runner"
+Private Const DefaultFilenameRangeName As String = "Filename"
+Private Const DefaultOutputStartRow As Integer = 6
+Private Const DefaultIdCol As Integer = 1
+Private Const DefaultDescCol As Integer = 2
+Private Const DefaultResultCol As Integer = 3
 
-' Get/set path of workbook to run specs on
+Private pFilename As Range
+Private pSheet As Worksheet
+
+Private pOutputStartRow As Integer
+Private pIdCol As Integer
+Private pDescCol As Integer
+Private pResultCol As Integer
+
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' Properties
+' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+
+Public Property Get OutputStartRow() As Integer
+    If pOutputStartRow <= 0 Then
+        pOutputStartRow = DefaultOutputStartRow
+    End If
+    
+    OutputStartRow = pOutputStartRow
+End Property
+Public Property Let OutputStartRow(Value As Integer)
+    pOutputStartRow = Value
+End Property
+
+Public Property Get IdCol() As Integer
+    If pIdCol <= 0 Then
+        pIdCol = DefaultIdCol
+    End If
+    
+    IdCol = pIdCol
+End Property
+Public Property Let IdCol(Value As Integer)
+    pIdCol = Value
+End Property
+
+Public Property Get DescCol() As Integer
+    If pDescCol <= 0 Then
+        pDescCol = DefaultDescCol
+    End If
+    
+    DescCol = pDescCol
+End Property
+Public Property Let DescCol(Value As Integer)
+    pDescCol = Value
+End Property
+
+Public Property Get ResultCol() As Integer
+    If pResultCol <= 0 Then
+        pResultCol = DefaultResultCol
+    End If
+    
+    ResultCol = pResultCol
+End Property
+Public Property Let ResultCol(Value As Integer)
+    pResultCol = Value
+End Property
+
+Public Property Get Filename() As Range
+    If pFilename Is Nothing And Not Sheet Is Nothing Then
+        Set pFilename = Sheet.Range(DefaultFilenameRangeName)
+    End If
+
+    Set Filename = pFilename
+End Property
+Public Property Set Filename(Value As Range)
+    Set pFilename = Value
+End Property
+
+Public Property Get Sheet() As Worksheet
+    If pSheet Is Nothing Then
+        If SpecHelpers.SheetExists(DefaultSheetName, ThisWorkbook) Then
+            Set pSheet = ThisWorkbook.Sheets(DefaultSheetName)
+        Else
+            Err.Raise vbObjectError + 1, "DisplayRunner", "Unable to find runner sheet"
+        End If
+    End If
+    Set Sheet = pSheet
+End Property
+Public Property Set Sheet(Value As Worksheet)
+    Set pSheet = Value
+End Property
+
 Public Property Get WBPath() As String
-    WBPath = RunnerSheet.[Filename].Value
+    WBPath = Filename.Value
 End Property
 Public Property Let WBPath(Value As String)
-    RunnerSheet.[Filename].Value = Value
-End Property
-
-' Get the runner sheet
-Public Property Get RunnerSheet() As Worksheet
-    If SpecHelpers.SheetExists(RunnerSheetName, ThisWorkbook) Then
-        Set RunnerSheet = ThisWorkbook.Sheets(RunnerSheetName)
-    Else
-        Err.Raise vbObjectError + 1, "DisplayRunner", "Unable to find runner sheet"
-    End If
+    Filename.Value = Value
 End Property
 
 
@@ -39,52 +111,45 @@ End Property
 ' Methods
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-Public Sub RunSpecs()
-    
-    ' *****
-    ' Overwrite this Sub with your code to call specs
-    ' *****
-    
-    Debug.Print "Notice: DisplayRunner.RunSpecs needs to be linked to your specs code in order to run"
-    
-End Sub
-
 ''
 ' Run the given suite
 '
 ' @param {SpecSuite} Specs
+' @param {Boolean} [Append=False] Append results to existing
 ' --------------------------------------------- '
 
-Public Sub RunSuite(Specs As SpecSuite)
+Public Sub RunSuite(Specs As SpecSuite, Optional Append As Boolean = False)
     ' Simply add to empty collection and call RunSuites
     Dim SuiteCol As New Collection
     
     SuiteCol.Add Specs
-    RunSuites SuiteCol
+    RunSuites SuiteCol, Append
 End Sub
 
 ''
 ' Run the given collection of spec suites
 '
 ' @param {Collection} of SpecSuite
+' @param {Boolean} [Append=False] Append results to existing
 ' --------------------------------------------- '
 
-Public Sub RunSuites(SuiteCol As Collection)
-    
+Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
     Dim Suite As SpecSuite
     Dim Spec As SpecDefinition
     Dim Row As Integer
     
     ' 0. Disable screen updating
     Dim PrevUpdating As Boolean
-    PrevUpdating = Application.ScreenUpdating
-    Application.ScreenUpdating = False
+    PrevUpdating = SpecHelpers.ToggleUpdating
+    ' On Error GoTo Cleanup
     
     ' 1. Clear existing output
-    ClearOutput
+    If Not Append Then
+        ClearOutput
+    End If
     
     ' 2. Loop through Suites and output specs
-    Row = OutputStartRow
+    Row = FirstOutputRow
     For Each Suite In SuiteCol
         If Not Suite Is Nothing Then
             For Each Spec In Suite.SpecsCol
@@ -92,9 +157,11 @@ Public Sub RunSuites(SuiteCol As Collection)
             Next Spec
         End If
     Next Suite
-    
+   
+Cleanup:
+
     ' Finally, restore screen updating
-    Application.ScreenUpdating = PrevUpdating
+    SpecHelpers.ToggleUpdating PrevUpdating
     
 End Sub
 
@@ -123,15 +190,15 @@ End Sub
 
 Private Sub OutputSpec(Spec As SpecDefinition, ByRef Row As Integer)
     
-    RunnerSheet.Cells(Row, IdCol) = Spec.Id
-    RunnerSheet.Cells(Row, DescCol) = "It " & Spec.Description
-    RunnerSheet.Cells(Row, ResultCol) = Spec.ResultName
+    Sheet.Cells(Row, IdCol) = Spec.Id
+    Sheet.Cells(Row, DescCol) = "It " & Spec.Description
+    Sheet.Cells(Row, ResultCol) = Spec.ResultName
     Row = Row + 1
     
     If Spec.FailedExpectations.Count > 0 Then
         Dim Exp As SpecExpectation
         For Each Exp In Spec.FailedExpectations
-            RunnerSheet.Cells(Row, DescCol) = "X  " & Exp.FailureMessage
+            Sheet.Cells(Row, DescCol) = "X  " & Exp.FailureMessage
             Row = Row + 1
         Next Exp
     End If
@@ -142,15 +209,23 @@ Private Sub ClearOutput()
     Dim EndRow As Integer
     
     Dim PrevUpdating As Boolean
-    PrevUpdating = Application.ScreenUpdating
-    Application.ScreenUpdating = False
+    PrevUpdating = SpecHelpers.ToggleUpdating
     
-    EndRow = SpecHelpers.LastRow(RunnerSheet)
+    EndRow = SpecHelpers.LastRow(Sheet)
     
     If EndRow >= OutputStartRow Then
-        RunnerSheet.Range(Cells(OutputStartRow, IdCol), Cells(EndRow, ResultCol)).ClearContents
+        Sheet.Range(Cells(OutputStartRow, IdCol), Cells(EndRow, ResultCol)).ClearContents
     End If
     
-    Application.ScreenUpdating = PrevUpdating
+    SpecHelpers.ToggleUpdating PrevUpdating
 End Sub
+
+Private Function FirstOutputRow() As Integer
+    FirstOutputRow = OutputStartRow
+    
+    Do While Sheet.Cells(FirstOutputRow, DescCol) <> ""
+        FirstOutputRow = FirstOutputRow + 1
+    Loop
+End Function
+
 

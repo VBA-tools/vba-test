@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecDefinition v1.1.0
+' SpecDefinition v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides helpers and acts as workbook proxy
@@ -18,7 +18,6 @@ Attribute VB_Exposed = True
 ' @license: MIT (http://www.opensource.org/licenses/mit-license.php)
 '
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-
 
 Private pExpectations As Collection
 Private pFailedExpectations As Collection

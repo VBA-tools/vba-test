@@ -2,16 +2,16 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "WBProxy"
+Attribute VB_Name = "BlankIWBProxy"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = True
+Attribute VB_Exposed = False
 ''
-' WBProxy v1.2.0
+' BlankIWBProxy v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
-' Generic implementation of workbook proxy
+' Blank implementation of IWBProxy
 '
 ' @dependencies
 '   Microsoft Scripting Runtime
@@ -21,48 +21,13 @@ Attribute VB_Exposed = True
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Implements IWBProxy
 
-Private Const MappingSheetCellsStartRow As Integer = 4
-Private Const MappingSheetCellsStartCol As Integer = 1
-Private Const MappingValuesStartRow As Integer = 4
-Private Const MappingValuesStartCol As Integer = 5
-
 Private pPath As String
 Private pPassword As String
 Private pInstance As Workbook
 Private pMapping As Dictionary
 
 Public Sub DefineMapping(SheetName As String)
-    Dim MappingSheet As Worksheet
-    Dim Row As Integer
-    Set pMapping = New Dictionary
-    
-    If SpecHelpers.SheetExists(SheetName) Then
-        Set MappingSheet = ThisWorkbook.Sheets(SheetName)
         
-        Row = MappingSheetCellsStartRow
-        Do While MappingSheet.Cells(Row, MappingSheetCellsStartCol) <> ""
-            Call pMapping.Add( _
-                Trim(CStr(MappingSheet.Cells(Row, MappingSheetCellsStartCol))), _
-                SheetCell( _
-                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 1), _
-                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 2), _
-                    MappingSheet.Cells(Row, MappingSheetCellsStartCol + 3) _
-                ) _
-            )
-            
-            Row = Row + 1
-        Loop
-        
-        Row = MappingValuesStartRow
-        Do While MappingSheet.Cells(Row, MappingValuesStartCol) <> ""
-            Call pMapping.Add( _
-                Trim(CStr(MappingSheet.Cells(Row, MappingValuesStartCol))), _
-                MappingSheet.Cells(Row, MappingValuesStartCol + 1) _
-            )
-            
-            Row = Row + 1
-        Loop
-    End If
 End Sub
 
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
