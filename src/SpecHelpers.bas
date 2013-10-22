@@ -1,6 +1,6 @@
 Attribute VB_Name = "SpecHelpers"
 ''
-' SpecHelpers v1.1.0
+' SpecHelpers v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' General utilities for specs
@@ -148,9 +148,9 @@ End Function
 
 Public Function SheetCell(SheetName As String, Row As Integer, Col As Integer) As Dictionary
     Set SheetCell = New Dictionary
-    SheetCell.Add "sheetName", SheetName
-    SheetCell.Add "row", Row
-    SheetCell.Add "col", Col
+    SheetCell.Add "SheetName", SheetName
+    SheetCell.Add "Row", Row
+    SheetCell.Add "Col", Col
 End Function
 
 ''
@@ -209,3 +209,251 @@ Public Function WorkbookIsOpen(Path As String) As Boolean
     Set WB = Nothing
     Err.Clear
 End Function
+
+''
+' Toggle screen updating and return previous updating value
+'
+' @param {Boolean} [Updating=False]
+' @param {Boolean} [ToggleEvents=True]
+'
+' Example:
+' Dim PrevUpdating As Boolean
+' PrevUpdating = SpecHelpers.ToggleUpdating()
+'
+' ... Do screen-intensive stuff
+'
+' ' Restore previous updating status after hard work
+' ToggleUpdating PrevUpdating
+'
+' --------------------------------------- '
+Public Function ToggleUpdating(Optional Updating As Boolean = False, Optional ToggleEvents As Boolean = True) As Boolean
+    ToggleUpdating = Application.ScreenUpdating
+    
+    Application.ScreenUpdating = Updating
+    If Updating Or Events Then
+        Application.EnableEvents = Updating
+    End If
+End Function
+
+''
+' Run scenario using given scenario, sheet name, and IWBProxy
+'
+' @param {IScenario} Scenario
+' @param {IWBProxy} WB to use for scenario
+' @param {String} SheetName to load scenario from
+' --------------------------------------------- '
+
+Public Function RunScenario(Scenario As IScenario, WB As IWBProxy, SheetName As String) As SpecSuite
+    If SpecHelpers.SheetExists(SheetName, ThisWorkbook) Then
+        Scenario.Load SheetName
+        Set RunScenario = Scenario.RunScenario(WB)
+    Else
+        MsgBox "Warning" & vbNewLine & "No sheet was found for the following scenario: " & SheetName, Title:="Scenario sheet not found"
+    End If
+End Function
+
+''
+' Run scenarios using given scenario, sheet name, and IWBProxy
+'
+' @param {IScenario} Scenario
+' @param {IWBProxy} WB to use for scenario
+' @param {String} ... Pass scenario sheet names as additional arguments
+'
+' Example:
+' RunScenarios(Scenario, WB, "Scenario 1", "Scenario 2", "Scenario 3")
+' --------------------------------------------- '
+
+Public Function RunScenarios(Scenario As IScenario, WB As IWBProxy, ParamArray SheetNames() As Variant) As Collection
+    Dim i As Integer
+    Dim SheetName As String
+    Dim Spec As SpecSuite
+    Set RunScenarios = New Collection
+    
+    For i = LBound(SheetNames) To UBound(SheetNames)
+        SheetName = SheetNames(i)
+        Set Spec = SpecHelpers.RunScenario(Scenario, WB, SheetName)
+        
+        If Not Spec Is Nothing Then
+            RunScenarios.Add Spec
+        End If
+    Next i
+End Function
+
+''
+' Run scenarios using given scenario and IWBProxy by matcher
+'
+' @param {IScenario} Scenario
+' @param {IWBProxy} WB to use for scenario
+' @param {String} Matcher to compare all sheet names to
+' @param {Boolean} [MatchCase=False]
+'
+' Example:
+' RunScenarios(Scenario, WB, "Scenario")
+' Sheet Names: Spec Runner, Mapping, Scenario 1, and Advanced Scenario
+' -> Runs scenarios for Scenario 1 and Advanced Scenario
+' --------------------------------------------- '
+
+Public Function RunScenariosByMatcher(Scenario As IScenario, WB As IWBProxy, Matcher As String, _
+    Optional MatchCase As Boolean = False) As Collection
+    
+    Set RunScenariosByMatcher = New Collection
+    
+    Dim Sheet As Worksheet
+    For Each Sheet In ThisWorkbook.Sheets
+        If MatchCase Then
+            If InStr(Sheet.Name, Matcher) Then
+                RunScenariosByMatcher.Add SpecHelpers.RunScenario(Scenario, WB, Sheet.Name)
+            End If
+        Else
+            If InStr(UCase(Sheet.Name), UCase(Matcher)) Then
+                RunScenariosByMatcher.Add SpecHelpers.RunScenario(Scenario, WB, Sheet.Name)
+            End If
+        End If
+    Next Sheet
+End Function
+
+''
+' Get value from workbook for provided mapping and key
+'
+' @param {Workbook} WB
+' @param {Dictionary} Mapping
+' @param {String} Key
+' @returns {Variant} Value from workbook
+' --------------------------------------------- '
+
+Public Function GetValue(WB As Workbook, Mapping As Dictionary, Key As String) As Variant
+    Dim RangeRef As Range
+    
+    Set RangeRef = GetRange(WB, Mapping, Key)
+    If Not RangeRef Is Nothing Then
+        GetValue = RangeRef.Value
+    End If
+End Function
+
+''
+' Set value in workbook for provided mapping and key
+'
+' @param {Workbook} WB
+' @param {Dictionary} Mapping
+' @param {String} Key
+' @param {Variant} Value
+' --------------------------------------------- '
+
+Public Function SetValue(WB As Workbook, Mapping As Dictionary, Key As String, Value As Variant)
+    Dim RangeRef As Range
+    
+    Set RangeRef = GetRange(WB, Mapping, Key)
+    If Not RangeRef Is Nothing Then
+        RangeRef.Value = Value
+    End If
+End Function
+
+''
+' Get reference to range from workbook for provided mapping and key
+'
+' @param {Workbook} WB
+' @param {Dictionary} Mapping
+' @param {String} Key
+' @returns {Range} Range from workbook
+' --------------------------------------------- '
+
+Public Function GetRange(WB As Workbook, Mapping As Dictionary, Key As String) As Range
+    Dim MappingValue As Dictionary
+    Dim NamedRangeSheetIndex As Integer
+    
+    If Mapping.Exists(Key) Then
+        ' If mapping contains entry for key, use it to find range
+        Set MappingValue = Mapping.Item(Key)
+        Set GetRange = WB.Sheets(MappingValue("SheetName")) _
+            .Cells(MappingValue("Row"), MappingValue("Col"))
+    Else
+        ' Check for named range matching mapping key
+        NamedRangeSheetIndex = SpecHelpers.NamedRangeExists(Key, WB)
+        If NamedRangeSheetIndex > 0 Then
+            Set GetRange = WB.Sheets(NamedRangeSheetIndex).Range(Key)
+        End If
+    End If
+End Function
+
+''
+' Set range in workbook for provided mapping and key
+'
+' @param {Workbook} WB
+' @param {Dictionary} Mapping
+' @param {String} Key
+' @param {Variant} Value
+' --------------------------------------------- '
+
+Public Function SetRange(WB As Workbook, Mapping As Dictionary, Key As String, Value As Range)
+    Dim RangeRef As Range
+    
+    Set RangeRef = GetRange(WB, Mapping, Key)
+    If Not IsEmpty(RangeRef) Then
+        Set RangeRef = Value
+    End If
+End Function
+
+''
+' Open the workbook specified in the workbook proxy
+' (Opens a temporary copy if the workbook is currently open)
+'
+' @param {Variant} WBOrInArray IWBProxy directly or in array
+' --------------------------------------------- '
+
+Public Sub OpenIWBProxy(WBOrInArray As Variant)
+    Dim WB As IWBProxy
+    
+    If TypeOf WBOrInArray Is IWBProxy Then
+        Set WB = WBOrInArray
+    Else
+        Set WB = WBOrInArray(0)
+    End If
+
+    ' TODO temporary copy
+    Dim PrevUpdating As Boolean
+    PrevUpdating = SpecHelpers.ToggleUpdating
+    
+    Set WB.Instance = Workbooks.Open(WB.Path, UpdateLinks:=False, Password:=WB.Password)
+    
+    SpecHelpers.ToggleUpdating PrevUpdating
+End Sub
+
+''
+' Close the workbook specified in the workbook proxy
+'
+' @param {Variant} WBOrInArray IWBProxy directly or in array
+' --------------------------------------------- '
+
+Public Sub CloseIWBProxy(WBOrInArray As Variant)
+    Dim WB As IWBProxy
+    
+    If TypeOf WBOrInArray Is IWBProxy Then
+        Set WB = WBOrInArray
+    Else
+        Set WB = WBOrInArray(0)
+    End If
+
+    If Not WB.Instance Is Nothing Then
+        WB.Instance.Close False
+        Set WB.Instance = Nothing
+    End If
+End Sub
+
+''
+' Close and reopen the workbook specified in the workbook proxy
+'
+' @param {Variant} WBOrInArray IWBProxy directly or in array
+' --------------------------------------------- '
+
+Public Sub ReloadIWBProxy(WBOrInArray As Variant)
+    Dim WB As IWBProxy
+    
+    If TypeOf WBOrInArray Is IWBProxy Then
+        Set WB = WBOrInArray
+    Else
+        Set WB = WBOrInArray(0)
+    End If
+
+    SpecHelpers.CloseIWBProxy WB
+    SpecHelpers.OpenIWBProxy WB
+End Sub

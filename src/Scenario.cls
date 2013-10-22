@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' Scenario v1.1.0
+' Scenario v1.2.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Generic implementation of scenario
@@ -26,6 +26,7 @@ Private Const ScenarioInputStartCol As Integer = 1
 Private Const ScenarioExpectedStartRow As Integer = 4
 Private Const ScenarioExpectedStartCol As Integer = 3
 
+Private Description As String
 Private InputValues As Dictionary
 Private ExpectedValues As Dictionary
 
@@ -37,26 +38,30 @@ Private ExpectedValues As Dictionary
 ' @returns {SpecSuite}
 ' --------------------------------------------- '
 
-Private Function IScenario_RunScenario(WB As IWBProxy, Optional Name As String = "") As SpecSuite
+Private Function IScenario_RunScenario(WB As IWBProxy) As SpecSuite
     
     Dim Specs As New SpecSuite
-    Dim keyValue As Variant
+    Dim KeyValue As Variant
     
-    Specs.WB = WB
+    If Description = "" Then
+        Description = "should pass scenario"
+    End If
     
-    With Specs.It("should pass scenario")
+    SpecHelpers.OpenIWBProxy WB
+    
+    With Specs.It(Description)
         ' Load input values
-        For Each keyValue In InputValues.Keys
-            Specs.WB.Value(CStr(keyValue)) = InputValues.Item(CStr(keyValue))
-        Next keyValue
+        For Each KeyValue In InputValues.Keys
+            WB.Value(CStr(KeyValue)) = InputValues.Item(CStr(KeyValue))
+        Next KeyValue
         
         ' Run expectations
-        For Each keyValue In ExpectedValues.Keys
-            .Expect(Specs.WB.Value(CStr(keyValue))).ToEqual ExpectedValues.Item(CStr(keyValue))
-        Next keyValue
+        For Each KeyValue In ExpectedValues.Keys
+            .Expect(WB.Value(CStr(KeyValue))).ToEqual ExpectedValues.Item(CStr(KeyValue))
+        Next KeyValue
     End With
     
-    Specs.WB.CloseWB
+    SpecHelpers.CloseIWBProxy WB
     Set IScenario_RunScenario = Specs
 End Function
 
@@ -75,6 +80,8 @@ Private Sub IScenario_Load(SheetName As String)
     
     If SpecHelpers.SheetExists(SheetName, ThisWorkbook) Then
         Set ScenarioSheet = ThisWorkbook.Sheets(SheetName)
+        
+        Description = ScenarioSheet.Cells(1, ScenarioExpectedStartCol)
         
         Row = ScenarioInputStartRow
         Do While ScenarioSheet.Cells(Row, ScenarioInputStartCol) <> ""
