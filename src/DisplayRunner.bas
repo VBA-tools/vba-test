@@ -87,7 +87,7 @@ End Property
 
 Public Property Get Sheet() As Worksheet
     If pSheet Is Nothing Then
-        If SpecHelpers.SheetExists(DefaultSheetName, ThisWorkbook) Then
+        If SheetExists(DefaultSheetName) Then
             Set pSheet = ThisWorkbook.Sheets(DefaultSheetName)
         Else
             Err.Raise vbObjectError + 1, "DisplayRunner", "Unable to find runner sheet"
@@ -140,7 +140,8 @@ Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
     
     ' 0. Disable screen updating
     Dim PrevUpdating As Boolean
-    PrevUpdating = SpecHelpers.ToggleUpdating
+    PrevUpdating = Application.ScreenUpdating
+    Application.ScreenUpdating = False
     ' On Error GoTo Cleanup
     
     ' 1. Clear existing output
@@ -149,7 +150,7 @@ Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
     End If
     
     ' 2. Loop through Suites and output specs
-    Row = FirstOutputRow
+    Row = NewOutputRow
     For Each Suite In SuiteCol
         If Not Suite Is Nothing Then
             For Each Spec In Suite.SpecsCol
@@ -161,7 +162,7 @@ Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
 Cleanup:
 
     ' Finally, restore screen updating
-    SpecHelpers.ToggleUpdating PrevUpdating
+    Application.ScreenUpdating = PrevUpdating
     
 End Sub
 
@@ -209,23 +210,34 @@ Private Sub ClearOutput()
     Dim EndRow As Integer
     
     Dim PrevUpdating As Boolean
-    PrevUpdating = SpecHelpers.ToggleUpdating
-    
-    EndRow = SpecHelpers.LastRow(Sheet)
+    PrevUpdating = Application.ScreenUpdating
+    Application.ScreenUpdating = False
     
     If EndRow >= OutputStartRow Then
-        Sheet.Range(Cells(OutputStartRow, IdCol), Cells(EndRow, ResultCol)).ClearContents
+        Sheet.Range(Cells(OutputStartRow, IdCol), Cells(NewOutputRow, ResultCol)).ClearContents
     End If
     
-    SpecHelpers.ToggleUpdating PrevUpdating
+    Application.ScreenUpdating = PrevUpdating
 End Sub
 
-Private Function FirstOutputRow() As Integer
-    FirstOutputRow = OutputStartRow
+Private Function NewOutputRow() As Integer
+    NewOutputRow = OutputStartRow
     
-    Do While Sheet.Cells(FirstOutputRow, DescCol) <> ""
-        FirstOutputRow = FirstOutputRow + 1
+    Do While Sheet.Cells(NewOutputRow, DescCol) <> ""
+        NewOutputRow = NewOutputRow + 1
     Loop
 End Function
+
+Private Function SheetExists(SheetName As String) As Boolean
+    Dim Sheet As Worksheet
+    
+    For Each Sheet In ThisWorkbook.Sheets
+        If Sheet.Name = SheetName Then
+            SheetExists = True
+            Exit Function
+        End If
+    Next Sheet
+End Function
+    
 
 
