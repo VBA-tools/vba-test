@@ -91,11 +91,11 @@ See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Work
 `It` is how you describe desired behavior and once a collection of specs is written, it should read like a list of requirements.
 
 ```VB
-With Specs.It("should allow user to continue if they are authorized and up-to-date on their payments")
+With Specs.It("should allow user to continue if they are authorized and up-to-date")
     ' ...
 End With
 
-With Specs.It("should show an X if the user rolls a strike")
+With Specs.It("should show an X when the user rolls a strike")
     ' ...
 End With
 ```
