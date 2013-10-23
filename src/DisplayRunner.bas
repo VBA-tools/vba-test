@@ -1,6 +1,6 @@
 Attribute VB_Name = "DisplayRunner"
 ''
-' DisplayRunner v1.2.1
+' DisplayRunner v1.2.2
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Runner with sheet output
@@ -137,6 +137,7 @@ Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
     Dim Suite As SpecSuite
     Dim Spec As SpecDefinition
     Dim Row As Integer
+    Dim Indentation As String
     
     ' 0. Disable screen updating
     Dim PrevUpdating As Boolean
@@ -153,8 +154,15 @@ Public Sub RunSuites(SuiteCol As Collection, Optional Append As Boolean = False)
     Row = NewOutputRow
     For Each Suite In SuiteCol
         If Not Suite Is Nothing Then
+            If Suite.Description <> "" Then
+                OutputSuiteDetails Suite, Row
+                Indentation = "    "
+            Else
+                Indentation = ""
+            End If
+        
             For Each Spec In Suite.SpecsCol
-                OutputSpec Spec, Row
+                OutputSpec Spec, Row, Indentation
             Next Spec
         End If
     Next Suite
@@ -189,21 +197,36 @@ End Sub
 ' Internal
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-Private Sub OutputSpec(Spec As SpecDefinition, ByRef Row As Integer)
-    
+Private Sub OutputSpec(Spec As SpecDefinition, ByRef Row As Integer, Optional Indentation As String = "")
     Sheet.Cells(Row, IdCol) = Spec.Id
-    Sheet.Cells(Row, DescCol) = "It " & Spec.Description
+    Sheet.Cells(Row, DescCol) = Indentation & Spec.Description
     Sheet.Cells(Row, ResultCol) = Spec.ResultName
     Row = Row + 1
     
-    If Spec.FailedExpectations.Count > 0 Then
+    If Spec.FailedExpectations.count > 0 Then
         Dim Exp As SpecExpectation
         For Each Exp In Spec.FailedExpectations
-            Sheet.Cells(Row, DescCol) = "X  " & Exp.FailureMessage
+            Sheet.Cells(Row, DescCol) = Indentation & "X  " & Exp.FailureMessage
             Row = Row + 1
         Next Exp
     End If
+End Sub
+
+Private Sub OutputSuiteDetails(Suite As SpecSuite, ByRef Row As Integer)
+    Dim HasFailure As Boolean
+    Dim Result As String
+    Result = "Pass"
     
+    For Each Spec In Suite.SpecsCol
+        If Spec.Result = SpecResult.Fail Then
+            Result = "Fail"
+            Exit For
+        End If
+    Next Spec
+    
+    Sheet.Cells(Row, DescCol) = Suite.Description
+    Sheet.Cells(Row, ResultCol) = Result
+    Row = Row + 1
 End Sub
 
 Private Sub ClearOutput()

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecExpectation v1.2.1
+' SpecExpectation v1.2.2
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value
@@ -188,6 +188,38 @@ Public Sub ToBeGreaterThanOrEqualTo(Value As Variant)
 End Sub
 Public Sub ToBeGTE(Value As Variant)
     Call ToBeGreaterThanOrEqualTo(Value)
+End Sub
+
+''
+' Check if the defined string contains the test string
+'
+' @param {Variant} Value
+' --------------------------------------------- '
+
+Public Sub ToContain(Value As Variant, Optional MatchCase As Boolean = True)
+    If MatchCase And InStr(Me.ExpectValue, Value) > 0 Then
+        Passes
+    ElseIf Not MatchCase And InStr(UCase(Me.ExpectValue), UCase(Value)) > 0 Then
+        Passes
+    Else
+        Fails CreateFailureMessage("to contain", Value)
+    End If
+End Sub
+
+''
+' Check that the defined string does not contain the test string
+'
+' @param {Variant} Value
+' --------------------------------------------- '
+
+Public Sub ToNotContain(Value As Variant, Optional MatchCase As Boolean = True)
+    If MatchCase And InStr(Me.ExpectValue, Value) > 0 Then
+        Fails CreateFailureMessage("to not contain", Value)
+    ElseIf Not MatchCase And InStr(UCase(Me.ExpectValue), UCase(Value)) > 0 Then
+        Fails CreateFailureMessage("to not contain", Value)
+    Else
+        Passes
+    End If
 End Sub
 
 

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecSuite v1.2.1
+' SpecSuite v1.2.2
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' A collection of specs with the workbook that they act on

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' IScenario v1.2.1
+' IScenario v1.2.2
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Interface for creating and running scenarios on workbooks
