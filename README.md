@@ -68,10 +68,7 @@ InlineRunner.RunSuite Specs
 ' = PASS (2 of 2 passed) ==========================
 
 ' Configurable
-ShowFailureDetails = True
-ShowPassed = True
-ShowSuiteDetails = True
-InlineRunner.RunSuite Specs, ShowFailureDetails, ShowPassed, ShowSuiteDetails
+InlineRunner.RunSuite Specs, ShowFailureDetails:=True, ShowPassed:=True, ShowSuiteDetails:=True
 
 ' = PASS (2 of 2 passed) ==========================
 ' + 2 specs
