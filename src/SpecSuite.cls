@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecSuite v1.2.2
+' SpecSuite v1.2.3
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' A collection of specs with the workbook that they act on
@@ -92,6 +92,21 @@ End Sub
 
 Private Sub ExecuteBeforeEach()
     If Me.BeforeEachCallback <> "" Then
-        Application.Run Me.BeforeEachCallback, Me.BeforeEachCallbackArgs
+        Dim HasArguments As Boolean
+        If VarType(Me.BeforeEachCallbackArgs) = vbObject Then
+            If Not Me.BeforeEachCallbackArgs Is Nothing Then
+                HasArguments = True
+            End If
+        ElseIf IsArray(Me.BeforeEachCallbackArgs) Then
+            If UBound(Me.BeforeEachCallbackArgs) >= 0 Then
+                HasArguments = True
+            End If
+        End If
+    
+        If HasArguments Then
+            Application.Run Me.BeforeEachCallback, Me.BeforeEachCallbackArgs
+        Else
+            Application.Run Me.BeforeEachCallback
+        End If
     End If
 End Sub

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ''
-' BlankIWBProxy v1.2.2
+' BlankIWBProxy v1.2.3
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Blank implementation of IWBProxy

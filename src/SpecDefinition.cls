@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecDefinition v1.2.2
+' SpecDefinition v1.2.3
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides helpers and acts as workbook proxy

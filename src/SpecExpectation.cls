@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecExpectation v1.2.2
+' SpecExpectation v1.2.3
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value
@@ -40,27 +40,30 @@ Public FailureMessage As String
 ' --------------------------------------------- '
 
 Public Sub ToEqual(Value As Variant)
-    Dim failed As Boolean
-    failed = False
+    Dim Failed As Boolean
+    Failed = False
     
     If IsError(Me.ExpectValue) Or IsError(Value) Then
-        failed = True
+        Failed = True
     
     ' If both the values are doubles, use decimal notequal comparison
     ElseIf VarType(Me.ExpectValue) = vbDouble And VarType(Value) = vbDouble Then
         If CDec(Me.ExpectValue) <> CDec(Value) Then
-            failed = True
+            Failed = True
         End If
         
     ' Otherwise use standard notequal comparison
+    ElseIf VarType(Me.ExpectValue) = vbObject Or VarType(Value) = vbObject Then
+        Fails "Unsupported: Can't compare objects"
+        Exit Sub
     Else
         If Me.ExpectValue <> Value Then
-            failed = True
+            Failed = True
         End If
     End If
     
     ' If test fails, create failure message
-    If failed Then
+    If Failed Then
         Fails CreateFailureMessage("to equal", Value)
     Else
         Passes
@@ -74,10 +77,26 @@ End Sub
 ' --------------------------------------------- '
 
 Public Sub ToNotEqual(Value As Variant)
-    If Not IsError(Me.ExpectValue) And Not IsError(Value) And Me.ExpectValue <> Value Then
-        Passes
+    Dim Failed As Boolean
+    Failed = False
+
+    If Not IsError(Me.ExpectValue) And Not IsError(Value) Then
+        If VarType(Me.ExpectValue) = vbObject Or VarType(Value) = vbObject Then
+            Fails "Unsupported: Can't compare objects"
+            Exit Sub
+        ElseIf Me.ExpectValue <> Value Then
+            Passes
+        Else
+            Failed = True
+        End If
     Else
+        Failed = True
+    End If
+    
+    If Failed Then
         Fails CreateFailureMessage("to not equal", Value)
+    Else
+        Passes
     End If
 End Sub
 
@@ -87,17 +106,15 @@ End Sub
 
 Public Sub ToBeDefined()
     ' Make sure the value isn't empty or null
-    ' (There may be other things that need to checked as well)
-    If Not IsEmpty(Me.ExpectValue) And Not IsNull(Me.ExpectValue) Then
+    If VarType(Me.ExpectValue) = vbObject Then
+        If Not Me.ExpectValue Is Nothing Then
+            Passes
+        Else
+            Fails CreateFailureMessage("to be defined")
+        End If
+    ElseIf Not IsEmpty(Me.ExpectValue) And Not IsNull(Me.ExpectValue) Then
         Passes
     Else
-        If VarType(Me.ExpectValue) = vbObject Then
-            If Not Me.ExpectValue Is Nothing Then
-                Passes
-                Exit Sub
-            End If
-        End If
-        
         Fails CreateFailureMessage("to be defined")
     End If
 End Sub
@@ -239,7 +256,16 @@ Private Sub Fails(Message As String)
 End Sub
 
 Private Function GetStringForValue(Value As Variant) As String
-    GetStringForValue = CStr(Value)
+    If VarType(Value) = vbObject Then
+        If Value Is Nothing Then
+            GetStringForValue = "(Nothing)"
+        Else
+            GetStringForValue = "(Object)"
+        End If
+    Else
+        GetStringForValue = CStr(Value)
+    End If
+    
     If GetStringForValue = "" Then
         GetStringForValue = "(Undefined)"
     End If
