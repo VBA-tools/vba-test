@@ -43,6 +43,17 @@ End Function
 
 For details of the process of reaching this example, see the [TDD Example](https://github.com/timhall/Excel-TDD/wiki/TDD-Example)
 
+### Advanced Example
+
+For an advanced example of what is possible with Excel-TDD, check out the [specs for Excel-TDD](https://github.com/timhall/Excel-REST/tree/master/specs)
+
+Methods used in these specs:
+
+- Using `BeforeEach` to reset before each spec is run
+- Testing VBA modules and classes
+- Setting up a custom `DisplayRunner` and `InlineRunner`
+- Waiting for and handling async behavior
+
 ### Getting Started
 
 For testing macros:
