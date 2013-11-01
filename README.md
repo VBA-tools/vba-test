@@ -45,7 +45,7 @@ For details of the process of reaching this example, see the [TDD Example](https
 
 ### Advanced Example
 
-For an advanced example of what is possible with Excel-TDD, check out the [specs for Excel-TDD](https://github.com/timhall/Excel-REST/tree/master/specs)
+For an advanced example of what is possible with Excel-TDD, check out the [specs for Excel-REST](https://github.com/timhall/Excel-REST/tree/master/specs)
 
 Methods used in these specs:
 
