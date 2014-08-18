@@ -153,4 +153,3 @@ API design based heavily on [Jasmine](http://pivotal.github.com/jasmine/)
 Author: Tim Hall
 
 License: MIT
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/1920e60f336d1acfbae4989e71c6d573 "githalytics.com")](http://githalytics.com/timhall/Excel-TDD)
