@@ -208,6 +208,34 @@ Public Sub ToBeGTE(Value As Variant)
 End Sub
 
 ''
+' Check if the defined value is close to the test value
+'
+' @param {Variant} Value
+' @param {Integer} DecimalPlaces
+' --------------------------------------------- '
+Public Sub ToBeCloseTo(Value As Variant, DecimalPlaces As Integer)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Round(Me.ExpectValue, DecimalPlaces) <> Round(Value, DecimalPlaces) Then
+        Fails CreateFailureMessage("to be close to", Value)
+    Else
+        Passes
+    End If
+End Sub
+
+''
+' Check if defined value is not close to the test value
+'
+' @param {Variant} Value
+' @param {Integer} DecimalPlaces
+' --------------------------------------------- '
+Public Sub ToNotBeCloseTo(Value As Variant, DecimalPlaces As Integer)
+    If IsError(Me.ExpectValue) Or IsError(Value) Or Round(Me.ExpectValue, DecimalPlaces) = Round(Value, DecimalPlaces) Then
+        Fails CreateFailureMessage("to not be close to", Value)
+    Else
+        Passes
+    End If
+End Sub
+
+''
 ' Check if the defined string contains the test string
 '
 ' @param {Variant} Value

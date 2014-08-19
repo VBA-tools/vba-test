@@ -78,6 +78,12 @@ Public Function Specs() As SpecSuite
         .Expect(1.5).ToBeGTE 1.5
     End With
     
+    With Specs.It("toBeCloseTo")
+        .Expect(3.1415926).ToNotBeCloseTo 2.78, 2
+        
+        .Expect(3.1415926).ToBeCloseTo 2.78, 0
+    End With
+    
     ' TODO
     ' toMatch for matching substring (and possibly regex)
     ' toContain is for checking if array contains element
@@ -86,9 +92,6 @@ Public Function Specs() As SpecSuite
         
         .Expect("abcde").ToNotContain "xyz"
     End With
-    
-    ' TODO
-    ' Add toBeCloseTo
     
     ' TODO
     ' Add not

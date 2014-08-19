@@ -1,6 +1,7 @@
 Attribute VB_Name = "SpecDefinitionSpecs"
 Public Function Specs() As SpecSuite
     Set Specs = New SpecSuite
+    Specs.Description = "SpecDefinition"
     
     Dim TestSuite As New SpecSuite
     Dim Definition As SpecDefinition

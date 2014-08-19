@@ -94,7 +94,7 @@ Sub Development
   If UCase(Parts(0)) = "RELEASE" Then
     Execute "import", "src", "all"
     Execute "import", "specs", "specs"
-  ElseIf UBound(Parts) < 3 Or (UCase(Parts(0)) <> "IMPORT" And UCase(Parts(0)) <> "Export") Then
+  ElseIf UBound(Parts) < 3 Or (UCase(Parts(0)) <> "IMPORT" And UCase(Parts(0)) <> "EXPORT") Then
     PrintLn vbNewLine & "Error: Unrecognized action"
   Else
     If UBound(Parts) > 3 Then
