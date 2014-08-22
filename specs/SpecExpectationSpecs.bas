@@ -142,5 +142,37 @@ Public Function Specs() As SpecSuite
         .Expect("abcde").ToNotMatch "xyz"
     End With
     
+    With Specs.It("RunMatcher")
+        .Expect(100).RunMatcher "SpecExpectationSpecs.ToBeWithin", "to be within", 90, 110
+        .Expect(Nothing).RunMatcher "SpecExpectationSpecs.ToBeNothing", "to be nothing"
+    End With
+    
     InlineRunner.RunSuite Specs
+End Function
+
+Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
+    If UBound(Args) - LBound(Args) < 1 Then
+        ' Return string for specific failure message
+        ToBeWithin = "Need to pass in upper-bound to ToBeWithin"
+    Else
+        If Actual >= Args(0) And Actual <= Args(1) Then
+            ' Return true for pass
+            ToBeWithin = True
+        Else
+            ' Return false for fail or custom failure message
+            ToBeWithin = False
+        End If
+    End If
+End Function
+
+Public Function ToBeNothing(Actual As Variant) As Variant
+    If IsObject(Actual) Then
+        If Actual Is Nothing Then
+            ToBeNothing = True
+        Else
+            ToBeNothing = False
+        End If
+    Else
+        ToBeNothing = False
+    End If
 End Function

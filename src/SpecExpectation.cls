@@ -290,7 +290,6 @@ End Function
 ' (Only checks if the actual contains the expected string currently)
 '
 ' @param {Variant} Expected
-' @param {Boolean} [MatchCase=True]
 ' --------------------------------------------- '
 Public Sub ToMatch(Expected As Variant)
     Check Matches(Me.Actual, Expected), "to match", Expected:=Expected
@@ -306,6 +305,59 @@ Private Function Matches(Actual As Variant, Expected As Variant) As Variant
         Matches = False
     End If
 End Function
+
+''
+' Run custom matcher
+'
+' @example
+' .Expect(100).RunMatcher "Module.ToBeWithin", "to be within", 90, 110
+'
+' Module:
+' Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
+'     If UBound(Args) - LBound(Args) < 1 Then
+'         ' Return string for specific failure message
+'         ToBeWithin = "Need to pass in upper-bound to ToBeWithin"
+'     Else
+'         If Actual >= Args(0) And Actual <= Args(1) Then
+'             ' Return true for pass
+'             ToBeWithin = True
+'         Else
+'             ' Return false for fail or custom failure message
+'             ToBeWithin = False
+'         End If
+'     End If
+' End Function
+'
+' @param {String} Name of function for matcher
+' @param {String} Message
+' @param {...} Arguments for custom matcher
+' --------------------------------------------- '
+Public Sub RunMatcher(Name As String, Message As String, ParamArray Arguments())
+    Dim Expected As String
+    Dim i As Integer
+    Dim HasArguments As Boolean
+        
+    HasArguments = UBound(Arguments) >= 0
+    For i = LBound(Arguments) To UBound(Arguments)
+        If Expected = "" Then
+            Expected = GetStringForValue(Arguments(i))
+        ElseIf i = UBound(Arguments) Then
+            If (UBound(Arguments) > 1) Then
+                Expected = Expected & ", and " & GetStringForValue(Arguments(i))
+            Else
+                Expected = Expected & " and " & GetStringForValue(Arguments(i))
+            End If
+        Else
+            Expected = Expected & ", " & GetStringForValue(Arguments(i))
+        End If
+    Next i
+    
+    If HasArguments Then
+        Check Application.Run(Name, Me.Actual, Arguments), Message, Expected:=Expected
+    Else
+        Check Application.Run(Name, Me.Actual), Message
+    End If
+End Sub
 
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 ' Internal Methods
