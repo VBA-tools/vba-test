@@ -39,11 +39,11 @@ Public Function Specs() As SpecSuite
         End With
         
         .Expect(Definition.Result).ToEqual SpecResult.Fail
-        .Expect(Definition.FailedExpectations(1).ExpectValue).ToEqual 2
+        .Expect(Definition.FailedExpectations(1).Actual).ToEqual 2
         .Expect(Definition.FailedExpectations(1).Result).ToEqual ExpectResult.Fail
-        .Expect(Definition.FailedExpectations(2).ExpectValue).ToEqual "pass"
+        .Expect(Definition.FailedExpectations(2).Actual).ToEqual "pass"
         .Expect(Definition.FailedExpectations(2).Result).ToEqual ExpectResult.Fail
-        .Expect(Definition.FailedExpectations(3).ExpectValue).ToEqual True
+        .Expect(Definition.FailedExpectations(3).Actual).ToEqual True
         .Expect(Definition.FailedExpectations(3).Result).ToEqual ExpectResult.Fail
     End With
     

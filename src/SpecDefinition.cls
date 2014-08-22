@@ -72,9 +72,9 @@ Public Function Expect(Optional Value As Variant) As SpecExpectation
     Dim Exp As New SpecExpectation
     
     If VarType(Value) = vbObject Then
-        Set Exp.ExpectValue = Value
+        Set Exp.Actual = Value
     Else
-        Exp.ExpectValue = Value
+        Exp.Actual = Value
     End If
     Me.Expectations.Add Exp
     
