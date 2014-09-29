@@ -52,7 +52,15 @@ Private Function IsEqual(Actual As Variant, Expected As Variant) As Variant
     ElseIf IsObject(Actual) Or IsObject(Expected) Then
         IsEqual = "Unsupported: Can't compare objects"
     ElseIf VarType(Actual) = vbDouble And VarType(Expected) = vbDouble Then
-        IsEqual = CDec(Actual) = CDec(Expected)
+        ' It is inherently difficult to check equality of Double
+        ' http://support.microsoft.com/kb/78113
+        ' Windows: compare with CDec
+        ' Mac: (CDec not available) compare to 22 decimal places
+        #If Mac Then
+            IsEqual = Round(Actual - Expected, 22) = 0#
+        #Else
+            IsEqual = CDec(Actual) = CDec(Expected)
+        #End If
     Else
         IsEqual = Actual = Expected
     End If
