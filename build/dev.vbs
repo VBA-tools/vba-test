@@ -49,12 +49,35 @@ Specs = Array( _
   "SpecExpectationSpecs.bas" _
 )
 
+Dim InlineRunner
+InlineRunner = Array( _ 
+  "InlineRunner.bas" _
+)
+
+Dim DisplayRunner
+DisplayRunner = Array( _
+  "DisplayRunner.bas" _
+)
+
+Dim WorkbookExtensions
+WorkbookExtensions = Array( _
+  "IScenario.cls", _
+  "Scenario.cls", _
+  "IWBProxy.cls", _
+  "WBProxy.cls" _
+)
+
+Dim Helpers
+Helpers = Array( _
+  "SpecHelpers.bas" _
+)
+
 Main
 
 Sub Main()
   ' On Error Resume Next
 
-  PrintLn "Excel-TDD v1.2.3 Development"
+  PrintLn "Excel-TDD v1.3.0 Development"
 
   ExcelWasOpen = OpenExcel(Excel)
 
@@ -72,8 +95,8 @@ End Sub
 Sub Development
   PrintLn vbNewLine & _
     "Options:" & vbNewLine & _
-    "- import [src/specs/all] to [blank/specs/all/path...]" & vbNewLine & _
-    "- export [src/specs/all] from [blank/specs/all/path...]" & vbNewLine & _
+    "- import [src/specs/inline/display/extensions/helpers/all] to [blank/inline/display/specs/all/path...]" & vbNewLine & _
+    "- export [src/specs/inline/display/extensions/helpers/all] from [blank/inline/display/specs/all/path...]" & vbNewLine & _
     "- release"
 
   Dim Action
@@ -93,7 +116,12 @@ Sub Development
 
   If UCase(Parts(0)) = "RELEASE" Then
     Execute "import", "src", "all"
+    Execute "import", "inline", "inline"
+    Execute "import", "display", "display"
+    Execute "import", "extensions", "display"
+    Execute "import", "helpers", "specs"
     Execute "import", "specs", "specs"
+    Execute "import", "inline", "specs"
   ElseIf UBound(Parts) < 3 Or (UCase(Parts(0)) <> "IMPORT" And UCase(Parts(0)) <> "EXPORT") Then
     PrintLn vbNewLine & "Error: Unrecognized action"
   Else
@@ -116,9 +144,8 @@ Sub Development
     End If
   End If
 
-  If UCase(Left(Input(vbNewLine & "Would you like to do anything else? [yes/no] <"), 1)) = "Y" Then
-    Development
-  End If
+  PrintLn ""
+  Development
 End Sub
 
 Sub Execute(Name, ModulesDescription, WorkbookDescription)
@@ -127,11 +154,15 @@ Sub Execute(Name, ModulesDescription, WorkbookDescription)
   Dim Paths
   Select Case UCase(WorkbookDescription)
   Case "BLANK"
+    Paths = Array(BlankWorkbookPath, BlankInlineWorkbookPath)
+  Case "INLINE"
+    Paths = Array(BlankInlineWorkbookPath)
+  Case "DISPLAY"
     Paths = Array(BlankWorkbookPath)
   Case "SPECS"
     Paths = Array(SpecsWorkbookPath)
   Case "ALL"
-    Path = Array(BlankWorkbookPath, SpecsWorkbookPath)
+    Paths = Array(BlankWorkbookPath, BlankInlineWorkbookPath, SpecsWorkbookPath)
   Case Else
     Paths = Array(WorkbookDescription)
   End Select
@@ -172,6 +203,18 @@ Sub Import(ModulesDescription, Workbook)
   Select Case UCase(ModulesDescription)
   Case "SRC"
     Modules = Src
+    Folder = SrcFolder
+  Case "INLINE"
+    Modules = InlineRunner
+    Folder = SrcFolder
+  Case "DISPLAY"
+    Modules = DisplayRunner
+    Folder = SrcFolder
+  Case "EXTENSIONS"
+    Modules = WorkbookExtensions
+    Folder = SrcFolder
+  Case "HELPERS"
+    Modules = Helpers
     Folder = SrcFolder
   Case "SPECS"
     Modules = Specs

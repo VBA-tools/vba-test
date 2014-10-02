@@ -1,2 +1,5 @@
 # Ignore temporary Excel files
 */~$*
+
+# Ignore scratch work
+_scratch

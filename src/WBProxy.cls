@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' WBProxy v1.2.3
+' WBProxy v1.3.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Generic implementation of workbook proxy
