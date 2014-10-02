@@ -122,22 +122,31 @@ With Specs.It("should check values")
     .Expect(2 + 2).ToBeGT 2
     .Expect(2 + 2).ToBeGreaterThanOrEqualTo 3
     .Expect(2 + 2).ToBeGTE 4
+    .Expect(2 + 2).ToBeCloseTo 3.9, 0
 End With
 
-With Specs.It("should check defined/undefined")
+With Specs.It("should check Nothing, Empty, Missing, and Null")
+    .Expect(Nothing).ToBeNothing
+    .Expect(Empty).ToBeEmpty
+    .Expect().ToBeMissing
+    .Expect(Null).ToBeNull
+    
+    ' `ToBeUndefined` checks if it's Nothing or Empty or Missing or Null
+
     .Expect(Nothing).ToBeUndefined
     .Expect(Empty).ToBeUndefined
     .Expect().ToBeUndefined
+    .Expect(Null).ToBeUndefined
     
     ' Classes are undefined until they are instantiated
     Dim Sheet As Worksheet
-    .Expect(Sheet).ToBeUndefined
+    .Expect(Sheet).ToBeNothing
     
-    .Expect("Howdy!").ToBeDefined
-    .Expect(4).ToBeDefined
+    .Expect("Howdy!").ToNotBeUndefined
+    .Expect(4).ToNotBeUndefined
     
     Set Sheet = ThisWorkbook.Sheets(1)
-    .Expect(Sheet).ToBeDefined
+    .Expect(Sheet).ToNotBeUndefined
 End With
 
 With Specs.It("should test complex things")
@@ -148,8 +157,6 @@ End With
 
 For more details, check out the [Wiki](https://github.com/timhall/Excel-TDD/wiki)
 
-API design based heavily on [Jasmine](http://pivotal.github.com/jasmine/)
-
-Author: Tim Hall
-
-License: MIT
+- Design based heavily on the [Jasmine](http://pivotal.github.com/jasmine/)
+- Author: Tim Hall
+- License: MIT
