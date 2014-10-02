@@ -31,9 +31,13 @@ SpecsFolder = ".\specs\"
 Dim BlankWorkbookPath
 Dim BlankInlineWorkbookPath
 Dim SpecsWorkbookPath
+Dim ExampleInlineWorkbookPath
+Dim ExampleDisplayWorkbookPath
 BlankWorkbookPath = ".\Excel-TDD - Blank.xlsm"
 BlankInlineWorkbookPath = ".\Excel-TDD - Blank - Inline.xlsm"
 SpecsWorkbookPath = ".\specs\Excel-TDD - Specs.xlsm"
+ExampleInlineWorkbookPath = ".\examples\Excel-TDD - Example - Inline.xlsm"
+ExampleDisplayWorkbookPath = ".\examples\Excel-TDD - Example - Runner.xlsm"
 
 Dim Src
 Src = Array( _
@@ -95,8 +99,8 @@ End Sub
 Sub Development
   PrintLn vbNewLine & _
     "Options:" & vbNewLine & _
-    "- import [src/specs/inline/display/extensions/helpers/all] to [blank/inline/display/specs/all/path...]" & vbNewLine & _
-    "- export [src/specs/inline/display/extensions/helpers/all] from [blank/inline/display/specs/all/path...]" & vbNewLine & _
+    "- import [src/specs/inline/display/extensions/helpers/all] to [blank/inline/display/specs/example-inline/example-display/all/path...]" & vbNewLine & _
+    "- export [src/specs/inline/display/extensions/helpers/all] from [blank/inline/display/specs/all/example-inline/example-display/path...]" & vbNewLine & _
     "- release"
 
   Dim Action
@@ -122,6 +126,10 @@ Sub Development
     Execute "import", "helpers", "specs"
     Execute "import", "specs", "specs"
     Execute "import", "inline", "specs"
+    Execute "import", "inline", "example-inline"
+    Execute "import", "display", "example-display"
+    Execute "import", "extensions", "example-display"
+    Execute "import", "helpers", "example-display"
   ElseIf UBound(Parts) < 3 Or (UCase(Parts(0)) <> "IMPORT" And UCase(Parts(0)) <> "EXPORT") Then
     PrintLn vbNewLine & "Error: Unrecognized action"
   Else
@@ -161,8 +169,12 @@ Sub Execute(Name, ModulesDescription, WorkbookDescription)
     Paths = Array(BlankWorkbookPath)
   Case "SPECS"
     Paths = Array(SpecsWorkbookPath)
+  Case "EXAMPLE-INLINE"
+    Paths = Array(ExampleInlineWorkbookPath)
+  Case "EXAMPLE-DISPLAY"
+    Paths = Array(ExampleDisplayWorkbookPath)
   Case "ALL"
-    Paths = Array(BlankWorkbookPath, BlankInlineWorkbookPath, SpecsWorkbookPath)
+    Paths = Array(BlankWorkbookPath, BlankInlineWorkbookPath, SpecsWorkbookPath, ExampleInlineWorkbookPath, ExampleDisplayWorkbookPath)
   Case Else
     Paths = Array(WorkbookDescription)
   End Select
