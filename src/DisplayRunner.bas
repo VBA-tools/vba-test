@@ -1,6 +1,6 @@
 Attribute VB_Name = "DisplayRunner"
 ''
-' DisplayRunner v1.3.0
+' DisplayRunner v1.3.1
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Runner with sheet output

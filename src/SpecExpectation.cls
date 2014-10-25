@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecExpectation v1.3.0
+' SpecExpectation v1.3.1
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value

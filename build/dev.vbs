@@ -81,7 +81,7 @@ Main
 Sub Main()
   ' On Error Resume Next
 
-  PrintLn "Excel-TDD v1.3.0 Development"
+  PrintLn "Excel-TDD v1.3.1 Development"
 
   ExcelWasOpen = OpenExcel(Excel)
 

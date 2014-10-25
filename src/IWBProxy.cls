@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' IWBProxy v1.3.0
+' IWBProxy v1.3.1
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Interface for generic workbook proxies
