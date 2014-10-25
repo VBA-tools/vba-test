@@ -397,13 +397,11 @@ End Sub
 
 Private Sub Passes()
     Me.Result = ExpectResult.Pass
-    If Err.Number <> 0 Then: Err.Clear
 End Sub
 
 Private Sub Fails(Message As String)
     Me.Result = ExpectResult.Fail
     Me.FailureMessage = Message
-    If Err.Number <> 0 Then: Err.Clear
 End Sub
 
 Private Function CreateFailureMessage(Message As String, Optional Expected As Variant) As String
