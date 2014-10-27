@@ -81,7 +81,7 @@ Main
 Sub Main()
   ' On Error Resume Next
 
-  PrintLn "Excel-TDD v1.3.1 Development"
+  PrintLn "Excel-TDD v1.4.0 Development"
 
   ExcelWasOpen = OpenExcel(Excel)
 
@@ -236,7 +236,7 @@ Sub Import(ModulesDescription, Workbook)
     Import "specs", Workbook
     Exit Sub
   Case Else
-    PrintLn "ERROR: Unknown modules description, " & ModulesDescription
+    PrintLn "ERROR: Unknown modules description: " & ModulesDescription
     Exit Sub
   End Select
 
@@ -259,15 +259,27 @@ Sub Export(ModulesDescription, Workbook)
   Case "SRC"
     Modules = Src
     Folder = SrcFolder
+  Case "INLINE"
+    Modules = InlineRunner
+    Folder = SrcFolder
+  Case "DISPLAY"
+    Modules = DisplayRunner
+    Folder = SrcFolder
+  Case "EXTENSIONS"
+    Modules = WorkbookExtensions
+    Folder = SrcFolder
+  Case "HELPERS"
+    Modules = Helpers
+    Folder = SrcFolder
   Case "SPECS"
     Modules = Specs
     Folder = SpecsFolder
   Case "ALL"
-    Export "src", Workbook
-    Export "specs", Workbook
+    Import "src", Workbook
+    Import "specs", Workbook
     Exit Sub
   Case Else
-    PrintLn "ERROR: Unknown modules description, " & ModulesDescription
+    PrintLn "ERROR: Unknown modules description: " & ModulesDescription
     Exit Sub
   End Select
 

@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' WBProxy v1.3.1
+' WBProxy v1.4.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Generic implementation of workbook proxy
@@ -112,17 +112,17 @@ Private Property Set IWBProxy_Instance(Value As Workbook)
     Set Instance = Value
 End Property
 
-Public Property Get Mapping() As Scripting.IDictionary
+Public Property Get Mapping() As Dictionary
     Set Mapping = IWBProxy_Mapping
 End Property
-Private Property Get IWBProxy_Mapping() As Scripting.IDictionary
+Private Property Get IWBProxy_Mapping() As Dictionary
     If pMapping Is Nothing Then: Set pMapping = New Dictionary
     Set IWBProxy_Mapping = pMapping
 End Property
-Public Property Set Mapping(Value As Scripting.IDictionary)
+Public Property Set Mapping(Value As Dictionary)
     Set IWBProxy_Mapping = Value
 End Property
-Private Property Set IWBProxy_Mapping(Value As Scripting.IDictionary)
+Private Property Set IWBProxy_Mapping(Value As Dictionary)
     Set pMapping = Value
 End Property
 

@@ -1,6 +1,6 @@
 Attribute VB_Name = "SpecHelpers"
 ''
-' SpecHelpers v1.3.1
+' SpecHelpers v1.4.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' General utilities for specs

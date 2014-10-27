@@ -1,6 +1,6 @@
 Attribute VB_Name = "InlineRunner"
 ''
-' InlineRunner v1.3.1
+' InlineRunner v1.4.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Runner for outputting results of specs to Immediate window

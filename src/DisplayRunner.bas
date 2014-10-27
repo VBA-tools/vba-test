@@ -1,6 +1,6 @@
 Attribute VB_Name = "DisplayRunner"
 ''
-' DisplayRunner v1.3.1
+' DisplayRunner v1.4.0
 ' (c) Tim Hall - https://github.com/timhall/Excel-TDD
 '
 ' Runner with sheet output
@@ -203,7 +203,7 @@ Private Sub OutputSpec(Spec As SpecDefinition, ByRef Row As Integer, Optional In
     Sheet.Cells(Row, ResultCol) = Spec.ResultName
     Row = Row + 1
     
-    If Spec.FailedExpectations.count > 0 Then
+    If Spec.FailedExpectations.Count > 0 Then
         Dim Exp As SpecExpectation
         For Each Exp In Spec.FailedExpectations
             Sheet.Cells(Row, DescCol) = Indentation & "X  " & Exp.FailureMessage
