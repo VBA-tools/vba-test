@@ -1,5 +1,6 @@
 # Ignore temporary Excel files
 */~$*
 
-# Ignore scratch work
+# Ignore scratch work and other files
 _scratch
+.DS_Store

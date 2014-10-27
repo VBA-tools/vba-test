@@ -17,6 +17,19 @@ Public Function Specs() As SpecSuite
         .Expect(False).ToNotEqual True
     End With
     
+    With Specs.It("ToEqual/ToNotEqual with Double")
+        ' Compare to 15 significant figures
+        .Expect(123456789012345#).ToEqual 123456789012345#
+        .Expect(1.50000000000001).ToEqual 1.50000000000001
+        .Expect(Val("1234567890123450")).ToEqual Val("1234567890123451")
+        .Expect(Val("0.1000000000000010")).ToEqual Val("0.1000000000000011")
+        
+        .Expect(123456789012344#).ToNotEqual 123456789012345#
+        .Expect(1.5).ToNotEqual 1.50000000000001
+        .Expect(Val("1234567890123454")).ToNotEqual Val("1234567890123456")
+        .Expect(Val("0.1000000000000014")).ToNotEqual Val("0.1000000000000016")
+    End With
+    
     With Specs.It("ToBeUndefined/ToNotBeUndefined")
         .Expect(Nothing).ToBeUndefined
         .Expect(Empty).ToBeUndefined
@@ -118,9 +131,9 @@ Public Function Specs() As SpecSuite
     End With
     
     With Specs.It("ToBeCloseTo")
-        .Expect(3.1415926).ToNotBeCloseTo 2.78, 2
+        .Expect(3.1415926).ToNotBeCloseTo 2.78, 3
         
-        .Expect(3.1415926).ToBeCloseTo 2.78, 0
+        .Expect(3.1415926).ToBeCloseTo 2.78, 1
     End With
     
     With Specs.It("ToContain")
