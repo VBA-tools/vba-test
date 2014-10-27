@@ -52,15 +52,12 @@ Private Function IsEqual(Actual As Variant, Expected As Variant) As Variant
     ElseIf IsObject(Actual) Or IsObject(Expected) Then
         IsEqual = "Unsupported: Can't compare objects"
     ElseIf VarType(Actual) = vbDouble And VarType(Expected) = vbDouble Then
-        ' It is inherently difficult to check equality of Double
+        ' It is inherently difficult/almost impossible to check equality of Double
         ' http://support.microsoft.com/kb/78113
-        ' Windows: compare with CDec
-        ' Mac: (CDec not available) compare to 22 decimal places
-        #If Mac Then
-            IsEqual = Round(Actual - Expected, 22) = 0#
-        #Else
-            IsEqual = CDec(Actual) = CDec(Expected)
-        #End If
+        '
+        ' Compare up to 15 significant figures
+        ' -> Format as scientific notation with 15 significant figures and then compare strings
+        IsEqual = IsCloseTo(Actual, Expected, 15)
     Else
         IsEqual = Actual = Expected
     End If
@@ -221,20 +218,36 @@ End Function
 ' Check if the actual value is close to the expected value
 '
 ' @param {Variant} Expected
-' @param {Integer} DecimalPlaces
+' @param {Integer} SignificantFigures (1-15)
 ' --------------------------------------------- '
-Public Sub ToBeCloseTo(Expected As Variant, DecimalPlaces As Integer)
-    Check IsCloseTo(Me.Actual, Expected, DecimalPlaces), "to be close to", Expected:=Expected
+Public Sub ToBeCloseTo(Expected As Variant, SignificantFigures As Integer)
+    Check IsCloseTo(Me.Actual, Expected, SignificantFigures), "to be close to", Expected:=Expected
 End Sub
-Public Sub ToNotBeCloseTo(Expected As Variant, DecimalPlaces As Integer)
-    Check IsCloseTo(Me.Actual, Expected, DecimalPlaces), "to be close to", Expected:=Expected, Inverse:=True
+Public Sub ToNotBeCloseTo(Expected As Variant, SignificantFigures As Integer)
+    Check IsCloseTo(Me.Actual, Expected, SignificantFigures), "to be close to", Expected:=Expected, Inverse:=True
 End Sub
 
-Private Function IsCloseTo(Actual As Variant, Expected As Variant, DecimalPlaces As Integer) As Variant
-    If IsError(Actual) Or IsError(Expected) Or Round(Actual, DecimalPlaces) <> Round(Expected, DecimalPlaces) Then
-        IsCloseTo = False
-    Else
-        IsCloseTo = True
+Private Function IsCloseTo(Actual As Variant, Expected As Variant, SignificantFigures As Integer) As Variant
+    Dim ActualAsString As String
+    Dim ExpectedAsString As String
+    
+    If SignificantFigures < 1 Or SignificantFigures > 15 Then
+        IsCloseTo = "ToBeCloseTo/ToNotBeClose to can only compare from 1 to 15 significant figures"""
+    ElseIf Not IsError(Actual) And Not IsError(Expected) Then
+        ' Convert values to scientific notation strings and then compare strings
+        If Actual > 1 Then
+            ActualAsString = VBA.Format$(Actual, VBA.Left$("0.00000000000000", SignificantFigures + 1) & "e+0")
+        Else
+            ActualAsString = VBA.Format$(Actual, VBA.Left$("0.00000000000000", SignificantFigures + 1) & "e-0")
+        End If
+        
+        If Expected > 1 Then
+            ExpectedAsString = VBA.Format$(Expected, VBA.Left$("0.00000000000000", SignificantFigures + 1) & "e+0")
+        Else
+            ExpectedAsString = VBA.Format$(Expected, VBA.Left$("0.00000000000000", SignificantFigures + 1) & "e-0")
+        End If
+        
+        IsCloseTo = ActualAsString = ExpectedAsString
     End If
 End Function
 
@@ -251,7 +264,7 @@ Public Sub ToContain(Expected As Variant, Optional MatchCase As Boolean = True)
         If MatchCase Then
             Check Matches(Me.Actual, Expected), "to match", Expected:=Expected
         Else
-            Check Matches(UCase(Me.Actual), UCase(Expected)), "to match", Expected:=Expected
+            Check Matches(VBA.UCase$(Me.Actual), VBA.UCase$(Expected)), "to match", Expected:=Expected
         End If
     Else
         Check Contains(Me.Actual, Expected), "to contain", Expected:=Expected
@@ -263,7 +276,7 @@ Public Sub ToNotContain(Expected As Variant, Optional MatchCase As Boolean = Tru
         If MatchCase Then
             Check Matches(Me.Actual, Expected), "to not match", Expected:=Expected, Inverse:=True
         Else
-            Check Matches(UCase(Me.Actual), UCase(Expected)), "to not match", Expected:=Expected, Inverse:=True
+            Check Matches(VBA.UCase$(Me.Actual), VBA.UCase$(Expected)), "to not match", Expected:=Expected, Inverse:=True
         End If
     Else
         Check Contains(Me.Actual, Expected), "to not contain", Expected:=Expected, Inverse:=True
