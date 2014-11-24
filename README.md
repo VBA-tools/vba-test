@@ -73,7 +73,7 @@ For testing workbooks:
 The inline runner is a lightweight test runner that is intended to be loaded directly into the workbook that is being tested and is for testing macros and simple behaviors in the workbook
 All results are displayed in the Immediate Window (Ctrl+g or View > Immediate Window) and the runner requires no setup to run test suites
 
-```VB
+```VB.net
 InlineRunner.RunSuite Specs
 
 ' = PASS (2 of 2 passed) ==========================
@@ -98,7 +98,7 @@ See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Work
 
 `It` is how you describe desired behavior and once a collection of specs is written, it should read like a list of requirements.
 
-```VB
+```VB.net
 With Specs.It("should allow user to continue if they are authorized and up-to-date")
     ' ...
 End With
@@ -110,7 +110,7 @@ End With
 
 `Expect` is how you test desired behavior 
 
-```VB
+```VB.net
 With Specs.It("should check values")
     .Expect(2 + 2).ToEqual 4
     .Expect(2 + 2).ToNotEqual 5
