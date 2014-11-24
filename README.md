@@ -5,7 +5,7 @@ Bring the reliability of other programming realms to Excel with Test-Driven Deve
 
 Quick example:
 
-```VB
+```VB.net
 Sub Specs()
     On Error Resume Next
 
