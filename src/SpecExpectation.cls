@@ -47,6 +47,17 @@ Public Sub ToNotEqual(Expected As Variant)
 End Sub
 
 Private Function IsEqual(Actual As Variant, Expected As Variant) As Variant
+  Dim l_count     As Long
+    
+  If IsArray(Expected) Then
+    For l_count = LBound(Expected) To UBound(Expected)
+      If Not Expected(l_count) = Actual(l_count) Then
+          IsEqual = False
+          Exit Function
+      End If
+    Next l_count
+  End If
+
     If IsError(Actual) Or IsError(Expected) Then
         IsEqual = False
     ElseIf IsObject(Actual) Or IsObject(Expected) Then
