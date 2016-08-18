@@ -29,6 +29,7 @@ Public Description As String
 
 Public BeforeEachCallback As String
 Public BeforeEachCallbackArgs As Variant
+Private pCounter    As Long
 
 Public Property Get SpecsCol() As Collection
     If pSpecsCol Is Nothing Then: Set pSpecsCol = New Collection
@@ -54,6 +55,8 @@ End Property
 Public Function It(Description As String, Optional SpecId As String = "") As SpecDefinition
     Dim Spec As New SpecDefinition
     
+    pCounter = pCounter + 1
+    
     ' Call BeforeEach if defined
     ExecuteBeforeEach
     
@@ -63,6 +66,10 @@ Public Function It(Description As String, Optional SpecId As String = "") As Spe
     Me.SpecsCol.Add Spec
     Set It = Spec
 End Function
+
+Public Sub TotalTests()
+    Debug.Print "Total tests:" & pCounter
+End Sub
 
 ''
 ' Setup a callback to run before each spec
