@@ -8,51 +8,55 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecExpectation v1.4.0
-' (c) Tim Hall - https://github.com/timhall/Excel-TDD
+' SpecExpectation v2.0.0-beta
+' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
 '
 ' Provides various tests that can be performed for a provided value
 '
-' @dependencies
+' @class SpecExpectation
 ' @author tim.hall.engr@gmail.com
-' @license: MIT (http://www.opensource.org/licenses/mit-license.php)
-'
+' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
 
-Public Enum ExpectResult
-    Pass
-    Fail
-End Enum
+' --------------------------------------------- '
+' Properties
+' --------------------------------------------- '
 
 Public Actual As Variant
 Public Expected As Variant
-Public Result As ExpectResult
+Public Passed As Boolean
 Public FailureMessage As String
 
-
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 ' Public Methods
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 
 ''
-' Check if the actual value is equal / not equal to the expected value
+' Check if the actual value is equal to the expected value
 '
-' @param {Variant} Expected
-' --------------------------------------------- '
+' @method ToEqual
+' @param {Variant} Expected value
+''
 Public Sub ToEqual(Expected As Variant)
     Check IsEqual(Me.Actual, Expected), "to equal", Expected:=Expected
 End Sub
+
+''
+' @method ToNotEqual
+' @param {Variant} Expected value
+''
 Public Sub ToNotEqual(Expected As Variant)
     Check IsEqual(Me.Actual, Expected), "to not equal", Expected:=Expected, Inverse:=True
 End Sub
 
 Private Function IsEqual(Actual As Variant, Expected As Variant) As Variant
-    If IsError(Actual) Or IsError(Expected) Then
+    If VBA.IsError(Actual) Or VBA.IsError(Expected) Then
         IsEqual = False
-    ElseIf IsObject(Actual) Or IsObject(Expected) Then
+    ElseIf VBA.IsObject(Actual) Or VBA.IsObject(Expected) Then
         IsEqual = "Unsupported: Can't compare objects"
-    ElseIf VarType(Actual) = vbDouble And VarType(Expected) = vbDouble Then
-        ' It is inherently difficult/almost impossible to check equality of Double
+    ElseIf VBA.VarType(Actual) = vbDouble And VBA.VarType(Expected) = vbDouble Then
+        ' It is inherently difficult/almost impossible to Check equality of Double
         ' http://support.microsoft.com/kb/78113
         '
         ' Compare up to 15 significant figures
@@ -64,36 +68,49 @@ Private Function IsEqual(Actual As Variant, Expected As Variant) As Variant
 End Function
 
 ''
-' Check if the actual value is undefined / not undefined
+' Check if the actual value is undefined
 ' (Nothing, Empty, Null, or Missing)
-' --------------------------------------------- '
-Public Sub ToBeDefined()
-    Debug.Print "Excel-TDD: DEPRECATED, ToBeDefined() has been deprecated in favor of ToNotBeUndefined and will be removed in Excel-TDD v2.0.0"
-    Check IsUndefined(Me.Actual), "to be defined", Inverse:=True
-End Sub
+'
+' @method ToBeUndefined
+''
 Public Sub ToBeUndefined()
     Check IsUndefined(Me.Actual), "to be undefined"
 End Sub
+
+''
+' Check if the actual value is not undefined
+' (not Nothing, Empty, Null, or Missing)
+'
+' @method ToNotBeUndefined
+''
 Public Sub ToNotBeUndefined()
     Check IsUndefined(Me.Actual), "to not be undefined", Inverse:=True
 End Sub
 
 Private Function IsUndefined(Actual As Variant) As Variant
-    IsUndefined = IsNothing(Actual) Or IsEmpty(Actual) Or IsNull(Actual) Or IsMissing(Actual)
+    IsUndefined = IsNothing(Actual) Or VBA.IsEmpty(Actual) Or VBA.IsNull(Actual) Or VBA.IsMissing(Actual)
 End Function
 
 ''
-' Check if the actual value is nothing / not nothing
-' --------------------------------------------- '
+' Check if the actual value is Nothing
+'
+' @method ToBeNothing
+''
 Public Sub ToBeNothing()
     Check IsNothing(Me.Actual), "to be nothing"
 End Sub
+
+''
+' Check if the actual value is not Nothing
+'
+' @method ToNotBeNothing
+''
 Public Sub ToNotBeNothing()
     Check IsNothing(Me.Actual), "to not be nothing", Inverse:=True
 End Sub
 
 Private Function IsNothing(Actual As Variant) As Variant
-    If IsObject(Actual) Then
+    If VBA.IsObject(Actual) Then
         If Actual Is Nothing Then
             IsNothing = True
         Else
@@ -105,40 +122,65 @@ Private Function IsNothing(Actual As Variant) As Variant
 End Function
 
 ''
-' Check if the actual value is empty / not empty
-' --------------------------------------------- '
+' Check if the actual value is empty
+'
+' @method ToBeEmpty
+''
 Public Sub ToBeEmpty()
-    Check IsEmpty(Me.Actual), "to be empty"
+    Check VBA.IsEmpty(Me.Actual), "to be empty"
 End Sub
+
+''
+' Check if the actual value is not empty
+'
+' @method ToNotBeEmpty
+''
 Public Sub ToNotBeEmpty()
-    Check IsEmpty(Me.Actual), "to not be empty", Inverse:=True
+    Check VBA.IsEmpty(Me.Actual), "to not be empty", Inverse:=True
 End Sub
 
 ''
-' Check if the actual value is null / not null
-' --------------------------------------------- '
+' Check if the actual value is null
+'
+' @method ToBeNull
+''
 Public Sub ToBeNull()
-    Check IsNull(Me.Actual), "to be null"
-End Sub
-Public Sub ToNotBeNull()
-    Check IsNull(Me.Actual), "to not be null", Inverse:=True
+    Check VBA.IsNull(Me.Actual), "to be null"
 End Sub
 
 ''
-' Check if the actual value is missing / not missing
-' --------------------------------------------- '
-Public Sub ToBeMissing()
-    Check IsMissing(Me.Actual), "to be missing"
+' Check if the actual value is not null
+'
+' @method ToNotBeNull
+''
+Public Sub ToNotBeNull()
+    Check VBA.IsNull(Me.Actual), "to not be null", Inverse:=True
 End Sub
+
+''
+' Check if the actual value is missing
+'
+' @method ToBeMissing
+''
+Public Sub ToBeMissing()
+    Check VBA.IsMissing(Me.Actual), "to be missing"
+End Sub
+
+''
+' Check if the actual value is not missing
+'
+' @method ToNotBeMissing
+''
 Public Sub ToNotBeMissing()
-    Check IsMissing(Me.Actual), "to not be missing", Inverse:=True
+    Check VBA.IsMissing(Me.Actual), "to not be missing", Inverse:=True
 End Sub
 
 ''
 ' Check if the actual value is less than the expected value
 '
-' @param {Variant} Expected
-' --------------------------------------------- '
+' @method ToBeLessThan / ToBeLT
+' @param {Variant} Expected value
+''
 Public Sub ToBeLessThan(Expected As Variant)
     Check IsLT(Me.Actual, Expected), "to be less than", Expected:=Expected
 End Sub
@@ -147,7 +189,7 @@ Public Sub ToBeLT(Expected As Variant)
 End Sub
 
 Private Function IsLT(Actual As Variant, Expected As Variant) As Variant
-    If IsError(Actual) Or IsError(Expected) Or Actual >= Expected Then
+    If VBA.IsError(Actual) Or VBA.IsError(Expected) Or Actual >= Expected Then
         IsLT = False
     Else
         IsLT = True
@@ -157,8 +199,9 @@ End Function
 ''
 ' Check if the actual value is less than or equal to the expected value
 '
-' @param {Variant} Expected
-' --------------------------------------------- '
+' @method ToBeLessThanOrEqualTo / ToBeLTE
+' @param {Variant} Expected value
+''
 Public Sub ToBeLessThanOrEqualTo(Expected As Variant)
     Check IsLTE(Me.Actual, Expected), "to be less than or equal to", Expected:=Expected
 End Sub
@@ -167,7 +210,7 @@ Public Sub ToBeLTE(Expected As Variant)
 End Sub
 
 Private Function IsLTE(Actual As Variant, Expected As Variant) As Variant
-    If IsError(Actual) Or IsError(Expected) Or Actual > Expected Then
+    If VBA.IsError(Actual) Or VBA.IsError(Expected) Or Actual > Expected Then
         IsLTE = False
     Else
         IsLTE = True
@@ -177,8 +220,9 @@ End Function
 ''
 ' Check if the actual value is greater than the expected value
 '
-' @param {Variant} Expected
-' --------------------------------------------- '
+' @method ToBeGreaterThan / ToBeGT
+' @param {Variant} Expected value
+''
 Public Sub ToBeGreaterThan(Expected As Variant)
     Check IsGT(Me.Actual, Expected), "to be greater than", Expected:=Expected
 End Sub
@@ -187,7 +231,7 @@ Public Sub ToBeGT(Expected As Variant)
 End Sub
 
 Private Function IsGT(Actual As Variant, Expected As Variant) As Variant
-    If IsError(Actual) Or IsError(Expected) Or Actual <= Expected Then
+    If VBA.IsError(Actual) Or VBA.IsError(Expected) Or Actual <= Expected Then
         IsGT = False
     Else
         IsGT = True
@@ -197,8 +241,9 @@ End Function
 ''
 ' Check if the actual value is greater than or equal to the expected value
 '
+' @method ToBeGreaterThanOrEqualTo / ToBeGTE
 ' @param {Variant} Expected
-' --------------------------------------------- '
+''
 Public Sub ToBeGreaterThanOrEqualTo(Expected As Variant)
     Check IsGTE(Me.Actual, Expected), "to be greater than or equal to", Expected:=Expected
 End Sub
@@ -207,7 +252,7 @@ Public Sub ToBeGTE(Expected As Variant)
 End Sub
 
 Private Function IsGTE(Actual As Variant, Expected As Variant) As Variant
-    If IsError(Actual) Or IsError(Expected) Or Actual < Expected Then
+    If VBA.IsError(Actual) Or VBA.IsError(Expected) Or Actual < Expected Then
         IsGTE = False
     Else
         IsGTE = True
@@ -217,12 +262,21 @@ End Function
 ''
 ' Check if the actual value is close to the expected value
 '
-' @param {Variant} Expected
+' @method ToBeCloseTo
+' @param {Variant} Expected value
 ' @param {Integer} SignificantFigures (1-15)
-' --------------------------------------------- '
+''
 Public Sub ToBeCloseTo(Expected As Variant, SignificantFigures As Integer)
     Check IsCloseTo(Me.Actual, Expected, SignificantFigures), "to be close to", Expected:=Expected
 End Sub
+
+''
+' Check if the actual value is not close to the expected value
+'
+' @method ToNotBeCloseTo
+' @param {Variant} Expected value
+' @param {Integer} SignificantFigures (1-15
+''
 Public Sub ToNotBeCloseTo(Expected As Variant, SignificantFigures As Integer)
     Check IsCloseTo(Me.Actual, Expected, SignificantFigures), "to be close to", Expected:=Expected, Inverse:=True
 End Sub
@@ -233,7 +287,7 @@ Private Function IsCloseTo(Actual As Variant, Expected As Variant, SignificantFi
     
     If SignificantFigures < 1 Or SignificantFigures > 15 Then
         IsCloseTo = "ToBeCloseTo/ToNotBeClose to can only compare from 1 to 15 significant figures"""
-    ElseIf Not IsError(Actual) And Not IsError(Expected) Then
+    ElseIf Not VBA.IsError(Actual) And Not VBA.IsError(Expected) Then
         ' Convert values to scientific notation strings and then compare strings
         If Actual > 1 Then
             ActualAsString = VBA.Format$(Actual, VBA.Left$("0.00000000000000", SignificantFigures + 1) & "e+0")
@@ -252,39 +306,27 @@ Private Function IsCloseTo(Actual As Variant, Expected As Variant, SignificantFi
 End Function
 
 ''
-' Check if the actual value contains the expected value
-' Deprecated: Check if the actual value contains the expected value
+' Check if the actual value array contains the expected value
 '
-' @param {Variant} Expected
-' @param {Boolean} [MatchCase=True] *deprecated
-' --------------------------------------------- '
-Public Sub ToContain(Expected As Variant, Optional MatchCase As Boolean = True)
-    If VarType(Me.Actual) = vbString Then
-        Debug.Print "Excel-TDD: DEPRECATED ToContain has been changed to ToMatch in Excel-TDD v2.0.0"
-        If MatchCase Then
-            Check Matches(Me.Actual, Expected), "to match", Expected:=Expected
-        Else
-            Check Matches(VBA.UCase$(Me.Actual), VBA.UCase$(Expected)), "to match", Expected:=Expected
-        End If
-    Else
-        Check Contains(Me.Actual, Expected), "to contain", Expected:=Expected
-    End If
+' @method ToContain
+' @param {Variant} Expected value
+''
+Public Sub ToContain(Expected As Variant)
+    Check Contains(Me.Actual, Expected), "to contain", Expected:=Expected
 End Sub
-Public Sub ToNotContain(Expected As Variant, Optional MatchCase As Boolean = True)
-    If VarType(Me.Actual) = vbString Then
-        Debug.Print "Excel-TDD: DEPRECATED ToNotContain has been changed to ToMatch in Excel-TDD v2.0.0"
-        If MatchCase Then
-            Check Matches(Me.Actual, Expected), "to not match", Expected:=Expected, Inverse:=True
-        Else
-            Check Matches(VBA.UCase$(Me.Actual), VBA.UCase$(Expected)), "to not match", Expected:=Expected, Inverse:=True
-        End If
-    Else
-        Check Contains(Me.Actual, Expected), "to not contain", Expected:=Expected, Inverse:=True
-    End If
+
+''
+' Check if the actual value array does not contain the expected value
+'
+' @method ToNotContain
+' @param {Variant} Expected value
+''
+Public Sub ToNotContain(Expected As Variant)
+    Check Contains(Me.Actual, Expected), "to not contain", Expected:=Expected, Inverse:=True
 End Sub
 
 Private Function Contains(Actual As Variant, Expected As Variant) As Variant
-    If Not IsArray(Actual) Then
+    If Not IsArrayOrCollection(Actual) Then
         Contains = "Error: Actual needs to be an Array or Collection for ToContain/ToNotContain"
     Else
         Dim i As Integer
@@ -307,20 +349,29 @@ Private Function Contains(Actual As Variant, Expected As Variant) As Variant
 End Function
 
 ''
-' Check if the actual value matches the expected value
+' Check if the actual value string has a match for the expected value substring
 ' (Only checks if the actual contains the expected string currently)
 '
-' @param {Variant} Expected
-' --------------------------------------------- '
+' @method ToMatch
+' @param {Variant} Expected value
+''
 Public Sub ToMatch(Expected As Variant)
     Check Matches(Me.Actual, Expected), "to match", Expected:=Expected
 End Sub
+
+''
+' Check if the actual value string does not have a match for the expected value substring
+' (Only checks if the actual does not contain the expected string currently)
+'
+' @method ToNotMatch
+' @param {Variant} Expected value
+''
 Public Sub ToNotMatch(Expected As Variant)
     Check Matches(Me.Actual, Expected), "to not match", Expected:=Expected, Inverse:=True
 End Sub
 
 Private Function Matches(Actual As Variant, Expected As Variant) As Variant
-    If InStr(Actual, Expected) > 0 Then
+    If VBA.InStr(Actual, Expected) > 0 Then
         Matches = True
     Else
         Matches = False
@@ -349,10 +400,11 @@ End Function
 '     End If
 ' End Function
 '
+' @method RunMatcher
 ' @param {String} Name of function for matcher
 ' @param {String} Message
 ' @param {...} Arguments for custom matcher
-' --------------------------------------------- '
+''
 Public Sub RunMatcher(Name As String, Message As String, ParamArray Arguments())
     Dim Expected As String
     Dim i As Integer
@@ -380,20 +432,20 @@ Public Sub RunMatcher(Name As String, Message As String, ParamArray Arguments())
     End If
 End Sub
 
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-' Internal Methods
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
+' Private Methods
+' ============================================= '
 
 Private Sub Check(Result As Variant, Message As String, Optional Expected As Variant, Optional Inverse As Boolean = False)
-    If Not IsMissing(Expected) Then
-        If IsObject(Expected) Then
+    If Not VBA.IsMissing(Expected) Then
+        If VBA.IsObject(Expected) Then
             Set Me.Expected = Expected
         Else
             Me.Expected = Expected
         End If
     End If
     
-    If VarType(Result) = vbString Then
+    If VBA.VarType(Result) = VBA.vbString Then
         Fails CStr(Result)
     Else
         If Inverse Then
@@ -409,55 +461,59 @@ Private Sub Check(Result As Variant, Message As String, Optional Expected As Var
 End Sub
 
 Private Sub Passes()
-    Me.Result = ExpectResult.Pass
+    Me.Passed = True
 End Sub
 
 Private Sub Fails(Message As String)
-    Me.Result = ExpectResult.Fail
+    Me.Passed = False
     Me.FailureMessage = Message
 End Sub
 
 Private Function CreateFailureMessage(Message As String, Optional Expected As Variant) As String
     CreateFailureMessage = "Expected " & GetStringForValue(Me.Actual) & " " & Message
-    If Not IsMissing(Expected) Then
+    If Not VBA.IsMissing(Expected) Then
         CreateFailureMessage = CreateFailureMessage & " " & GetStringForValue(Expected)
     End If
 End Function
 
 Private Function GetStringForValue(Value As Variant) As String
-    If IsObject(Value) Then
+    If VBA.IsMissing(Value) Then
+        GetStringForValue = "(Missing)"
+        Exit Function
+    End If
+
+    Select Case VBA.VarType(Value)
+    Case VBA.vbObject
         If Value Is Nothing Then
             GetStringForValue = "(Nothing)"
         Else
             GetStringForValue = "(Object)"
         End If
-    ElseIf IsArray(Value) Then
+    Case VBA.vbArray To VBA.vbArray + VBA.vbByte
         GetStringForValue = "(Array)"
-    ElseIf IsEmpty(Value) Then
+    Case VBA.vbEmpty
         GetStringForValue = "(Empty)"
-    ElseIf IsNull(Value) Then
+    Case VBA.vbNull
         GetStringForValue = "(Null)"
-    ElseIf IsMissing(Value) Then
-        GetStringForValue = "(Missing)"
-    Else
+    Case VBA.vbString
+        GetStringForValue = """" & Value & """"
+    Case Else
         GetStringForValue = CStr(Value)
-    End If
+    End Select
     
     If GetStringForValue = "" Then
         GetStringForValue = "(Undefined)"
     End If
 End Function
 
-Private Function IsArray(Value As Variant) As Boolean
-    If Not IsEmpty(Value) Then
-        If IsObject(Value) Then
-            If TypeOf Value Is Collection Then
-                IsArray = True
-            End If
-        ElseIf VarType(Value) = vbArray Or VarType(Value) = 8204 Then
-            ' VarType = 8204 seems to arise from Array(...) constructor
-            IsArray = True
+Private Function IsArrayOrCollection(Value As Variant) As Boolean
+    Select Case VBA.VarType(Value)
+    Case VBA.vbArray To VBA.vbArray + VBA.vbByte
+        IsArrayOrCollection = True
+    Case VBA.vbObject
+        If TypeOf Value Is Collection Then
+            IsArrayOrCollection = True
         End If
-    End If
+    End Select
 End Function
 

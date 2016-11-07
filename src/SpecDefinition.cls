@@ -8,122 +8,75 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecDefinition v1.4.0
-' (c) Tim Hall - https://github.com/timhall/Excel-TDD
+' SpecDefinition v2.0.0-beta
+' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
 '
-' Provides helpers and acts as workbook proxy
+' Collection of expectations for verifying spec
 '
-' @dependencies
+' @class SpecDefinition
 ' @author tim.hall.engr@gmail.com
-' @license: MIT (http://www.opensource.org/licenses/mit-license.php)
-'
+' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
 
-Private pExpectations As Collection
-Private pFailedExpectations As Collection
-
-Public Enum SpecResult
-    Pass
-    Fail
-    Pending
-End Enum
-
-
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-' Properties
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' --------------------------------------------- '
+' Events and Properties
+' --------------------------------------------- '
 
 Public Description As String
 Public Id As String
+Public Expectations As VBA.Collection
 
-Public Property Get Expectations() As Collection
-    If pExpectations Is Nothing Then
-        Set pExpectations = New Collection
-    End If
-    Set Expectations = pExpectations
-End Property
-Private Property Let Expectations(Value As Collection)
-    Set pExpectations = Value
-End Property
+Public Suite As SpecSuite
 
-Public Property Get FailedExpectations() As Collection
-    If pFailedExpectations Is Nothing Then
-        Set pFailedExpectations = New Collection
-    End If
-    Set FailedExpectations = pFailedExpectations
-End Property
-Private Property Let FailedExpectations(Value As Collection)
-    Set pFailedExpectations = Value
-End Property
-
-
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 ' Public Methods
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 
 ''
-' Create a new expectation to test the defined value
+' Create a new expectation to test the given actual value
 '
-' @param {Variant} value Value to be tested by expectation
-' @returns {Expectation}
-' --------------------------------------------- '
-
-Public Function Expect(Optional Value As Variant) As SpecExpectation
-    Dim Exp As New SpecExpectation
+' @method Expect
+' @param {Variant} Actual value to test
+' @return {SpecExpectation}
+''
+Public Function Expect(Optional Actual As Variant) As SpecExpectation
+    Dim Expectation As New SpecExpectation
     
-    If VarType(Value) = vbObject Then
-        Set Exp.Actual = Value
+    If VBA.VarType(Actual) = VBA.vbObject Then
+        Set Expectation.Actual = Actual
     Else
-        Exp.Actual = Value
+        Expectation.Actual = Actual
     End If
-    Me.Expectations.Add Exp
+    Me.Expectations.Add Expectation
     
-    Set Expect = Exp
+    Set Expect = Expectation
 End Function
 
-''
-' Run each expectation, store failed expectations, and return result
-'
-' @returns {SpecResult} Pass/Fail/Pending
-' --------------------------------------------- '
+' ============================================= '
+' Private Functions
+' ============================================= '
 
-Public Function Result() As SpecResult
-    Dim Exp As SpecExpectation
+Private Sub Class_Initialize()
+    Set Me.Expectations = New VBA.Collection
+End Sub
+
+Private Sub Class_Terminate()
+    Dim ResultType As SpecResultType
+    Dim Expectation As SpecExpectation
     
-    ' Reset failed expectations
-    FailedExpectations = New Collection
-    
-    ' If no expectations have been defined, return pending
-    If Me.Expectations.Count < 1 Then
-        Result = Pending
+    If Me.Expectations.Count = 0 Then
+        ResultType = SpecResultType.Pending
     Else
-        ' Loop through all expectations
-        For Each Exp In Me.Expectations
-            ' If expectation fails, store it
-            If Exp.Result = Fail Then
-                FailedExpectations.Add Exp
+        ResultType = SpecResultType.Pass
+        For Each Expectation In Me.Expectations
+            If Not Expectation.Passed Then
+                ResultType = SpecResultType.Fail
+                Exit For
             End If
-        Next Exp
-        
-        ' If no expectations failed, spec passes
-        If Me.FailedExpectations.Count > 0 Then
-            Result = Fail
-        Else
-            Result = Pass
-        End If
+        Next Expectation
     End If
-End Function
 
-''
-' Helper to get result name (i.e. "Pass", "Fail", "Pending")
-'
-' @returns {String}
-' --------------------------------------------- '
+    Me.Suite.AddResult Me.Description, ResultType, Me.Expectations, Me.Id
+End Sub
 
-Public Function ResultName() As String
-    Select Case Me.Result
-        Case Pass: ResultName = "Pass"
-        Case Fail: ResultName = "Fail"
-        Case Pending: ResultName = "Pending"
-    End Select
-End Function

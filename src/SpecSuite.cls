@@ -8,105 +8,89 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' SpecSuite v1.4.0
-' (c) Tim Hall - https://github.com/timhall/Excel-TDD
+' SpecSuite v2.0.0-alpha
+' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
 '
-' A collection of specs with the workbook that they act on
+' A collection of specs and results
 '
-' @dependencies
+' @class SpecSuite
 ' @author tim.hall.engr@gmail.com
-' @license: MIT (http://www.opensource.org/licenses/mit-license.php)
-'
+' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
 
-Private pSpecsCol As Collection
+' --------------------------------------------- '
+' Types, Events, and Properties
+' --------------------------------------------- '
 
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-' Properties
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Public Enum SpecResultType
+    Pass
+    Fail
+    Pending
+End Enum
 
+Public Event BeforeEach()
+Public Event Result(Description As String, ResultType As SpecResultType, Expectations As VBA.Collection, Id As String)
+Public Event AfterEach()
+
+''
+' (Optional) description of suite for display in runners
+'
+' @property Description
+' @type String
+''
 Public Description As String
 
-Public BeforeEachCallback As String
-Public BeforeEachCallbackArgs As Variant
+''
+' @property Results
+' @type Collection
+''
+Public Results As VBA.Collection
 
-Public Property Get SpecsCol() As Collection
-    If pSpecsCol Is Nothing Then: Set pSpecsCol = New Collection
-    Set SpecsCol = pSpecsCol
-End Property
-Public Property Let SpecsCol(Value As Collection)
-    Set pSpecsCol = Value
-End Property
-
-
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 ' Public Methods
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' ============================================= '
 
 ''
 ' Create a new spec definition with description
 '
+' @method It
 ' @param {String} Description
-' @param {String} [SpecId] Useful for identifying specific specs
-' @returns {SpecDefinition} Initialized Spec Definition
-' --------------------------------------------- '
-
-Public Function It(Description As String, Optional SpecId As String = "") As SpecDefinition
+' @param {String} [Id = ""] Useful for identifying specific specs
+' @returns {SpecDefinition}
+''
+Public Function It(Description As String, Optional Id As String = "") As SpecDefinition
     Dim Spec As New SpecDefinition
     
-    ' Call BeforeEach if defined
-    ExecuteBeforeEach
+    RaiseEvent BeforeEach
     
-    ' Initialize spec
+    ' Prepare Spec
     Spec.Description = Description
-    Spec.Id = SpecId
-    Me.SpecsCol.Add Spec
+    Spec.Id = Id
+    Set Spec.Suite = Me
+
     Set It = Spec
 End Function
 
 ''
-' Setup a callback to run before each spec
+' Called at end of SpecDefinition with results
 '
-' @param {String} Callback
-' @param {...} CallbackArgs any additional arguments to pass as array to callback each time
-'
-' Example:
-' BeforeEach "Cleanup", 100, 200
-'
-' ' Cleanup is called before each spec with Args = [100, 200]
-' Sub Cleanup(Args As Variant)
-'   ThisWorkbook.Sheets("Main").Cells(1, 1) = Args(0) ' (100)
-'   ThisWorkbook.Sheets("Main").Cells(2, 1) = Args(1) ' (200)
-' End Sub
-' --------------------------------------------- '
-
-Public Sub BeforeEach(Callback As String, ParamArray CallbackArgs() As Variant)
-    Me.BeforeEachCallback = Callback
-    Me.BeforeEachCallbackArgs = CallbackArgs
+' @internal
+' @method AddResult
+' @param {SpecResultType} ResultType
+' @param {Collection} Expectations
+''
+Public Sub AddResult(Description As String, ResultType As SpecResultType, Expectations As VBA.Collection, Id As String)
+    Me.Results.Add Array(Description, ResultType, Expectations, Id)
+    
+    RaiseEvent Result(Description, ResultType, Expectations, Id)
+    RaiseEvent AfterEach
 End Sub
 
+' ============================================= '
+' Private Functions
+' ============================================= '
 
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-' Internal Methods
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-
-Private Sub ExecuteBeforeEach()
-    If Me.BeforeEachCallback <> "" Then
-        Dim HasArguments As Boolean
-        If VarType(Me.BeforeEachCallbackArgs) = vbObject Then
-            If Not Me.BeforeEachCallbackArgs Is Nothing Then
-                HasArguments = True
-            End If
-        ElseIf IsArray(Me.BeforeEachCallbackArgs) Then
-            If UBound(Me.BeforeEachCallbackArgs) >= 0 Then
-                HasArguments = True
-            End If
-        End If
-    
-        If HasArguments Then
-            Application.Run Me.BeforeEachCallback, Me.BeforeEachCallbackArgs
-        Else
-            Application.Run Me.BeforeEachCallback
-        End If
-    End If
+Private Sub Class_Initialize()
+    Set Me.Results = New VBA.Collection
 End Sub
