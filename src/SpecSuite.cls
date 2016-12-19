@@ -30,7 +30,7 @@ Public Enum SpecResultType
 End Enum
 
 Public Event BeforeEach()
-Public Event Result(Description As String, ResultType As SpecResultType, Expectations As VBA.Collection, Id As String)
+Public Event Result(Definition As SpecDefinition)
 Public Event AfterEach()
 
 ''
@@ -42,10 +42,78 @@ Public Event AfterEach()
 Public Description As String
 
 ''
-' @property Results
-' @type Collection
+' @property Specs
+' @type Collection<SpecDefinition>
 ''
-Public Results As VBA.Collection
+Public Specs As VBA.Collection
+
+''
+' @property Result
+' @type SpecResultType
+''
+Public Property Get Result() As SpecResultType
+    Result = SpecResultType.Pending
+
+    Dim Spec As SpecDefinition
+    For Each Spec In Me.Specs
+        If Spec.Result = SpecResultType.Pass Then
+            Result = SpecResultType.Pass
+        ElseIf Spec.Result = SpecResultType.Fail Then
+            Result = SpecResultType.Fail
+            Exit For
+        End If
+    Next Spec
+End Property
+
+''
+' @property PassedSpecs
+' @type Collection<SpecDefinition>
+''
+Public Property Get PassedSpecs() As Collection
+    Dim Spec As SpecDefinition
+    Dim Filtered As New Collection
+    For Each Spec In Me.Specs
+        If Spec.Result = SpecResultType.Pass Then
+            Filtered.Add Spec
+        End If
+    Next Spec
+
+    Set PassedSpecs = Filtered
+End Property
+
+''
+' @property FailedSpecs
+' @type Collection<SpecDefinition>
+''
+Public Property Get FailedSpecs() As Collection
+    Dim Spec As SpecDefinition
+    Dim Filtered As New Collection
+    For Each Spec In Me.Specs
+        If Spec.Result = SpecResultType.Fail Then
+            Filtered.Add Spec
+        End If
+    Next Spec
+    
+    Set FailedSpecs = Filtered
+End Property
+
+''
+' @property PendingSpecs
+' @type Collection<SpecDefinition>
+''
+Public Property Get PendingSpecs() As Collection
+    Dim Spec As SpecDefinition
+    Dim Filtered As New Collection
+    For Each Spec In Me.Specs
+        If Spec.Result = SpecResultType.Pending Then
+            Filtered.Add Spec
+        End If
+    Next Spec
+    
+    Set PendingSpecs = Filtered
+End Property
+''
+'
 
 ' ============================================= '
 ' Public Methods
@@ -73,17 +141,15 @@ Public Function It(Description As String, Optional Id As String = "") As SpecDef
 End Function
 
 ''
-' Called at end of SpecDefinition with results
+' Called at completion of SpecDefinition
 '
 ' @internal
-' @method AddResult
-' @param {SpecResultType} ResultType
-' @param {Collection} Expectations
+' @method SpecDone
+' @param {SpecDefinition} Spec
 ''
-Public Sub AddResult(Description As String, ResultType As SpecResultType, Expectations As VBA.Collection, Id As String)
-    Me.Results.Add Array(Description, ResultType, Expectations, Id)
-    
-    RaiseEvent Result(Description, ResultType, Expectations, Id)
+Public Sub SpecDone(Spec As SpecDefinition)
+    Me.Specs.Add Spec
+    RaiseEvent Result(Spec)
     RaiseEvent AfterEach
 End Sub
 
@@ -92,5 +158,5 @@ End Sub
 ' ============================================= '
 
 Private Sub Class_Initialize()
-    Set Me.Results = New VBA.Collection
+    Set Me.Specs = New VBA.Collection
 End Sub

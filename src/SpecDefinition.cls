@@ -29,6 +29,34 @@ Public Expectations As VBA.Collection
 
 Public Suite As SpecSuite
 
+Public Property Get Result() As SpecResultType
+    If Me.Expectations.Count = 0 Then
+        Result = SpecResultType.Pending
+    Else
+        Result = SpecResultType.Pass
+        
+        Dim Expectation As SpecExpectation
+        For Each Expectation In Me.Expectations
+            If Not Expectation.Passed Then
+                Result = SpecResultType.Fail
+                Exit For
+            End If
+        Next Expectation
+    End If
+End Property
+
+Public Property Get FailedExpectations() As Collection
+    Dim Filtered As New Collection
+    Dim Expectation As SpecExpectation
+    For Each Expectation In Me.Expectations
+        If Not Expectation.Passed Then
+            Filtered.Add Expectation
+        End If
+    Next Expectation
+    
+    Set FailedExpectations = Filtered
+End Property
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
@@ -62,21 +90,6 @@ Private Sub Class_Initialize()
 End Sub
 
 Private Sub Class_Terminate()
-    Dim ResultType As SpecResultType
-    Dim Expectation As SpecExpectation
-    
-    If Me.Expectations.Count = 0 Then
-        ResultType = SpecResultType.Pending
-    Else
-        ResultType = SpecResultType.Pass
-        For Each Expectation In Me.Expectations
-            If Not Expectation.Passed Then
-                ResultType = SpecResultType.Fail
-                Exit For
-            End If
-        Next Expectation
-    End If
-
-    Me.Suite.AddResult Me.Description, ResultType, Me.Expectations, Me.Id
+    Me.Suite.SpecDone Me
 End Sub
 

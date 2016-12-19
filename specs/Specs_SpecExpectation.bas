@@ -1,7 +1,12 @@
-Attribute VB_Name = "SpecExpectationSpecs"
+Attribute VB_Name = "Specs_SpecExpectation"
 Public Function Specs() As SpecSuite
+    Dim Expectation As SpecExpectation
+
     Set Specs = New SpecSuite
     Specs.Description = "SpecExpectation"
+    
+    Dim Reporter As New ImmediateReporter
+    Reporter.ListenTo Specs
     
     With Specs.It("ToEqual/ToNotEqual")
         .Expect("A").ToEqual "A"
@@ -156,11 +161,31 @@ Public Function Specs() As SpecSuite
     End With
     
     With Specs.It("RunMatcher")
-        .Expect(100).RunMatcher "SpecExpectationSpecs.ToBeWithin", "to be within", 90, 110
-        .Expect(Nothing).RunMatcher "SpecExpectationSpecs.ToBeNothing", "to be nothing"
+        .Expect(100).RunMatcher "Specs_SpecExpectation.ToBeWithin", "to be within", 90, 110
+        .Expect(Nothing).RunMatcher "Specs_SpecExpectation.ToBeNothing", "to be nothing"
     End With
     
-    InlineRunner.RunSuite Specs
+    With Specs.It("should set Passed")
+        Set Expectation = New SpecExpectation
+        Expectation.Actual = 4
+        Expectation.ToEqual 4
+        
+        .Expect(Expectation.Passed).ToEqual True
+        
+        Expectation.ToEqual 3
+        .Expect(Expectation.Passed).ToEqual False
+    End With
+    
+    With Specs.It("should set FailureMessage")
+        Set Expectation = New SpecExpectation
+        Expectation.Actual = 4
+        
+        Expectation.ToEqual 4
+        .Expect(Expectation.FailureMessage).ToEqual ""
+        
+        Expectation.ToEqual 3
+        .Expect(Expectation.FailureMessage).ToEqual "Expected 4 to equal 3"
+    End With
 End Function
 
 Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
@@ -179,7 +204,7 @@ Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
 End Function
 
 Public Function ToBeNothing(Actual As Variant) As Variant
-    If IsObject(Actual) Then
+    If VBA.IsObject(Actual) Then
         If Actual Is Nothing Then
             ToBeNothing = True
         Else

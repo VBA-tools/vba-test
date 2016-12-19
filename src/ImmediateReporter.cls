@@ -21,6 +21,10 @@ Private WithEvents pSpecs As SpecSuite
 Attribute pSpecs.VB_VarHelpID = -1
 Private Finished As Boolean
 
+' ============================================= '
+' Public Methods
+' ============================================= '
+
 ''
 ' Listen to given SpecSuite
 '
@@ -32,7 +36,7 @@ Public Sub ListenTo(Specs As SpecSuite)
         Done
     End If
     
-    Debug.Print "= " & Now & " ="
+    Debug.Print "===" & IIf(Specs.Description <> "", " " & Specs.Description & " ===", "")
     Set pSpecs = Specs
     Finished = False
 End Sub
@@ -44,26 +48,63 @@ End Sub
 ''
 Public Function Done()
     Finished = True
-    Debug.Print "= DONE = " & pSpecs.Results.Count & " ="
+    
+    Debug.Print "= " & Summary & " = " & Now & " =" & vbNewLine
 End Function
+
+' ============================================= '
+' Private Functions
+' ============================================= '
 
 Private Function ResultTypeToString(ResultType As SpecResultType) As String
     Select Case ResultType
     Case SpecResultType.Pass
-        ResultTypeToString = "PASS"
+        ResultTypeToString = "+"
     Case SpecResultType.Fail
-        ResultTypeToString = "FAIL"
+        ResultTypeToString = "X"
     Case SpecResultType.Pending
-        ResultTypeToString = "pending"
+        ResultTypeToString = "."
     End Select
 End Function
+
+Private Function Summary() As String
+    Dim Total As Long
+    Dim Passed As Long
+    Dim Failed As Long
+    Dim Pending As Long
+    Total = pSpecs.Specs.Count
+    Passed = pSpecs.PassedSpecs.Count
+    Failed = pSpecs.FailedSpecs.Count
+    Pending = pSpecs.PendingSpecs.Count
+    
+    Dim SummaryMessage As String
+    If Failed > 0 Then
+        SummaryMessage = "FAIL (" & Failed & " of " & Total & " failed"
+    Else
+        SummaryMessage = "PASS (" & Passed & " of " & Total & " passed"
+    End If
+    If Pending > 0 Then
+        SummaryMessage = SummaryMessage & ", " & Pending & " pending)"
+    Else
+        SummaryMessage = SummaryMessage & ")"
+    End If
+    
+    Summary = SummaryMessage
+End Function
+
+Private Sub pSpecs_Result(Spec As SpecDefinition)
+    Debug.Print ResultTypeToString(Spec.Result) & " " & Spec.Description & IIf(Spec.Id <> "", " [" & Spec.Id & "]", "")
+    
+    If Spec.Result = SpecResultType.Fail Then
+        Dim Expectation As SpecExpectation
+        For Each Expectation In Spec.FailedExpectations
+            Debug.Print "  " & Expectation.FailureMessage
+        Next Expectation
+    End If
+End Sub
 
 Private Sub Class_Terminate()
     If Not Finished Then
         Done
     End If
-End Sub
-
-Private Sub pSpecs_Result(Description As String, ResultType As SpecResultType, Expectations As Collection, Id As String)
-    Debug.Print ResultTypeToString(ResultType) & " " & Description
 End Sub
