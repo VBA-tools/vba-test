@@ -19,6 +19,14 @@ Attribute VB_Exposed = True
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
+''
+' @feature RunMatcher
+' @compatibility: Platforms / applications that support Application.Run
+'   Platforms: Windows
+'   Applications: Excel, Word, Access
+''
+#Const EnableRunMatcher = True
+
 ' --------------------------------------------- '
 ' Properties
 ' --------------------------------------------- '
@@ -405,6 +413,7 @@ End Function
 ' @param {String} Message
 ' @param {...} Arguments for custom matcher
 ''
+#If EnableRunMatcher Then
 Public Sub RunMatcher(Name As String, Message As String, ParamArray Arguments())
     Dim Expected As String
     Dim i As Integer
@@ -431,6 +440,7 @@ Public Sub RunMatcher(Name As String, Message As String, ParamArray Arguments())
         Check Application.Run(Name, Me.Actual), Message
     End If
 End Sub
+#End If
 
 ' ============================================= '
 ' Private Methods
