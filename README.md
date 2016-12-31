@@ -173,6 +173,6 @@ To avoid compilation issues on unsupported applications, the compiler constant `
 
 For more details, check out the [Wiki](https://github.com/VBA-tools/VBA-TDD/wiki)
 
-- Design based heavily on the [Jasmine](http://pivotal.github.com/jasmine/)
+- Design based heavily on the [Jasmine](https://jasmine.github.io/)
 - Author: Tim Hall
 - License: MIT
