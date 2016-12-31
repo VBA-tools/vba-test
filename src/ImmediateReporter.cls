@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
 ' ImmediateReporter v2.0.0-beta
-' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
+' (c) Tim Hall - https://github.com/VBA-tools/VBA-TDD
 '
 ' Report results to Immediate Window
 '

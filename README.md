@@ -1,16 +1,19 @@
-Excel-TDD: Excel Testing Library
-================================
+VBA-TDD
+=======
 
-Bring the reliability of other programming realms to Excel with Test-Driven Development for Excel.
+Bring the reliability of other programming realms to VBA with Test-Driven Development (TDD) for VBA on Windows and Mac.
 
 Quick example:
 
-```VB.net
-Sub Specs()
-    On Error Resume Next
+```vb
+Function Specs() As SpecSuite
+    Set Specs = New SpecSuite
+    Specs.Description = "Add"
 
-    ' Create a new collection of specs
-    Dim Specs As New SpecSuite
+    ' Report results to the Immediate Window
+    ' (ctrl + g or View > Immediate Window)
+    Dim Reporter As New ImmediateReporter
+    Reporter.ListenTo Specs
 
     ' Describe the desired behavior
     With Specs.It("should add two numbers")
@@ -24,8 +27,6 @@ Sub Specs()
         .Expect(Add(1, 2, 3)).ToEqual 6
         .Expect(Add(1, 2, 3, 4)).ToEqual 10
     End With
-
-    InlineRunner.RunSuite Specs
 End Sub
 
 Public Function Add(ParamArray Values() As Variant) As Double
@@ -37,68 +38,31 @@ Public Function Add(ParamArray Values() As Variant) As Double
     Next i
 End Function
 
-' Open the Immediate Window (Ctrl+g or View > Immediate Window) and Run Specs (F5)'
-' = PASS (2 of 2 passed) ==========================
+' Immediate Window:
+'
+' === Add ===
+' + should add two numbers
+' + should add any number of numbers
+' = PASS (2 of 2 passed) =
 ```
 
-For details of the process of reaching this example, see the [TDD Example](https://github.com/timhall/Excel-TDD/wiki/TDD-Example)
+For details of the process of reaching this example, see the [TDD Example](https://github.com/VBA-tools/VBA-TDD/wiki/TDD-Example)
 
 ### Advanced Example
 
-For an advanced example of what is possible with Excel-TDD, check out the [specs for Excel-REST](https://github.com/timhall/Excel-REST/tree/master/specs)
-
-Methods used in these specs:
-
-- Using `BeforeEach` to reset before each spec is run
-- Testing VBA modules and classes
-- Setting up a custom `DisplayRunner` and `InlineRunner`
-- Waiting for and handling async behavior
+For an advanced example of what is possible with VBA-TDD, check out the [specs for VBA-Web](https://github.com/VBA-tools/VBA-Web/tree/master/specs)
 
 ### Getting Started
 
-For testing macros:
-
-- The lightweight Inline Runner is recommended and should be added directly to the workbook that is being tested
-- Add `InlineRunner.bas`, `SpecDefinition.cls`, `SpecExpectation.cls`, and `SpecSuite.cls` to your workbook
-- If starting from scratch, the `Excel-TDD - Blank - Inline.xlsm` workbook includes all of the required classes and modules
-
-For testing workbooks:
-
-- The full Workbook Runner is recommended in order to keep testing behavior separate from the workbook that is being tested
-- Use the `Excel-TDD - Blank.xlsm` workbook
-- See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Workbook-Runner-Example) for details
-
-### Inline Runner
-
-The inline runner is a lightweight test runner that is intended to be loaded directly into the workbook that is being tested and is for testing macros and simple behaviors in the workbook
-All results are displayed in the Immediate Window (Ctrl+g or View > Immediate Window) and the runner requires no setup to run test suites
-
-```VB.net
-InlineRunner.RunSuite Specs
-
-' = PASS (2 of 2 passed) ==========================
-
-' Configurable
-InlineRunner.RunSuite Specs, ShowFailureDetails:=True, ShowPassed:=True, ShowSuiteDetails:=True
-
-' = PASS (2 of 2 passed) ==========================
-' + 2 specs
-'   + should add two numbers
-'   + should add any number of numbers
-' ===
-```
-
-### Workbook Runner
-
-The workbook runner is a full test runner that is intended to be used separately of the workbook that is being tested to keep testing behavior separate. 
-It is for testing advanced workbook behaviors and allows for reseting the test workbook between tests, using scenarios for tests (see below), and running tests against different test workbooks.
-See the [Workbook Runner Example](https://github.com/timhall/Excel-TDD/wiki/Workbook-Runner-Example) for details
+1. Download the [latest release (v2.0.0-beta)](https://github.com/VBA-tools/VBA-TDD/releases)
+2. Add `src/SpecSuite.cls`, `src/SpecDefinition.cls`, `src/SpecExpectation.cls`, add `src/ImmediateReporter.cls` to your project
+3. If you're starting from scratch with Excel, you can use `VBA-TDD - Blank.xlsm`
 
 ### It and Expect
 
 `It` is how you describe desired behavior and once a collection of specs is written, it should read like a list of requirements.
 
-```VB.net
+```vb
 With Specs.It("should allow user to continue if they are authorized and up-to-date")
     ' ...
 End With
@@ -110,7 +74,7 @@ End With
 
 `Expect` is how you test desired behavior 
 
-```VB.net
+```vb
 With Specs.It("should check values")
     .Expect(2 + 2).ToEqual 4
     .Expect(2 + 2).ToNotEqual 5
@@ -155,7 +119,59 @@ With Specs.It("should test complex things")
 End With
 ```
 
-For more details, check out the [Wiki](https://github.com/timhall/Excel-TDD/wiki)
+### ImmediateReporter
+
+With your specs defined, the easiest way to display the test results is with `ImmediateReporter`. This outputs results to the Immediate Window (`ctrl+g` or View > Immediate Window) and is useful for running your tests without leaving the VBA editor.
+
+```vb
+Public Function Specs As SpecSuite
+    Set Specs = New SpecSuite
+    Specs.Description = "..."
+
+    ' Create reporter and attach it to these specs
+    Dim Reporter As New ImmediateReporter
+    Reporter.ListenTo Specs
+
+    ' -> Reporter will now output results as they are generated
+End Function
+```
+
+### RunMatcher
+
+For VBA applications that support `Application.Run` (which is at least Windows Excel, Word, and Access), you can create custom expect functions with `RunMatcher`.
+
+```vb
+Public Function Specs As SpecSuite
+    Set Specs = New SpecSuite
+
+    With Specs.It("should be within 1 and 100")
+        .Expect(50).RunMatcher "ToBeWithin", "to be within", 1, 100
+        '       ^ Actual
+        '                      ^ Public Function to call
+        '                                    ^ message for matcher
+        '                                                    ^ 0+ Args to pass to matcher
+    End With
+End Function
+
+Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
+    If UBound(Args) - LBound(Args) < 1 Then
+        ' Return string for specific failure message
+        ToBeWithin = "Need to pass in upper-bound to ToBeWithin"
+    Else
+        If Actual >= Args(0) And Actual <= Args(1) Then
+            ' Return true for pass
+            ToBeWithin = True
+        Else
+            ' Return false for fail or custom failure message
+            ToBeWithin = False
+        End If
+    End If
+End Function
+```
+
+To avoid compilation issues on unsupported applications, the compiler constant `EnableRunMatcher` in `SpecExpectation.cls` should be set to `False`.
+
+For more details, check out the [Wiki](https://github.com/VBA-tools/VBA-TDD/wiki)
 
 - Design based heavily on the [Jasmine](http://pivotal.github.com/jasmine/)
 - Author: Tim Hall

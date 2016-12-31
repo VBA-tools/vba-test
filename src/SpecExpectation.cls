@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
 ' SpecExpectation v2.0.0-beta
-' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
+' (c) Tim Hall - https://github.com/VBA-tools/VBA-TDD
 '
 ' Provides various tests that can be performed for a provided value
 '

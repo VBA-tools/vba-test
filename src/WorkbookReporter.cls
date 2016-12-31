@@ -9,11 +9,14 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
 ' DisplayReporter v2.0.0-beta
-' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
+' (c) Tim Hall - https://github.com/VBA-tools/VBA-TDD
 '
 ' Report results to Worksheet
 '
 ' @class DisplayReporter
+' @compatibility
+'   Platforms: Windows and Mac
+'   Applications: Excel-only
 ' @author tim.hall.engr@gmail.com
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
