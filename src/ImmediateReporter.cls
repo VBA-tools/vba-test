@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' ImmediateReporter v2.0.0-alpha
+' ImmediateReporter v2.0.0-beta
 ' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
 '
 ' Report results to Immediate Window
@@ -17,6 +17,12 @@ Attribute VB_Exposed = True
 ' @author tim.hall.engr@gmail.com
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
+
+' --------------------------------------------- '
+' Constants and Private Variables
+' --------------------------------------------- '
+
 Private WithEvents pSpecs As SpecSuite
 Attribute pSpecs.VB_VarHelpID = -1
 Private Finished As Boolean

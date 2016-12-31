@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' DisplayReporter v2.0.0-alpha
+' DisplayReporter v2.0.0-beta
 ' (c) Tim Hall - https://github.com/VBA-tools/Excel-TDD
 '
 ' Report results to Worksheet
@@ -17,6 +17,12 @@ Attribute VB_Exposed = True
 ' @author tim.hall.engr@gmail.com
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
+
+' --------------------------------------------- '
+' Constants and Private Variables
+' --------------------------------------------- '
+
 Private Const ProgressWidth As Long = 128
 Private pSheet As Worksheet
 Private pCount As Long
@@ -194,8 +200,7 @@ Private Sub DisplayResults()
     For Each Divider In Dividers
         With pSheet.Range(pSheet.Cells(StartRow + Divider, StartColumn), pSheet.Cells(StartRow + Divider, StartColumn + 1)).Borders(xlEdgeTop)
             .LineStyle = xlContinuous
-            .ThemeColor = 1
-            .TintAndShade = -0.249946592608417
+            .Color = VBA.RGB(191, 191, 191)
             .Weight = xlThin
         End With
     Next Divider
