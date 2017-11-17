@@ -27,7 +27,7 @@ Function Specs() As SpecSuite
         .Expect(Add(1, 2, 3)).ToEqual 6
         .Expect(Add(1, 2, 3, 4)).ToEqual 10
     End With
-End Sub
+End Function
 
 Public Function Add(ParamArray Values() As Variant) As Double
     Dim i As Integer
