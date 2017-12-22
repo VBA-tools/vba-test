@@ -48,6 +48,12 @@ Public Description As String
 Public Specs As VBA.Collection
 
 ''
+' @property Suites
+' @type Collection<SpecSuite>
+''
+Public Suites As VBA.Collection
+
+''
 ' @property Result
 ' @type SpecResultType
 ''
@@ -159,4 +165,5 @@ End Sub
 
 Private Sub Class_Initialize()
     Set Me.Specs = New VBA.Collection
+    Set Me.Suites = New VBA.Collection
 End Sub
