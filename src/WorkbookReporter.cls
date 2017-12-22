@@ -32,6 +32,22 @@ Private pCount As Long
 Private pTotal As Long
 Private pSuites As Collection
 
+
+' --------------------------------------------- '
+' Public Variables
+' --------------------------------------------- '
+
+''
+' Whether or not to Indent nested SpecSuites
+' and by how much
+'
+' @Boolean Active
+' @Integer Spaces
+''
+Public IndentActive As Boolean
+Public IndentSpaces As Integer
+
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
@@ -79,7 +95,7 @@ Public Sub Output(Suite As SpecSuite)
     pSuites.Add Suite
     
     ShowProgress
-    DisplayResults
+    DisplayResults pSuites
 End Sub
 
 ''
@@ -154,32 +170,18 @@ Private Sub ClearResults()
     End With
 End Sub
 
-Private Sub DisplayResults()
+Private Sub DisplayResults(Suites As Collection, Optional IndentLevel As Integer = 0)
     Dim Rows As New Collection
     Dim Dividers As New Collection
     Dim Headings As New Collection
     
-    Dim Suite As SpecSuite
-    Dim Spec As SpecDefinition
-    Dim Expectation As SpecExpectation
-    For Each Suite In pSuites
-        If Rows.Count > 0 Then
-            Dividers.Add Rows.Count
-        End If
+    Dim DisplayPacket As Collection
+    Set DisplayPacket = displayBuilder(Suites, IndentLevel)
+    
+    Set Rows = DisplayPacket("Rows")
+    Set Dividers = DisplayPacket("Dividers")
+    Set Headings = DisplayPacket("Headings")
 
-        If Suite.Description <> "" Then
-            Headings.Add Rows.Count
-            Rows.Add Array(Suite.Description, ResultTypeToString(Suite.Result))
-        End If
-
-        For Each Spec In Suite.Specs
-            Rows.Add Array(Spec.Description, ResultTypeToString(Spec.Result))
-
-            For Each Expectation In Spec.FailedExpectations
-                Rows.Add Array("  " & Expectation.FailureMessage, "")
-            Next Expectation
-        Next Spec
-    Next Suite
     
     Dim OutputValues() As String
     Dim Row As Variant
@@ -214,6 +216,49 @@ Private Sub DisplayResults()
     Next Heading
 End Sub
 
+Private Function displayBuilder(Suites As Collection, Optional IndentLevel As Integer = 0, Optional DisplayPacket As Collection) As Collection
+    Dim Rows As New Collection
+    Dim Dividers As New Collection
+    Dim Headings As New Collection
+    
+    If Not DisplayPacket Is Nothing Then
+      Set Rows = DisplayPacket("Rows")
+      Set Dividers = DisplayPacket("Dividers")
+      Set Headings = DisplayPacket("Headings")
+    End If
+    
+    Dim Suite As SpecSuite
+    Dim Spec As SpecDefinition
+    Dim Expectation As SpecExpectation
+    For Each Suite In Suites
+        If Rows.Count > 0 Then
+            Dividers.Add Rows.Count
+        End If
+
+        If Suite.Description <> "" Then
+            Headings.Add Rows.Count
+            Rows.Add Array(IndentBuilder(IndentLevel) & Suite.Description, ResultTypeToString(Suite.Result))
+        End If
+
+        For Each Spec In Suite.Specs
+            Rows.Add Array(IndentBuilder(IndentLevel + 1) & Spec.Description, ResultTypeToString(Spec.Result))
+
+            For Each Expectation In Spec.FailedExpectations
+                Rows.Add Array(IndentBuilder(IndentLevel + 2) & Expectation.FailureMessage, "")
+            Next Expectation
+        Next Spec
+        
+        Set DisplayPacket = New Collection
+        DisplayPacket.Add Rows, "Rows"
+        DisplayPacket.Add Dividers, "Dividers"
+        DisplayPacket.Add Headings, "Headings"
+        
+        Set DisplayPacket = displayBuilder(Suite.Suites, IndentLevel + 1, DisplayPacket)
+
+    Next Suite
+    Set displayBuilder = DisplayPacket
+End Function
+
 Private Function ResultTypeToString(ResultType As SpecResultType) As String
     Select Case ResultType
     Case SpecResultType.Pass
@@ -228,3 +273,13 @@ End Function
 Private Sub Class_Initialize()
     Set pSuites = New Collection
 End Sub
+
+Private Function Repeat(str As String, Count As Integer) As String
+  Repeat = WorksheetFunction.Rept(str, Count)
+End Function
+
+Private Function IndentBuilder(level As Integer) As String
+  If level = 0 Then Exit Function
+  IndentBuilder = Repeat(Repeat(" ", IndentSpaces), level)
+End Function
+
