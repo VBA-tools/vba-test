@@ -169,6 +169,43 @@ Public Function ToBeWithin(Actual As Variant, Args As Variant) As Variant
 End Function
 ```
 
+
+### Nested SpecSuites
+
+`SpecSuites` can be nested in order to organize sub-sets of tests 
+
+```vb
+Public Function ArithmaSpecs() As SpecSuite
+    Set ArithmaSpecs = New SpecSuite
+    With ArithmaSpecs
+      
+      .Description = "Arithmatic Functions"
+      
+      .Suites.Add AddSpecs
+      .Suites.Add SubtractSpecs
+      
+    End With
+End Function
+
+Public Function AdditionSpecs() As SpecSuite
+    Set AdditionSpecs = New SpecSuite
+    
+    AdditionSpecs _
+      .It("should add two numbers") _
+        .Expect(Arithmatic.Add(5, 5)).ToEqual 10
+        
+End Function
+
+Public Function SubtractionSpecs() As SpecSuite
+    Set SubtractSpecs = New SpecSuite
+    
+    SubtractionSpecs _
+      .It("should subtract two numbers") _
+        .Expect(Arithmatic.Subtract(10, 5)).ToEqual 5
+    
+End Function
+```
+
 To avoid compilation issues on unsupported applications, the compiler constant `EnableRunMatcher` in `SpecExpectation.cls` should be set to `False`.
 
 For more details, check out the [Wiki](https://github.com/VBA-tools/VBA-TDD/wiki)
