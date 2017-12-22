@@ -176,15 +176,17 @@ End Function
 
 ```vb
 Public Function ArithmaSpecs() As SpecSuite
+    Dim Reporter As New WorkbookReporter
     Set ArithmaSpecs = New SpecSuite
     With ArithmaSpecs
       
       .Description = "Arithmatic Functions"
       
-      .Suites.Add AddSpecs
-      .Suites.Add SubtractSpecs
+      .Suites.Add AdditionSpecs
+      .Suites.Add SubtractionSpecs
       
     End With
+    Reporter.Output ArithmaSpecs '' outputs ArithmaSpecs, AdditionSpecs, and SubtractionSpecs
 End Function
 
 Public Function AdditionSpecs() As SpecSuite
