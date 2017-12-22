@@ -136,6 +136,28 @@ Public Function Specs As SpecSuite
 End Function
 ```
 
+To silence the `ImmediateReporter` without modification to each SpecSuite it can be set created as a global object and set to `SilentMode` in your `SpecRunner`
+
+```vb
+public imReporter as ImmediateReporter
+
+Public Sub RunSpecs()
+    'Dim Reporter As New WorkbookReporter
+    'Reporter.ConnectTo SpecRunner
+
+    set imReporter = New ImmediateReporter
+    imReporter.SilentMode = True
+
+    'Reporter.Start NumSuites:=0
+    '                         ^ adjust NumSuites to match number of suites output
+    '                           (used for reporting progress)
+    ' Reporter.Output Suite1
+    ' Reporter.Output Suite2
+
+    'Reporter.Done
+End Sub
+```
+
 ### RunMatcher
 
 For VBA applications that support `Application.Run` (which is at least Windows Excel, Word, and Access), you can create custom expect functions with `RunMatcher`.
@@ -173,6 +195,6 @@ To avoid compilation issues on unsupported applications, the compiler constant `
 
 For more details, check out the [Wiki](https://github.com/VBA-tools/VBA-TDD/wiki)
 
-- Design based heavily on the [Jasmine](https://jasmine.github.io/)
+- Design based heavily on [Jasmine](https://jasmine.github.io/)
 - Author: Tim Hall
 - License: MIT
