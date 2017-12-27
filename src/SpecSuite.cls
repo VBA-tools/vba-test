@@ -58,17 +58,18 @@ Public Suites As VBA.Collection
 ' @type SpecResultType
 ''
 Public Property Get Result() As SpecResultType
-    Result = SpecResultType.Pending
-
+    Result = SpecResultType.Pass
+    
+    Dim Suite As SpecSuite
     Dim Spec As SpecDefinition
     For Each Spec In Me.Specs
-        If Spec.Result = SpecResultType.Pass Then
-            Result = SpecResultType.Pass
-        ElseIf Spec.Result = SpecResultType.Fail Then
-            Result = SpecResultType.Fail
-            Exit For
-        End If
+        Result = WorksheetFunction.Min(Spec.Result, Result)
+        If Result = SpecResultType.Fail Then Exit Function
     Next Spec
+    For Each Suite In Me.Suites
+        Result = WorksheetFunction.Min(Suite.Result, Result)
+    Next Suite
+    If (Me.PassedSpecs.Count + Me.FailedSpecs.Count = 0) Then Result = SpecResultType.Pending
 End Property
 
 ''
