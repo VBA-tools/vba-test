@@ -32,6 +32,29 @@ Private pCount As Long
 Private pTotal As Long
 Private pSuites As Collection
 
+
+' --------------------------------------------- '
+' Public Variables
+' --------------------------------------------- '
+
+''
+' Whether or not to Indent nested SpecSuites
+' and by how much
+'
+' @Boolean IndentActive
+' @Integer IndentSpaces
+''
+Public IndentActive As Boolean
+Public IndentSpaces As Integer
+
+''
+' Whether or not to create groups of rows
+'
+' @Boolean CreateGroups
+''
+Public CreateGroups As Boolean
+
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
@@ -79,7 +102,7 @@ Public Sub Output(Suite As SpecSuite)
     pSuites.Add Suite
     
     ShowProgress
-    DisplayResults
+    DisplayResults Suite
 End Sub
 
 ''
@@ -141,6 +164,9 @@ Private Sub ClearResults()
     StartRow = pSheet.Range("Output").Row
     StartColumn = pSheet.Range("Output").Column
     
+    pSheet.AutoFilterMode = False
+    pSheet.UsedRange.Rows.ClearOutline
+    
     Dim LastRow As Long
     LastRow = StartRow
     Do While pSheet.Cells(LastRow + 1, StartColumn).Value <> ""
@@ -154,32 +180,19 @@ Private Sub ClearResults()
     End With
 End Sub
 
-Private Sub DisplayResults()
+Private Sub DisplayResults(Suite As SpecSuite, Optional IndentLevel As Integer = 0)
     Dim Rows As New Collection
     Dim Dividers As New Collection
     Dim Headings As New Collection
+    Dim Groups As New Collection
     
-    Dim Suite As SpecSuite
-    Dim Spec As SpecDefinition
-    Dim Expectation As SpecExpectation
-    For Each Suite In pSuites
-        If Rows.Count > 0 Then
-            Dividers.Add Rows.Count
-        End If
-
-        If Suite.Description <> "" Then
-            Headings.Add Rows.Count
-            Rows.Add Array(Suite.Description, ResultTypeToString(Suite.Result))
-        End If
-
-        For Each Spec In Suite.Specs
-            Rows.Add Array(Spec.Description, ResultTypeToString(Spec.Result))
-
-            For Each Expectation In Spec.FailedExpectations
-                Rows.Add Array("  " & Expectation.FailureMessage, "")
-            Next Expectation
-        Next Spec
-    Next Suite
+    Dim DisplayPacket As Collection
+    Set DisplayPacket = DisplayBuilder(Suite, IndentLevel)
+    
+    Set Rows = DisplayPacket("Rows")
+    Set Dividers = DisplayPacket("Dividers")
+    Set Headings = DisplayPacket("Headings")
+    Set Groups = DisplayPacket("Groups")
     
     Dim OutputValues() As String
     Dim Row As Variant
@@ -194,9 +207,10 @@ Private Sub DisplayResults()
     
     Dim StartRow As Long
     Dim StartColumn As Long
-    StartRow = pSheet.Range("Output").Row
-    StartColumn = pSheet.Range("Output").Column
-
+    StartRow = pSheet.Rows(pSheet.UsedRange.Rows.Count).End(xlUp).Row + 1
+    StartColumn = pSheet.Range("output").Column
+    
+    
     pSheet.Range(pSheet.Cells(StartRow, StartColumn), pSheet.Cells(StartRow + Rows.Count - 1, StartColumn + 1)).Value = OutputValues
     
     Dim Divider As Variant
@@ -212,19 +226,89 @@ Private Sub DisplayResults()
     For Each Heading In Headings
         pSheet.Cells(StartRow + Heading, StartColumn).Font.Bold = True
     Next Heading
+    
+    If CreateGroups Then
+        Dim Group As Variant
+        For Each Group In Groups
+            If Group(0) < Group(1) Then
+                pSheet.Rows(Group(0) + StartRow & ":" & Group(1) + StartRow - 1).Group
+            End If
+        Next Group
+    End If
 End Sub
+
+Private Function DisplayBuilder(Suite As SpecSuite, Optional IndentLevel As Integer = 0, Optional DisplayPacket As Collection) As Collection
+    Dim Rows As New Collection
+    Dim Dividers As New Collection
+    Dim Headings As New Collection
+    Dim Groups As New Collection
+  
+    If Not DisplayPacket Is Nothing Then
+        Set Rows = DisplayPacket("Rows")
+        Set Dividers = DisplayPacket("Dividers")
+        Set Headings = DisplayPacket("Headings")
+        Set Groups = DisplayPacket("Groups")
+    End If
+  
+    Dim Spec As SpecDefinition
+    Dim Expectation As SpecExpectation
+    Dim GroupStartRow As Long
+    Dim GroupEndRow As Long
+  
+    If Rows.Count > 0 Then
+        Dividers.Add Rows.Count
+    End If
+    If Suite.Description <> "" Then
+        Headings.Add Rows.Count
+        Rows.Add Array(IndentBuilder(IndentLevel) & Suite.Description, ResultTypeToString(Suite.Result))
+    End If
+    GroupStartRow = Rows.Count
+  
+    For Each Spec In Suite.Specs
+        Rows.Add Array(IndentBuilder(IndentLevel + 1) & Spec.Description, " " & ResultTypeToString(Spec.Result) & " ")
+  
+        For Each Expectation In Spec.FailedExpectations
+            Rows.Add Array(IndentBuilder(IndentLevel + 2) & Expectation.FailureMessage, "")
+        Next Expectation
+    Next Spec
+  
+    Set DisplayPacket = New Collection
+    DisplayPacket.Add Rows, "Rows"
+    DisplayPacket.Add Dividers, "Dividers"
+    DisplayPacket.Add Headings, "Headings"
+    DisplayPacket.Add Groups, "Groups"
+        
+    Dim SubSuite As SpecSuite
+    For Each SubSuite In Suite.Suites
+        Set DisplayPacket = DisplayBuilder(SubSuite, IndentLevel + 1, DisplayPacket)
+    Next SubSuite
+    GroupEndRow = DisplayPacket("Rows").Count
+  
+    DisplayPacket("Groups").Add Array(GroupStartRow, GroupEndRow)
+    Set DisplayBuilder = DisplayPacket
+End Function
 
 Private Function ResultTypeToString(ResultType As SpecResultType) As String
     Select Case ResultType
-    Case SpecResultType.Pass
-        ResultTypeToString = "Pass"
-    Case SpecResultType.Fail
-        ResultTypeToString = "Fail"
-    Case SpecResultType.Pending
-        ResultTypeToString = "Pending"
+        Case SpecResultType.Pass
+            ResultTypeToString = "Pass"
+        Case SpecResultType.Fail
+            ResultTypeToString = "Fail"
+        Case SpecResultType.Pending
+            ResultTypeToString = "Pending"
     End Select
 End Function
 
 Private Sub Class_Initialize()
     Set pSuites = New Collection
 End Sub
+
+Private Function Repeat(str As String, Count As Integer) As String
+    Repeat = WorksheetFunction.Rept(str, Count)
+End Function
+
+Private Function IndentBuilder(level As Integer) As String
+    If level = 0 Then Exit Function
+    IndentBuilder = Repeat(Repeat(" ", IndentSpaces), level)
+End Function
+

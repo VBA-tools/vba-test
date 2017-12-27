@@ -53,16 +53,16 @@ Public Function Specs() As SpecSuite
         
         .Expect(Suite.Result).ToEqual SpecResultType.Pending
         
-        With Suite.It("(pending)", "(1)")
-        End With
-        
-        .Expect(Suite.Result).ToEqual SpecResultType.Pending
-        
-        With Suite.It("(pass)", "(2)")
+        With Suite.It("(pass)", "(1)")
             .Expect(4).ToEqual 4
         End With
-        
+    
         .Expect(Suite.Result).ToEqual SpecResultType.Pass
+        
+        With Suite.It("(pending)", "(2)")
+        End With
+
+        .Expect(Suite.Result).ToEqual SpecResultType.Pending
         
         With Suite.It("(fail)", "(3)")
             .Expect(4).ToEqual 3

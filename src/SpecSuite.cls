@@ -24,9 +24,9 @@ Option Explicit
 ' --------------------------------------------- '
 
 Public Enum SpecResultType
-    Pass
     Fail
     Pending
+    Pass
 End Enum
 
 Public Event BeforeEach()
@@ -48,21 +48,28 @@ Public Description As String
 Public Specs As VBA.Collection
 
 ''
+' @property Suites
+' @type Collection<SpecSuite>
+''
+Public Suites As VBA.Collection
+
+''
 ' @property Result
 ' @type SpecResultType
 ''
 Public Property Get Result() As SpecResultType
-    Result = SpecResultType.Pending
-
+    Result = SpecResultType.Pass
+    
+    Dim Suite As SpecSuite
     Dim Spec As SpecDefinition
     For Each Spec In Me.Specs
-        If Spec.Result = SpecResultType.Pass Then
-            Result = SpecResultType.Pass
-        ElseIf Spec.Result = SpecResultType.Fail Then
-            Result = SpecResultType.Fail
-            Exit For
-        End If
+        Result = WorksheetFunction.Min(Spec.Result, Result)
+        If Result = SpecResultType.Fail Then Exit Function
     Next Spec
+    For Each Suite In Me.Suites
+        Result = WorksheetFunction.Min(Suite.Result, Result)
+    Next Suite
+    If (Me.PassedSpecs.Count + Me.FailedSpecs.Count = 0) Then Result = SpecResultType.Pending
 End Property
 
 ''
@@ -159,4 +166,5 @@ End Sub
 
 Private Sub Class_Initialize()
     Set Me.Specs = New VBA.Collection
+    Set Me.Suites = New VBA.Collection
 End Sub
