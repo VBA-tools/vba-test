@@ -24,9 +24,9 @@ Option Explicit
 ' --------------------------------------------- '
 
 Public Enum SpecResultType
-    Pass
     Fail
     Pending
+    Pass
 End Enum
 
 Public Event BeforeEach()
