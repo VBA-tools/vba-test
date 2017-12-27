@@ -31,6 +31,7 @@ Private pSheet As Worksheet
 Private pCount As Long
 Private pTotal As Long
 Private pSuites As Collection
+Private pResult As SpecResultType
 
 
 ' --------------------------------------------- '
@@ -54,6 +55,11 @@ Public IndentSpaces As Integer
 ''
 Public CreateGroups As Boolean
 
+Public ReportLevel As SpecResultType
+
+Public Property Get Result() As SpecResultType
+    Result = pResult
+End Property
 
 ' ============================================= '
 ' Public Methods
@@ -85,7 +91,7 @@ End Sub
 Public Sub Start(Optional NumSuites As Long = 0)
     pCount = 0
     pTotal = NumSuites
-
+    ReportLevel = Pass
     ClearResults
     ShowProgress
     DisplayResult "Running"
@@ -111,16 +117,13 @@ End Sub
 ' @method Done
 ''
 Public Sub Done()
-    Dim Failed As Boolean
     Dim Suite As SpecSuite
     For Each Suite In pSuites
-        If Suite.Result = SpecResultType.Fail Then
-            Failed = True
-            Exit For
-        End If
+        pResult = WorksheetFunction.Min(pResult, Suite.Result)
+        If pResult = Fail Then Exit For
     Next Suite
     
-    DisplayResult IIf(Failed, "FAIL", "PASS")
+    DisplayResult Choose(pResult + 1, "FAIL", "PENDING", "PASS")
 End Sub
 
 ' ============================================= '
@@ -194,46 +197,47 @@ Private Sub DisplayResults(Suite As SpecSuite, Optional IndentLevel As Integer =
     Set Headings = DisplayPacket("Headings")
     Set Groups = DisplayPacket("Groups")
     
-    Dim OutputValues() As String
-    Dim Row As Variant
-    Dim i As Long
-    ReDim OutputValues(Rows.Count - 1, 1)
-    i = 0
-    For Each Row In Rows
-        OutputValues(i, 0) = Row(0)
-        OutputValues(i, 1) = Row(1)
-        i = i + 1
-    Next Row
-    
-    Dim StartRow As Long
-    Dim StartColumn As Long
-    StartRow = pSheet.Rows(pSheet.UsedRange.Rows.Count).End(xlUp).Row + 1
-    StartColumn = pSheet.Range("output").Column
-    
-    
-    pSheet.Range(pSheet.Cells(StartRow, StartColumn), pSheet.Cells(StartRow + Rows.Count - 1, StartColumn + 1)).Value = OutputValues
-    
-    Dim Divider As Variant
-    For Each Divider In Dividers
-        With pSheet.Range(pSheet.Cells(StartRow + Divider, StartColumn), pSheet.Cells(StartRow + Divider, StartColumn + 1)).Borders(xlEdgeTop)
-            .LineStyle = xlContinuous
-            .Color = VBA.RGB(191, 191, 191)
-            .Weight = xlThin
-        End With
-    Next Divider
-    
-    Dim Heading As Variant
-    For Each Heading In Headings
-        pSheet.Cells(StartRow + Heading, StartColumn).Font.Bold = True
-    Next Heading
-    
-    If CreateGroups Then
-        Dim Group As Variant
-        For Each Group In Groups
-            If Group(0) < Group(1) Then
-                pSheet.Rows(Group(0) + StartRow & ":" & Group(1) + StartRow - 1).Group
-            End If
-        Next Group
+    If Rows.Count > 0 Then
+        Dim OutputValues() As String
+        Dim Row As Variant
+        Dim i As Long
+        ReDim OutputValues(Rows.Count - 1, 1)
+        i = 0
+        For Each Row In Rows
+            OutputValues(i, 0) = Row(0)
+            OutputValues(i, 1) = Row(1)
+            i = i + 1
+        Next Row
+        
+        Dim StartRow As Long
+        Dim StartColumn As Long
+        StartRow = pSheet.Rows(pSheet.UsedRange.Rows.Count).End(xlUp).Row + 1
+        StartColumn = pSheet.Range("output").Column
+        
+        pSheet.Range(pSheet.Cells(StartRow, StartColumn), pSheet.Cells(StartRow + Rows.Count - 1, StartColumn + 1)).Value = OutputValues
+        
+        Dim Divider As Variant
+        For Each Divider In Dividers
+            With pSheet.Range(pSheet.Cells(StartRow + Divider, StartColumn), pSheet.Cells(StartRow + Divider, StartColumn + 1)).Borders(xlEdgeTop)
+                .LineStyle = xlContinuous
+                .Color = VBA.RGB(191, 191, 191)
+                .Weight = xlThin
+            End With
+        Next Divider
+        
+        Dim Heading As Variant
+        For Each Heading In Headings
+            pSheet.Cells(StartRow + Heading, StartColumn).Font.Bold = True
+        Next Heading
+        
+        If CreateGroups Then
+            Dim Group As Variant
+            For Each Group In Groups
+                If Group(0) < Group(1) Then
+                    pSheet.Rows(Group(0) + StartRow & ":" & Group(1) + StartRow - 1).Group
+                End If
+            Next Group
+        End If
     End If
 End Sub
 
@@ -258,20 +262,26 @@ Private Function DisplayBuilder(Suite As SpecSuite, Optional IndentLevel As Inte
     If Rows.Count > 0 Then
         Dividers.Add Rows.Count
     End If
-    If Suite.Description <> "" Then
-        Headings.Add Rows.Count
-        Rows.Add Array(IndentBuilder(IndentLevel) & Suite.Description, ResultTypeToString(Suite.Result))
+    GroupStartRow = 1
+    pResult = Suite.Result
+    If pResult <= ReportLevel Then
+      If Suite.Description <> "" Then
+          Headings.Add Rows.Count
+          Rows.Add Array(IndentBuilder(IndentLevel) & Suite.Description, ResultTypeToString(Suite.Result))
+      End If
+      GroupStartRow = Rows.Count
+    
+      For Each Spec In Suite.Specs
+          If Spec.Result <= ReportLevel Then
+            Rows.Add Array(IndentBuilder(IndentLevel + 1) & Spec.Description, " " & ResultTypeToString(Spec.Result) & " ")
+      
+            For Each Expectation In Spec.FailedExpectations
+                Rows.Add Array(IndentBuilder(IndentLevel + 2) & Expectation.FailureMessage, "")
+            Next Expectation
+          End If
+      Next Spec
     End If
-    GroupStartRow = Rows.Count
-  
-    For Each Spec In Suite.Specs
-        Rows.Add Array(IndentBuilder(IndentLevel + 1) & Spec.Description, " " & ResultTypeToString(Spec.Result) & " ")
-  
-        For Each Expectation In Spec.FailedExpectations
-            Rows.Add Array(IndentBuilder(IndentLevel + 2) & Expectation.FailureMessage, "")
-        Next Expectation
-    Next Spec
-  
+    
     Set DisplayPacket = New Collection
     DisplayPacket.Add Rows, "Rows"
     DisplayPacket.Add Dividers, "Dividers"
@@ -282,9 +292,12 @@ Private Function DisplayBuilder(Suite As SpecSuite, Optional IndentLevel As Inte
     For Each SubSuite In Suite.Suites
         Set DisplayPacket = DisplayBuilder(SubSuite, IndentLevel + 1, DisplayPacket)
     Next SubSuite
-    GroupEndRow = DisplayPacket("Rows").Count
-  
-    DisplayPacket("Groups").Add Array(GroupStartRow, GroupEndRow)
+    
+    If Rows.Count > 0 Then
+        GroupEndRow = DisplayPacket("Rows").Count
+        DisplayPacket("Groups").Add Array(GroupStartRow, GroupEndRow)
+    End If
+    
     Set DisplayBuilder = DisplayPacket
 End Function
 
