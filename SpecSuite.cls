@@ -58,7 +58,7 @@ Public Suites As VBA.Collection
 ' @type SpecResultType
 ''
 Public Property Get Result() As SpecResultType
-    Result = SpecResultType.Pass
+    Result = IIf(Me.Specs.Count + Me.Suites.Count = 0, SpecResultType.Pending, SpecResultType.Pass)
     
     Dim Suite As SpecSuite
     Dim Spec As SpecDefinition
@@ -69,7 +69,6 @@ Public Property Get Result() As SpecResultType
     For Each Suite In Me.Suites
         Result = WorksheetFunction.Min(Suite.Result, Result)
     Next Suite
-    If (Me.PassedSpecs.Count + Me.FailedSpecs.Count = 0) Then Result = SpecResultType.Pending
 End Property
 
 ''
