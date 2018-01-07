@@ -31,6 +31,8 @@ Private Finished As Boolean
 ' Public Methods
 ' ============================================= '
 
+Public silentMode As Boolean
+
 ''
 ' Listen to given SpecSuite
 '
@@ -42,7 +44,7 @@ Public Sub ListenTo(Specs As SpecSuite)
         Done
     End If
     
-    Debug.Print "===" & IIf(Specs.Description <> "", " " & Specs.Description & " ===", "")
+    DebugPrint "===" & IIf(Specs.Description <> "", " " & Specs.Description & " ===", "")
     Set pSpecs = Specs
     Finished = False
 End Sub
@@ -55,7 +57,7 @@ End Sub
 Public Function Done()
     Finished = True
     
-    Debug.Print "= " & Summary & " = " & Now & " =" & vbNewLine
+    DebugPrint "= " & Summary & " = " & Now & " =" & vbNewLine
 End Function
 
 ' ============================================= '
@@ -99,12 +101,12 @@ Private Function Summary() As String
 End Function
 
 Private Sub pSpecs_Result(Spec As SpecDefinition)
-    Debug.Print ResultTypeToString(Spec.Result) & " " & Spec.Description & IIf(Spec.Id <> "", " [" & Spec.Id & "]", "")
+    DebugPrint ResultTypeToString(Spec.Result) & " " & Spec.Description & IIf(Spec.Id <> "", " [" & Spec.Id & "]", "")
     
     If Spec.Result = SpecResultType.Fail Then
         Dim Expectation As SpecExpectation
         For Each Expectation In Spec.FailedExpectations
-            Debug.Print "  " & Expectation.FailureMessage
+            DebugPrint "  " & Expectation.FailureMessage
         Next Expectation
     End If
 End Sub
@@ -113,4 +115,9 @@ Private Sub Class_Terminate()
     If Not Finished Then
         Done
     End If
+End Sub
+
+Private Sub DebugPrint(str As String)
+  If silentMode Then Exit Sub
+  Debug.Print str
 End Sub
