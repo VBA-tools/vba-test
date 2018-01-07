@@ -211,7 +211,7 @@ Private Sub DisplayResults(Suite As SpecSuite, Optional IndentLevel As Integer =
         
         Dim StartRow As Long
         Dim StartColumn As Long
-        StartRow = pSheet.Rows(pSheet.UsedRange.Rows.Count).End(xlUp).Row + 1
+        StartRow = pSheet.Rows(pSheet.UsedRange.Rows.Count + 1).End(xlUp).Row + 1
         StartColumn = pSheet.Range("output").Column
         
         pSheet.Range(pSheet.Cells(StartRow, StartColumn), pSheet.Cells(StartRow + Rows.Count - 1, StartColumn + 1)).Value = OutputValues
