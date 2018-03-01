@@ -412,6 +412,28 @@ Private Function Matches(Actual As Variant, Expected As Variant) As Variant
     End If
 End Function
 
+Public Sub ToMatchRegEx(Expected As Variant)
+    Check MatchesRegEx(Me.Actual, Expected), "to match the pattern", Expected:=Expected
+End Sub
+
+Private Function MatchesRegEx(Actual As Variant, Expected As Variant) As Variant
+    Dim RE As Object, REMatches As Object
+
+    Set RE = CreateObject("vbscript.regexp")
+    With RE
+        .MultiLine = False
+        .Global = False
+        .IgnoreCase = False
+        .Pattern = Expected
+    End With
+
+    Set REMatches = RE.Execute(Actual)
+    If REMatches.Count > 0 Then
+        MatchesRegEx = True
+    Else
+        MatchesRegEx = False
+    End If
+End Function
 ''
 ' Run custom matcher
 '
