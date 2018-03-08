@@ -68,7 +68,7 @@ End Property
 ' @param {Variant} Actual value to test
 ' @return {SpecExpectation}
 ''
-Public Function Expect(Optional Actual As Variant) As SpecExpectation
+Public Function Expect(Optional Actual As Variant, Optional Description As String) As SpecExpectation
     Dim Expectation As New SpecExpectation
     
     If VBA.VarType(Actual) = VBA.vbObject Then
@@ -77,6 +77,7 @@ Public Function Expect(Optional Actual As Variant) As SpecExpectation
         Expectation.Actual = Actual
     End If
     Me.Expectations.Add Expectation
+    Expectation.Description = Description
     
     Set Expect = Expectation
 End Function

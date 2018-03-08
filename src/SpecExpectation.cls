@@ -33,6 +33,7 @@ Option Explicit
 
 Public Actual As Variant
 Public Expected As Variant
+Public Description As String
 Public Passed As Boolean
 Public FailureMessage As String
 
@@ -528,7 +529,7 @@ Private Sub Fails(Message As String)
 End Sub
 
 Private Function CreateFailureMessage(Message As String, Optional Expected As Variant) As String
-    CreateFailureMessage = "Expected " & GetStringForValue(Me.Actual) & " " & Message
+    CreateFailureMessage = "Expected " & IIf(Me.Description = vbNullString, GetStringForValue(Me.Actual), Me.Description) & " " & Message
     If Not VBA.IsMissing(Expected) Then
         CreateFailureMessage = CreateFailureMessage & " " & GetStringForValue(Expected)
     End If
