@@ -54,4 +54,22 @@ Public Function Specs() As SpecSuite
         Set Definition = TestSuite.It("pending")
         .Expect(Definition.Result).ToEqual SpecResultType.Pending
     End With
+    
+    With Specs.It("should have an alternative definition")
+        Dim ExpectedArray() As String
+        Dim ActualArray() As String
+        ExpectedArray = Split("Hello World")
+        ActualArray = Split("Goodbye Moon")
+        Set Definition = TestSuite.It("should fail and have descriptive text")
+        With Definition
+            .Expect(actuallarray, """" & Join(ActualArray, """ and """) & """").ToBeIn ExpectedArray
+        End With
+        
+        .Expect(Definition.FailedExpectations(1).Passed).ToEqual False
+        .Expect(Definition.FailedExpectations(1).FailureMessage) _
+            .ToEqual "Expected ""Goodbye"" and ""Moon"" is contained within (Array)"
+        .Expect(Definition.FailedExpectations(1).FailureMessage) _
+            .ToNotEqual "Expected (Array) is contained within (Array)"
+    End With
+    
 End Function

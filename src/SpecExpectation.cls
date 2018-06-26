@@ -33,6 +33,7 @@ Option Explicit
 
 Public Actual As Variant
 Public Expected As Variant
+Public Description As String
 Public Passed As Boolean
 Public FailureMessage As String
 
@@ -333,11 +334,37 @@ Public Sub ToNotContain(Expected As Variant)
     Check Contains(Me.Actual, Expected), "to not contain", Expected:=Expected, Inverse:=True
 End Sub
 
+''
+' Check if the actual value is found within an array
+'
+' @method ToBeIn
+' @param {Variant} Expected value
+''
+Public Sub ToBeIn(Expected As Variant)
+    Check Contains(Expected, Me.Actual), "is contained within", Expected:=Expected
+End Sub
+
+''
+' Check if the actual value is not found within an array
+'
+' @method ToNotBeIn
+' @param {Variant} Expected value
+''
+Public Sub ToNotBeIn(Expected As Variant)
+    Check Contains(Expected, Me.Actual), "is not contained within", Expected:=Expected, Inverse:=True
+End Sub
+
 Private Function Contains(Actual As Variant, Expected As Variant) As Variant
     If Not IsArrayOrCollection(Actual) Then
         Contains = "Error: Actual needs to be an Array or Collection for ToContain/ToNotContain"
+    ElseIf IsArrayOrCollection(Expected) Then
+        Dim e As Variant
+        For Each e In Expected
+            Contains = Contains(Actual, e)
+            If Not Contains Then Exit Function
+        Next e
     Else
-        Dim i As Integer
+        Dim i As Variant
         If TypeOf Actual Is Collection Then
             For i = 1 To Actual.Count
                 If Actual.Item(i) = Expected Then
@@ -346,8 +373,8 @@ Private Function Contains(Actual As Variant, Expected As Variant) As Variant
                 End If
             Next i
         Else
-            For i = LBound(Actual) To UBound(Actual)
-                If Actual(i) = Expected Then
+            For Each i In Actual
+                If i = Expected Then
                     Contains = True
                     Exit Function
                 End If
@@ -386,6 +413,28 @@ Private Function Matches(Actual As Variant, Expected As Variant) As Variant
     End If
 End Function
 
+Public Sub ToMatchRegEx(Expected As Variant)
+    Check MatchesRegEx(Me.Actual, Expected), "to match the pattern", Expected:=Expected
+End Sub
+
+Private Function MatchesRegEx(Actual As Variant, Expected As Variant) As Variant
+    Dim RE As Object, REMatches As Object
+
+    Set RE = CreateObject("vbscript.regexp")
+    With RE
+        .MultiLine = False
+        .Global = False
+        .IgnoreCase = False
+        .Pattern = Expected
+    End With
+
+    Set REMatches = RE.Execute(Actual)
+    If REMatches.Count > 0 Then
+        MatchesRegEx = True
+    Else
+        MatchesRegEx = False
+    End If
+End Function
 ''
 ' Run custom matcher
 '
@@ -480,7 +529,7 @@ Private Sub Fails(Message As String)
 End Sub
 
 Private Function CreateFailureMessage(Message As String, Optional Expected As Variant) As String
-    CreateFailureMessage = "Expected " & GetStringForValue(Me.Actual) & " " & Message
+    CreateFailureMessage = "Expected " & IIf(Me.Description = vbNullString, GetStringForValue(Me.Actual), Me.Description) & " " & Message
     If Not VBA.IsMissing(Expected) Then
         CreateFailureMessage = CreateFailureMessage & " " & GetStringForValue(Expected)
     End If

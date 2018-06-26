@@ -72,6 +72,17 @@ With Specs.It("should show an X when the user rolls a strike")
 End With
 ```
 
+Alter the failure description of `It` if it needs to be more descriptive
+
+```vb
+    ArrayOfValues = Array("Hello","World")
+    .Expect(ArrayOfValues, """" & Join(ArrayOfValues, """ and """) & """").ToContain "Moon" 
+    '' RETURNS      Expect "Hello" and "World" to contain "Moon"
+    '' INSTEAD OF   Expect (array) to contain "Moon"
+```
+
+
+
 `Expect` is how you test desired behavior 
 
 ```vb
@@ -116,6 +127,20 @@ End With
 With Specs.It("should test complex things")
     .Expect(ThisWorkbook.Sheets("Hidden").Visible).ToNotEqual XlSheetVisibility.xlSheetVisible
     .Expect(ThisWorkbook.Sheets("Main").Cells(1, 1).Interior.Color).ToEqual RGB(255, 0, 0)
+End With
+
+With Specs.It("Check for value(s) within arrays and collections")
+    .Expect(Array("A", "B", "C")).ToContain "B"
+    .Expect(Array("A", "B", "C")).ToContain CollectionBC
+
+    .Expect(Array("A", "B")).ToNotContain Array("A", "B", "C")
+    .Expect(CollectionBC).ToNotContain CollectionABC
+
+    .Expect("B").ToBeIn Array("A", "B", "C")
+    .Expect(CollectionBC).ToBeIn Array("A", "B", "C")
+
+    .Expect(Array("D", "E")).ToNotBeIn CollectionABC
+    .Expect(CollectionABC).ToNotBeIn CollectionBC
 End With
 ```
 
@@ -173,6 +198,6 @@ To avoid compilation issues on unsupported applications, the compiler constant `
 
 For more details, check out the [Wiki](https://github.com/VBA-tools/VBA-TDD/wiki)
 
-- Design based heavily on the [Jasmine](https://jasmine.github.io/)
+- Design based heavily on [Jasmine](https://jasmine.github.io/)
 - Author: Tim Hall
 - License: MIT
