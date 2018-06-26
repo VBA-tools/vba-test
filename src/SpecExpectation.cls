@@ -333,6 +333,26 @@ Public Sub ToNotContain(Expected As Variant)
     Check Contains(Me.Actual, Expected), "to not contain", Expected:=Expected, Inverse:=True
 End Sub
 
+''
+' Check if the actual value is found within an array
+'
+' @method ToBeIn
+' @param {Variant} Expected value
+''
+Public Sub ToBeIn(Expected As Variant)
+    Check Contains(Expected, Me.Actual), "is contained within", Expected:=Expected
+End Sub
+
+''
+' Check if the actual value is not found within an array
+'
+' @method ToNotBeIn
+' @param {Variant} Expected value
+''
+Public Sub ToNotBeIn(Expected As Variant)
+    Check Contains(Expected, Me.Actual), "is not contained within", Expected:=Expected, Inverse:=True
+End Sub
+
 Private Function Contains(Actual As Variant, Expected As Variant) As Variant
     If Not IsArrayOrCollection(Actual) Then
         Contains = "Error: Actual needs to be an Array or Collection for ToContain/ToNotContain"
@@ -343,7 +363,7 @@ Private Function Contains(Actual As Variant, Expected As Variant) As Variant
             If Not Contains Then Exit Function
         Next e
     Else
-        Dim i As Integer
+        Dim i As Variant
         If TypeOf Actual Is Collection Then
             For i = 1 To Actual.Count
                 If Actual.Item(i) = Expected Then
@@ -352,8 +372,8 @@ Private Function Contains(Actual As Variant, Expected As Variant) As Variant
                 End If
             Next i
         Else
-            For i = LBound(Actual) To UBound(Actual)
-                If Actual(i) = Expected Then
+            For Each i In Actual
+                If i = Expected Then
                     Contains = True
                     Exit Function
                 End If
