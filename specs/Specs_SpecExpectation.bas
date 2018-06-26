@@ -1,7 +1,8 @@
 Attribute VB_Name = "Specs_SpecExpectation"
+Option Explicit
 Public Function Specs() As SpecSuite
     Dim Expectation As SpecExpectation
-
+    
     Set Specs = New SpecSuite
     Specs.Description = "SpecExpectation"
     
@@ -141,23 +142,65 @@ Public Function Specs() As SpecSuite
         .Expect(3.1415926).ToBeCloseTo 2.78, 1
     End With
     
-    With Specs.It("ToContain")
+    
+    
+    Dim CollectionABC As New Collection
+    CollectionABC.Add "A"
+    CollectionABC.Add "B"
+    CollectionABC.Add "C"
+    
+    Dim CollectionBC As New Collection
+    CollectionBC.Add "B"
+    CollectionBC.Add "C"
+    
+    With Specs.It("ToContain/ToNotContain")
         .Expect(Array("A", "B", "C")).ToContain "B"
+        .Expect(Array("A", "B", "C")).ToContain Array("B", "C")
+        .Expect(Array("A", "B", "C")).ToContain CollectionBC
         
-        Dim Test3 As New Collection
-        Test3.Add "A"
-        Test3.Add "B"
-        Test3.Add "C"
-        .Expect(Test3).ToContain "B"
+        .Expect(CollectionABC).ToContain "B"
+        .Expect(CollectionABC).ToContain Array("B", "C")
+        .Expect(CollectionABC).ToContain CollectionBC
         
         .Expect(Array("A", "B", "C")).ToNotContain "D"
-        .Expect(Test3).ToNotContain "D"
+        .Expect(Array("A", "B", "C")).ToNotContain Array("D", "E")
+        .Expect(Array("A", "B", "C")).ToNotContain Array("C", "D")
+        .Expect(Array("A", "B")).ToNotContain Array("A", "B", "C")
+
+        .Expect(CollectionABC).ToNotContain "D"
+        .Expect(CollectionABC).ToNotContain Array("D", "E")
+        .Expect(CollectionBC).ToNotContain CollectionABC
+        
+    End With
+    
+    With Specs.It("ToBeIn/ToNotBeIn")
+        .Expect("B").ToBeIn Array("A", "B", "C")
+        .Expect(Array("B", "C")).ToBeIn Array("A", "B", "C")
+        .Expect(CollectionBC).ToBeIn Array("A", "B", "C")
+        
+        .Expect("B").ToBeIn CollectionABC
+        .Expect(Array("B", "C")).ToBeIn CollectionABC
+        .Expect(CollectionBC).ToBeIn CollectionABC
+        
+        .Expect("D").ToNotBeIn Array("A", "B", "C")
+        .Expect(Array("D", "E")).ToNotBeIn Array("A", "B", "C")
+        .Expect(Array("C", "D")).ToNotBeIn Array("A", "B", "C")
+        .Expect(Array("A", "B", "C")).ToNotBeIn Array("A", "B")
+
+        .Expect("D").ToNotBeIn CollectionABC
+        .Expect(Array("D", "E")).ToNotBeIn CollectionABC
+        .Expect(CollectionABC).ToNotBeIn CollectionBC
     End With
     
     With Specs.It("ToMatch")
         .Expect("abcde").ToMatch "bcd"
         
         .Expect("abcde").ToNotMatch "xyz"
+    End With
+    
+    With Specs.It("ToMatchRegEx")
+        .Expect("person@place.com").ToMatchRegEx "^([a-zA-Z0-9_\-\.]+)\@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$"
+
     End With
     
     With Specs.It("RunMatcher")
