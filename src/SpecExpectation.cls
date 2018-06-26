@@ -336,6 +336,12 @@ End Sub
 Private Function Contains(Actual As Variant, Expected As Variant) As Variant
     If Not IsArrayOrCollection(Actual) Then
         Contains = "Error: Actual needs to be an Array or Collection for ToContain/ToNotContain"
+    ElseIf IsArrayOrCollection(Expected) Then
+        Dim e As Variant
+        For Each e In Expected
+            Contains = Contains(Actual, e)
+            If Not Contains Then Exit Function
+        Next e
     Else
         Dim i As Integer
         If TypeOf Actual Is Collection Then
