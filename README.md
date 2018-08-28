@@ -5,22 +5,22 @@ Add testing to VBA on Windows and Mac.
 ## Example
 
 ```vb
-Function Tests() As TestSuite
-  Set Suite = New TestSuite
-  Suite.Description = "Add"
+Function AddTests() As TestSuite
+  Set AddTests = New TestSuite
+  AddTests.Description = "Add"
 
   ' Report results to the Immediate Window
   ' (ctrl + g or View > Immediate Window)
   Dim Reporter As New ImmediateReporter
-  Reporter.ListenTo Suite
+  Reporter.ListenTo AddTests
 
-  With Suite.Test("should add two numbers")
+  With AddTests.Test("should add two numbers")
     .IsEqual Add(2, 2), 4
     .IsEqual Add(3, -1), 2
     .IsEqual Add(-1, -2), -3
   End With
 
-  With Suite.Test("should add any number of numbers")
+  With AddTests.Test("should add any number of numbers")
     .IsEqual Add(1, 2, 3), 6
     .IsEqual Add(1, 2, 3, 4), 10
   End With
@@ -65,7 +65,7 @@ Dim Suite As New TestSuite
 Suite.Description = "Module Name"
 
 ' Create a new test
-Dim Test As TestDefinition
+Dim Test As TestCase
 Set Test = Suite.Test("Test Name")
 Test.IsEqual ' ...
 
@@ -79,9 +79,9 @@ __TestSuite API__
 
 - `Description`
 - `Test(Name) As TestCase`
-- Event `BeforeEach`
-- Event `Result`
-- Event `AfterEach`
+- _Event_ `BeforeEach(Test)`
+- _Event_ `Result(Test)`
+- _Event_ `AfterEach(Test)`
 
 ## TestCase
 
