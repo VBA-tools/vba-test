@@ -15,7 +15,7 @@ Attribute VB_Exposed = True
 '
 ' @class ImmediateReporter
 ' @author tim.hall.engr@gmail.com
-' @license MIT (http://www.opensource.org/licenses/mit-license.php)
+' @license MIT (https://opensource.org/licenses/MIT)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
@@ -23,8 +23,8 @@ Option Explicit
 ' Constants and Private Variables
 ' --------------------------------------------- '
 
-Private WithEvents pSpecs As SpecSuite
-Attribute pSpecs.VB_VarHelpID = -1
+Private WithEvents pSuite As TestSuite
+Attribute pSuite.VB_VarHelpID = -1
 Private Finished As Boolean
 
 ' ============================================= '
@@ -32,18 +32,18 @@ Private Finished As Boolean
 ' ============================================= '
 
 ''
-' Listen to given SpecSuite
+' Listen to given TestSuite
 '
 ' @method ListenTo
-' @param {SpecSuite} Specs
+' @param {TestSuite} Suite
 ''
-Public Sub ListenTo(Specs As SpecSuite)
-    If Not pSpecs Is Nothing Then
+Public Sub ListenTo(Suite As TestSuite)
+    If Not pSuite Is Nothing Then
         Done
     End If
     
-    Debug.Print "===" & IIf(Specs.Description <> "", " " & Specs.Description & " ===", "")
-    Set pSpecs = Specs
+    Debug.Print "===" & IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")
+    Set pSuite = Suite
     Finished = False
 End Sub
 
@@ -62,13 +62,13 @@ End Function
 ' Private Functions
 ' ============================================= '
 
-Private Function ResultTypeToString(ResultType As SpecResultType) As String
+Private Function ResultTypeToString(ResultType As TestResultType) As String
     Select Case ResultType
-    Case SpecResultType.Pass
+    Case TestResultType.Pass
         ResultTypeToString = "+"
-    Case SpecResultType.Fail
+    Case TestResultType.Fail
         ResultTypeToString = "X"
-    Case SpecResultType.Pending
+    Case TestResultType.Pending
         ResultTypeToString = "."
     End Select
 End Function
@@ -78,10 +78,13 @@ Private Function Summary() As String
     Dim Passed As Long
     Dim Failed As Long
     Dim Pending As Long
-    Total = pSpecs.Specs.Count
-    Passed = pSpecs.PassedSpecs.Count
-    Failed = pSpecs.FailedSpecs.Count
-    Pending = pSpecs.PendingSpecs.Count
+    Dim Skipped As Long
+    
+    Total = pSuite.Tests.Count
+    Passed = pSuite.PassedTests.Count
+    Failed = pSuite.FailedTests.Count
+    Pending = pSuite.PendingTests.Count
+    Skipped = pSuite.SkippedTests.Count
     
     Dim SummaryMessage As String
     If Failed > 0 Then
@@ -90,7 +93,10 @@ Private Function Summary() As String
         SummaryMessage = "PASS (" & Passed & " of " & Total & " passed"
     End If
     If Pending > 0 Then
-        SummaryMessage = SummaryMessage & ", " & Pending & " pending)"
+        SummaryMessage = SummaryMessage & ", " & Pending & " pending"
+    End If
+    If Skipped > 0 Then
+        SummaryMessage = SummaryMessage & ", " & Skipped & " skipped)"
     Else
         SummaryMessage = SummaryMessage & ")"
     End If
@@ -98,14 +104,18 @@ Private Function Summary() As String
     Summary = SummaryMessage
 End Function
 
-Private Sub pSpecs_Result(Spec As SpecDefinition)
-    Debug.Print ResultTypeToString(Spec.Result) & " " & Spec.Description & IIf(Spec.Id <> "", " [" & Spec.Id & "]", "")
+Private Sub pSuite_Result(Test As TestCase)
+    If Test.Result = TestResultType.Skipped Then
+        Exit Sub
+    End If
+
+    Debug.Print ResultTypeToString(Test.Result) & " " & Test.Name
     
-    If Spec.Result = SpecResultType.Fail Then
-        Dim Expectation As SpecExpectation
-        For Each Expectation In Spec.FailedExpectations
-            Debug.Print "  " & Expectation.FailureMessage
-        Next Expectation
+    If Test.Result = TestResultType.Fail Then
+        Dim Failure As Variant
+        For Each Failure In Test.Failures
+            Debug.Print "  " & Failure
+        Next Failure
     End If
 End Sub
 

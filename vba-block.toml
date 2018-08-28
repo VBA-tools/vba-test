@@ -1,0 +1,12 @@
+[package]
+name = "test"
+version = "2.0.0-beta.2"
+authors = ["Tim Hall <tim.hall.engr@gmail.com> (https://github.com/timhall)"]
+
+[src]
+TestSuite = "src/TestSuite.cls"
+TestCase = "src/TestCase.cls"
+ImmediateReporter = "src/ImmediateReporter.cls"
+
+[dependencies]
+dictionary = "^1"
