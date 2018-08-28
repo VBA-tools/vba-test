@@ -19,6 +19,8 @@ Attribute VB_Exposed = True
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
+Private pFailures As VBA.Collection
+
 ' --------------------------------------------- '
 ' Events and Properties
 ' --------------------------------------------- '
@@ -28,7 +30,6 @@ Public Context As Dictionary
 
 Public Planned As Long
 Public Successes As Long
-Public Failures As VBA.Collection
 Public Skipped As Boolean
 
 Public Suite As TestSuite
@@ -42,6 +43,26 @@ Public Property Get Result() As TestResultType
         Result = TestResultType.Fail
     Else
         Result = TestResultType.Pass
+    End If
+End Property
+
+Public Property Get Failures() As Collection
+    Dim Total As Long
+    Total = Me.Successes + pFailures.Count
+    
+    If Me.Planned > 0 And Me.Planned <> Total Then
+        Dim Message As String
+        Dim Failure As Variant
+        
+        Set Failures = New Collection
+        For Each Failure In pFailures
+            Failures.Add Failure
+        Next Failure
+        
+        Message = "Total assertions, ${1}, does not equal planned, ${2}"
+        Failures.Add FormatMessage(Message, Total, Me.Planned)
+    Else
+        Set Failures = pFailures
     End If
 End Property
 
@@ -59,7 +80,7 @@ Public Sub IsEqual(A As Variant, B As Variant, Optional Message As String = _
     If IsDeepEqual(A, B) Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, A, B)
+        pFailures.Add FormatMessage(Message, A, B)
     End If
 End Sub
 
@@ -69,7 +90,7 @@ Public Sub NotEqual(A As Variant, B As Variant, Optional Message As String = _
     If Not IsDeepEqual(A, B) Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, A, B)
+        pFailures.Add FormatMessage(Message, A, B)
     End If
 End Sub
 
@@ -79,27 +100,27 @@ Public Sub IsTrue(Value As Variant, Optional Message As String = _
     If Value Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, Value)
+        pFailures.Add FormatMessage(Message, Value)
     End If
 End Sub
 
 Public Sub IsFalse(Value As Variant, Optional Message As String = _
     "Expected ${1} to be false")
 
-    If Not Value Then
-        Me.Successes = Me.Successes + 1
+    If Value Then
+        pFailures.Add FormatMessage(Message, Value)
     Else
-        Me.Failures.Add FormatMessage(Message, Value)
+        Me.Successes = Me.Successes + 1
     End If
 End Sub
 
-Public Sub IsUndefined(Value As Variant, Optional Message As String = _
+Public Sub IsUndefined(Optional Value As Variant, Optional Message As String = _
     "Expected ${1} to be undefined")
 
     If IsNothing(Value) Or VBA.IsEmpty(Value) Or VBA.IsNull(Value) Or VBA.IsMissing(Value) Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, Value)
+        pFailures.Add FormatMessage(Message, Value)
     End If
 End Sub
 
@@ -109,7 +130,7 @@ Public Sub NotUndefined(Value As Variant, Optional Message As String = _
     If Not IsNothing(Value) And Not VBA.IsEmpty(Value) And Not VBA.IsNull(Value) And Not VBA.IsMissing(Value) Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, Value)
+        pFailures.Add FormatMessage(Message, Value)
     End If
 End Sub
 
@@ -120,16 +141,16 @@ Public Sub Includes(Values As Variant, Value As Variant, Optional Message As Str
         If CollectionIncludes(Values, Value) Then
             Me.Successes = Me.Successes + 1
         Else
-            Me.Failures.Add FormatMessage(Message, Values, Value)
+            pFailures.Add FormatMessage(Message, Values, Value)
         End If
     ElseIf IsArray(Values) Then
         If ArrayIncludes(Values, Value) Then
             Me.Successes = Me.Successes + 1
         Else
-            Me.Failures.Add FormatMessage(Message, Values, Value)
+            pFailures.Add FormatMessage(Message, Values, Value)
         End If
     Else
-        Me.Failures.Add FormatMessage(Message, Values, Value) & " (Incompatible type for Values)"
+        pFailures.Add FormatMessage(Message, Values, Value) & " (Incompatible type for Values)"
     End If
 End Sub
 
@@ -137,23 +158,23 @@ Public Sub IsApproximate(A As Variant, B As Variant, SignificantFigures As Integ
     "Expected ${1} to be approximately equal to ${2} (with ${3} significant figures of precision)")
 
     If SignificantFigures < 1 Or SignificantFigures > 15 Then
-        Me.Failures.Add "IsApproximate can only compare from 1 to 15 significant figures"
+        pFailures.Add "IsApproximate can only compare from 1 to 15 significant figures"
     ElseIf IsApproximatelyEqual(A, B, SignificantFigures) Then
         Me.Successes = Me.Successes + 1
     Else
-        Me.Failures.Add FormatMessage(Message, A, B, SignificantFigures)
+        pFailures.Add FormatMessage(Message, A, B, SignificantFigures)
     End If
 End Sub
 
 Public Sub Pass()
     Me.Successes = 1
-    Set Me.Failures = New Collection
+    Set pFailures = New Collection
 End Sub
 
 Public Sub Fail(Optional Message As String = _
     "Test failed unexpectedly")
     
-    Me.Failures.Add Message
+    pFailures.Add Message
 End Sub
 
 Public Sub Plan(Count As Long)
@@ -169,20 +190,20 @@ End Sub
 ' ============================================= '
 
 Private Function IsDeepEqual(A As Variant, B As Variant) As Boolean
-    If VBA.VarType(A) <> VBA.VarType(B) Then
-        IsDeepEqual = False
-        Exit Function
-    End If
+    Dim AType As VbVarType
+    Dim BType As VbVarType
     
-    Select Case VBA.VarType(A)
-    Case VBA.vbError
+    AType = VBA.VarType(A)
+    BType = VBA.VarType(B)
+
+    If VBA.IsError(A) Or VBA.IsError(B) Then
         IsDeepEqual = False
-    
-    Case VBA.vbArray To VBA.vbArray + VBA.vbByte
+        
+    ElseIf VBA.IsArray(A) And VBA.IsArray(B) Then
         IsDeepEqual = IsArrayEqual(A, B)
     
-    Case VBA.vbObject
-        If VBA.TypeName(A) <> VBA.TypeName(B) Then
+    ElseIf AType = VBA.vbObject Or BType = VBA.vbObject Then
+        If AType <> BType Or VBA.TypeName(A) <> VBA.TypeName(B) Then
             IsDeepEqual = False
         ElseIf VBA.TypeName(A) = "Collection" Then
             IsDeepEqual = IsCollectionEqual(A, B)
@@ -192,16 +213,16 @@ Private Function IsDeepEqual(A As Variant, B As Variant) As Boolean
             IsDeepEqual = A Is B
         End If
     
-    Case VBA.vbDouble
+    ElseIf VBA.VarType(A) = VBA.vbDouble Or VBA.VarType(B) = VBA.vbDouble Then
         ' It is inherently difficult/almost impossible to check equality of Double
         ' http://support.microsoft.com/kb/78113
         '
         ' -> Compare up to 15 significant figures
         IsDeepEqual = IsApproximatelyEqual(A, B, 15)
     
-    Case Else
+    Else
         IsDeepEqual = A = B
-    End Select
+    End If
 End Function
 
 Private Function IsArrayEqual(A As Variant, B As Variant) As Boolean
@@ -244,9 +265,15 @@ Private Function IsDictionaryEqual(A As Variant, B As Variant) As Boolean
         Exit Function
     End If
     
+    Dim AKeys As Variant
+    Dim BKeys As Variant
     Dim i As Long
-    For i = LBound(A.Keys) To UBound(A.Keys)
-        If A.Keys(i) <> B.Keys(i) Or A.Item(A.Keys(i)) <> B.Item(B.Keys(i)) Then
+    
+    AKeys = A.Keys
+    BKeys = B.Keys
+    
+    For i = LBound(AKeys) To UBound(AKeys)
+        If AKeys(i) <> BKeys(i) Or A.Item(AKeys(i)) <> B.Item(BKeys(i)) Then
             IsDictionaryEqual = False
             Exit Function
         End If
@@ -333,7 +360,7 @@ Private Function FormatMessage(Message As String, ParamArray Values() As Variant
     FormatMessage = Message
     For Each Value In Values
         Index = Index + 1
-        FormatMessage = VBA.Replace(FormatMessage, "${" & Index + "}", PrettyPrint(Value))
+        FormatMessage = VBA.Replace(FormatMessage, "${" & Index & "}", PrettyPrint(Value))
     Next Value
 End Function
 
@@ -415,20 +442,10 @@ End Function
 
 Private Sub Class_Initialize()
     Set Me.Context = New Dictionary
-    Set Me.Failures = New VBA.Collection
+    Set pFailures = New VBA.Collection
 End Sub
 
 Private Sub Class_Terminate()
-    Dim Total As Long
-    Dim Message As String
-
-    Total = Me.Successes + Me.Failures.Count
-    If Me.Planned > 0 And Me.Planned <> Total Then
-        Message = "Total assertions, ${1}, does not equal planned, ${1}"
-        Me.Failures.Add FormatMessage(Message, Total, Me.Planned)
-    End If
-
     Me.Suite.TestComplete Me
     Set Me.Context = Nothing
-    Set Me.Failures = Nothing
 End Sub
