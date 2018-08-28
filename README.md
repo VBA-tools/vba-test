@@ -1,6 +1,6 @@
 # vba-test
 
-vba-test (formerly VBA-TDD) adds testing to VBA on Windows and Mac.
+vba-test (formerly Excel-TDD and VBA-TDD) adds testing to VBA on Windows and Mac.
 
 ## Example
 
