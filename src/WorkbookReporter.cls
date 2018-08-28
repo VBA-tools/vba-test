@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' DisplayReporter v2.0.0-beta
+' DisplayReporter v2.0.0-beta.2
 ' (c) Tim Hall - https://github.com/VBA-tools/VBA-TDD
 '
 ' Report results to Worksheet
@@ -18,7 +18,7 @@ Attribute VB_Exposed = True
 '   Platforms: Windows and Mac
 '   Applications: Excel-only
 ' @author tim.hall.engr@gmail.com
-' @license MIT (http://www.opensource.org/licenses/mit-license.php)
+' @license MIT (https://opensource.org/licenses/MIT)
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
@@ -72,9 +72,9 @@ End Sub
 ' Output the given suite
 '
 ' @method Output
-' @param {SpecSuite} Suite
+' @param {TestSuite} Suite
 ''
-Public Sub Output(Suite As SpecSuite)
+Public Sub Output(Suite As TestSuite)
     pCount = pCount + 1
     pSuites.Add Suite
     
@@ -89,9 +89,9 @@ End Sub
 ''
 Public Sub Done()
     Dim Failed As Boolean
-    Dim Suite As SpecSuite
+    Dim Suite As TestSuite
     For Each Suite In pSuites
-        If Suite.Result = SpecResultType.Fail Then
+        If Suite.Result = TestResultType.Fail Then
             Failed = True
             Exit For
         End If
@@ -159,9 +159,10 @@ Private Sub DisplayResults()
     Dim Dividers As New Collection
     Dim Headings As New Collection
     
-    Dim Suite As SpecSuite
-    Dim Spec As SpecDefinition
-    Dim Expectation As SpecExpectation
+    Dim Suite As TestSuite
+    Dim Test As TestCase
+    Dim Failure As Variant
+    
     For Each Suite In pSuites
         If Rows.Count > 0 Then
             Dividers.Add Rows.Count
@@ -172,13 +173,15 @@ Private Sub DisplayResults()
             Rows.Add Array(Suite.Description, ResultTypeToString(Suite.Result))
         End If
 
-        For Each Spec In Suite.Specs
-            Rows.Add Array(Spec.Description, ResultTypeToString(Spec.Result))
-
-            For Each Expectation In Spec.FailedExpectations
-                Rows.Add Array("  " & Expectation.FailureMessage, "")
-            Next Expectation
-        Next Spec
+        For Each Test In Suite.Tests
+            If Test.Result <> TestResultType.Skipped Then
+                Rows.Add Array(Test.Name, ResultTypeToString(Test.Result))
+    
+                For Each Failure In Test.Failures
+                    Rows.Add Array("  " & Failure, "")
+                Next Failure
+            End If
+        Next Test
     Next Suite
     
     Dim OutputValues() As String
@@ -214,13 +217,13 @@ Private Sub DisplayResults()
     Next Heading
 End Sub
 
-Private Function ResultTypeToString(ResultType As SpecResultType) As String
+Private Function ResultTypeToString(ResultType As TestResultType) As String
     Select Case ResultType
-    Case SpecResultType.Pass
+    Case TestResultType.Pass
         ResultTypeToString = "Pass"
-    Case SpecResultType.Fail
+    Case TestResultType.Fail
         ResultTypeToString = "Fail"
-    Case SpecResultType.Pending
+    Case TestResultType.Pending
         ResultTypeToString = "Pending"
     End Select
 End Function

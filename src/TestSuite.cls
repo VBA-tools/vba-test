@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' TestSuite v2.0.0-beta
+' TestSuite v2.0.0-beta.2
 ' (c) Tim Hall - https://github.com/vba-tools/vba-test
 '
 ' A collection of tests, with events and results

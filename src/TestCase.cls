@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' TestCase v2.0.0-beta
+' TestCase v2.0.0-beta.2
 ' (c) Tim Hall - https://github.com/vba-tools/vba-test
 '
 ' Verify a single test case with assertions
