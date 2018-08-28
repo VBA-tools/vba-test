@@ -27,6 +27,7 @@ Public Enum TestResultType
     Pass
     Fail
     Pending
+    Skipped
 End Enum
 
 Public Event BeforeEach(Test As TestCase)
@@ -113,6 +114,22 @@ Public Property Get PendingTests() As VBA.Collection
     Next Test
     
     Set PendingTests = Filtered
+End Property
+
+''
+' @property SkippedTests
+' @type Collection<TestCase>
+''
+Public Property Get SkippedTests() As VBA.Collection
+    Dim Test As TestCase
+    Dim Filtered As New VBA.Collection
+    For Each Test In Me.Tests
+        If Test.Result = TestResultType.Skipped Then
+            Filtered.Add Test
+        End If
+    Next Test
+    
+    Set SkippedTests = Filtered
 End Property
 
 ' ============================================= '
