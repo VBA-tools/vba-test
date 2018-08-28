@@ -142,14 +142,14 @@ Public Function Tests() As TestSuite
         .NotEqual A, B
     End With
     
-    With Tests.Test("IsTrue")
-        .IsTrue True
-        .IsTrue 4
+    With Tests.Test("IsOk")
+        .IsOk True
+        .IsOk 4
     End With
     
-    With Tests.Test("IsFalse")
-        .IsFalse False
-        .IsFalse 0
+    With Tests.Test("NotOk")
+        .NotOk False
+        .NotOk 0
     End With
     
     With Tests.Test("IsUndefined")
@@ -175,9 +175,23 @@ Public Function Tests() As TestSuite
         .Includes A, 2
     End With
     
+    With Tests.Test("NotIncludes")
+        .NotIncludes Array(1, 2, 3), 4
+        
+        Set A = New Collection
+        A.Add New Collection
+        A(1).Add Array(1, 2, 3)
+        
+        .NotIncludes A, 4
+    End With
+    
     With Tests.Test("IsApproximate")
         .IsApproximate 1.001, 1.002, 3
         .IsApproximate 1.00001, 1.00004, 5
+    End With
+    
+    With Tests.Test("NotApproximate")
+        .NotApproximate 1.001, 1.009, 3
     End With
 End Function
 
