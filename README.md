@@ -55,6 +55,8 @@ For an advanced example of what is possible with vba-test, check out the [tests 
 2. Add `src/TestSuite.cls`, `src/TestCase.cls`, add `src/ImmediateReporter.cls` to your project
 3. If you're starting from scratch with Excel, you can use `vba-test-blank.xlsm`
 
+If you're updating from Excel-TDD v1, follow these [upgrade details](https://github.com/VBA-tools/vba-test/pull/23#issuecomment-416606307).
+
 ## TestSuite
 
 A test suite groups tests together, runs test hooks for actions that should be run before and after tests, and is responsible for passing test results to reporters.
@@ -154,8 +156,6 @@ __TestCase API__
 - `Test.Fail([Message])` - Explicitly fail the test
 - `Test.Plan(Count)` - For tests with loops and branches, it is important to catch if any assertions are skipped or extra
 - `Test.Skip()` - Notify suite to skip this test
-
-Generally, more advanced assertions should be added with custom assertions functions (detailed above), but there are common assertions that will be added (e.g. `IsApproximate` = close within significant fixtures, `Includes` = array/collection includes value, )
 
 ## ImmediateReporter
 
