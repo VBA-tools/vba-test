@@ -92,14 +92,16 @@ With Suite.Test("specific part of your application")
   .IsEqual A, B, "(optional message, e.g. result should be 12)"
   .NotEqual B, C
 
-  .IsTrue C > B
-  .IsFalse B > C
+  .IsOk C > B
+  .NotOk B > C
 
   .IsUndefined ' Checks Nothing, Empty, Missing, or Null
   .NotUndefined
 
   .Includes Array(1, 2, 3), 2
+  .NotIncludes Array(1, 2, 3), 4
   .IsApproximate 1.001, 1.002, 2
+  .NotApproximate 1.001, 1.009, 3
 
   .Pass
   .Fail "e.g. should not have gotten here" 
@@ -108,8 +110,12 @@ With Suite.Test("specific part of your application")
 End With
 
 With Suite.Test("complex things")
-  .IsEqual ThisWorkbook.Sheets("Hidden").Visible, XlSheetVisibility.xlSheetVisible
-  .IsEqual ThisWorkbook.Sheets("Main").Cells(1, 1).Interior.Color, RGB(255, 0, 0)
+  .IsEqual _
+    ThisWorkbook.Sheets("Hidden").Visible, _
+    XlSheetVisibility.xlSheetVisible
+  .IsEqual _
+    ThisWorkbook.Sheets("Main").Cells(1, 1).Interior.Color, _
+    RGB(255, 0, 0)
 End With
 ```
 
@@ -120,8 +126,8 @@ Sub ToBeWithin(Test As TestCase, Value As Variant, Min As Variant, Max As Varian
   Dim Message As String
   Message = "Expected " & Value & " to be within " & Min & " and " & Max
 
-  Test.IsTrue Value >= Min, Message
-  Test.IsTrue Value <= Max, Message
+  Test.IsOk Value >= Min, Message
+  Test.IsOk Value <= Max, Message
 End Sub
 
 With Suite.Test("...")
@@ -136,12 +142,14 @@ __TestCase API__
 - `Test.Context` - `Dictionary` holding test context (useful for `BeforeEach`/`AfterEach`)
 - `Test.IsEqual(A, B, [Message])`
 - `Test.NotEqual(A, B, [Message])`
-- `Test.IsTrue(Value, [Message])`
-- `Test.IsFalse(Value, [Message])`
+- `Test.IsOk(Value, [Message])`
+- `Test.NotOk(Value, [Message])`
 - `Test.IsUndefined(Value, [Message])`
 - `Test.NotUndefined(Value, [Message])`
 - `Test.Includes(Values, Value, [Message])` - Check if value is included in array or `Collection`
+- `Test.NotIncludes(Values, Value, [Message])`
 - `Test.IsApproximate(A, B, SignificantFigures, [Message])` - Check if two values are close to each other (useful for `Double` values)
+- `Test.NotApproximate(A, B, SignificantFigures, [Message])`
 - `Test.Pass()` - Explicitly pass the test
 - `Test.Fail([Message])` - Explicitly fail the test
 - `Test.Plan(Count)` - For tests with loops and branches, it is important to catch if any assertions are skipped or extra
