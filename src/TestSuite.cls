@@ -73,15 +73,7 @@ End Property
 ' @type Collection<TestCase>
 ''
 Public Property Get PassedTests() As VBA.Collection
-    Dim Test As TestCase
-    Dim Filtered As New VBA.Collection
-    For Each Test In Me.Tests
-        If Test.Result = TestResultType.Pass Then
-            Filtered.Add Test
-        End If
-    Next Test
-
-    Set PassedTests = Filtered
+    Set PassedTests = GetTestsByType(TestResultType.Pass)
 End Property
 
 ''
@@ -89,15 +81,7 @@ End Property
 ' @type Collection<TestCase>
 ''
 Public Property Get FailedTests() As VBA.Collection
-    Dim Test As TestCase
-    Dim Filtered As New VBA.Collection
-    For Each Test In Me.Tests
-        If Test.Result = TestResultType.Fail Then
-            Filtered.Add Test
-        End If
-    Next Test
-    
-    Set FailedTests = Filtered
+    Set FailedTests = GetTestsByType(TestResultType.Fail)
 End Property
 
 ''
@@ -105,15 +89,7 @@ End Property
 ' @type Collection<TestCase>
 ''
 Public Property Get PendingTests() As VBA.Collection
-    Dim Test As TestCase
-    Dim Filtered As New VBA.Collection
-    For Each Test In Me.Tests
-        If Test.Result = TestResultType.Pending Then
-            Filtered.Add Test
-        End If
-    Next Test
-    
-    Set PendingTests = Filtered
+    Set PendingTests = GetTestsByType(TestResultType.Pending)
 End Property
 
 ''
@@ -121,15 +97,7 @@ End Property
 ' @type Collection<TestCase>
 ''
 Public Property Get SkippedTests() As VBA.Collection
-    Dim Test As TestCase
-    Dim Filtered As New VBA.Collection
-    For Each Test In Me.Tests
-        If Test.Result = TestResultType.Skipped Then
-            Filtered.Add Test
-        End If
-    Next Test
-    
-    Set SkippedTests = Filtered
+    Set SkippedTests = GetTestsByType(TestResultType.Skipped)
 End Property
 
 ' ============================================= '
@@ -164,6 +132,19 @@ End Sub
 ' ============================================= '
 ' Private Functions
 ' ============================================= '
+
+Private Function GetTestsByType(ResultType As TestResultType) As Collection
+    Dim Test As TestCase
+    Dim Filtered As New VBA.Collection
+    For Each Test In Me.Tests
+        If Test.Result = ResultType Then
+            Filtered.Add Test
+        End If
+    Next Test
+
+    Set GetTestsByType = Filtered
+End Function
+
 
 Private Sub Class_Initialize()
     Set Tests = New VBA.Collection
