@@ -104,6 +104,14 @@ With Suite.Test("specific part of your application")
   .NotIncludes Array(1, 2, 3), 4
   .IsApproximate 1.001, 1.002, 2
   .NotApproximate 1.001, 1.009, 3
+  
+  On Error Resume Next
+  
+  Err.Raise vbObjectError + 1, Description:="Uh oh."
+  .IsError Description:="Uh oh."
+  
+  Err.Clear
+  .NotError
 
   .Pass
   .Fail "e.g. should not have gotten here" 
@@ -152,6 +160,8 @@ __TestCase API__
 - `Test.NotIncludes(Values, Value, [Message])`
 - `Test.IsApproximate(A, B, SignificantFigures, [Message])` - Check if two values are close to each other (useful for `Double` values)
 - `Test.NotApproximate(A, B, SignificantFigures, [Message])`
+- `Test.IsError([Number], [Source], [Description], [Message])` - Check if `Err` contains an error
+- `Test.NotError([Message])`
 - `Test.Pass()` - Explicitly pass the test
 - `Test.Fail([Message])` - Explicitly fail the test
 - `Test.Plan(Count)` - For tests with loops and branches, it is important to catch if any assertions are skipped or extra
