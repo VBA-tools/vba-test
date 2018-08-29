@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' DisplayReporter v2.0.0-beta.2
+' DisplayReporter v2.0.0-beta.3
 ' (c) Tim Hall - https://github.com/VBA-tools/VBA-TDD
 '
 ' Report results to Worksheet

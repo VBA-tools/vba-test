@@ -51,7 +51,7 @@ For an advanced example of what is possible with vba-test, check out the [tests 
 
 ## Getting Started
 
-1. Download the [latest release (v2.0.0-beta.2)](https://github.com/vba-tools/vba-test/releases)
+1. Download the [latest release (v2.0.0-beta.3)](https://github.com/vba-tools/vba-test/releases)
 2. Add `src/TestSuite.cls`, `src/TestCase.cls`, add `src/ImmediateReporter.cls` to your project
 3. If you're starting from scratch with Excel, you can use `vba-test-blank.xlsm`
 
