@@ -154,6 +154,34 @@ Public Sub NotUndefined(Value As Variant, Optional Message As String = _
 End Sub
 
 ''
+' Check if the current Err value contains an error with values (if given)
+'
+' @param {Long} [Number]
+' @param {String} [Source]
+' @param {String} [Description]
+' @param {String} [Message}
+''
+Public Sub IsError(Optional Number As Long, Optional Source As String, Optional Description As String, Optional Message As String = _
+    "Expected ${1} to be an error (with Number = ${2}, Source = ${3}, Description = ${4}")
+    
+    If Err.Number = 0 Then
+        pFailures.Add FormatMessage(Message, "[Error Number=0]", Number, Source, Description)
+        Exit Sub
+    End If
+    
+    Check (Number = 0 Or Err.Number = Number) _
+        And (Source = "" Or Err.Source = Source) _
+        And (Description = "" Or Err.Description = Description), Message, FormattedErr, Number, Source, Description
+End Sub
+
+''
+' Check if the current Err value does not contain an error
+''
+Public Sub NotError(Optional Message As String = "Expected ${1} to not be an error")
+    Check Err.Number = 0, Message, FormattedErr
+End Sub
+
+''
 ' Check if a value is included in an arbitrarily nested Array or Collection
 '
 ' @param {Array|Collection} Values
@@ -533,6 +561,13 @@ Private Function PrettyPrint(Value As Variant, Optional Indentation As Long = 0)
     Case Else
         PrettyPrint = CStr(Value)
     End Select
+End Function
+
+Private Function FormattedErr() As String
+    Dim ErrNumberDetails As String
+    
+    ErrNumberDetails = IIf(Err.Number < 0, " (" & (Err.Number - vbObjectError) & " / " & VBA.LCase$(VBA.Hex$(Err.Number)) & ")", "")
+    FormattedErr = "[Error Number=" & Err.Number & ErrNumberDetails & ", Source=" & Err.Source & ", Description=" & Err.Description & "]"
 End Function
 
 Private Function Indent(Optional Indentation As Long)

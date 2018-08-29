@@ -88,7 +88,12 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Fail
     End With
     
-    With Tests.Test("IsEqual")
+    PassingAssertions Tests
+    FailingAssertions Tests
+End Function
+
+Sub PassingAssertions(Suite As TestSuite)
+    With Suite.Test("IsEqual")
         .IsEqual 1, 1
         .IsEqual 1.2, 1.2
         .IsEqual True, True
@@ -115,7 +120,7 @@ Public Function Tests() As TestSuite
         .IsEqual A, B
     End With
     
-    With Tests.Test("NotEqual")
+    With Suite.Test("NotEqual")
         .NotEqual 1, 2
         .NotEqual 1.2, 1.1
         .NotEqual True, False
@@ -142,29 +147,43 @@ Public Function Tests() As TestSuite
         .NotEqual A, B
     End With
     
-    With Tests.Test("IsOk")
+    With Suite.Test("IsOk")
         .IsOk True
         .IsOk 4
     End With
     
-    With Tests.Test("NotOk")
+    With Suite.Test("NotOk")
         .NotOk False
         .NotOk 0
     End With
     
-    With Tests.Test("IsUndefined")
+    With Suite.Test("IsUndefined")
         .IsUndefined
         .IsUndefined Nothing
         .IsUndefined Null
         .IsUndefined Empty
     End With
     
-    With Tests.Test("NotUndefined")
+    With Suite.Test("NotUndefined")
         .NotUndefined 4
         .NotUndefined True
     End With
     
-    With Tests.Test("Includes")
+    With Suite.Test("IsError")
+        On Error Resume Next
+        
+        Err.Raise vbObjectError + 10, Description:="Error Description"
+        .IsError Number:=vbObjectError + 10, Description:="Error Description"
+        
+        Err.Clear
+        On Error GoTo 0
+    End With
+    
+    With Suite.Test("NotError")
+        .NotError
+    End With
+    
+    With Suite.Test("Includes")
         .Includes Array(1, 2, 3), 2
         .Includes Array(Array(1, 2, 3), 4, 5), 2
         
@@ -175,7 +194,7 @@ Public Function Tests() As TestSuite
         .Includes A, 2
     End With
     
-    With Tests.Test("NotIncludes")
+    With Suite.Test("NotIncludes")
         .NotIncludes Array(1, 2, 3), 4
         
         Set A = New Collection
@@ -185,13 +204,31 @@ Public Function Tests() As TestSuite
         .NotIncludes A, 4
     End With
     
-    With Tests.Test("IsApproximate")
+    With Suite.Test("IsApproximate")
         .IsApproximate 1.001, 1.002, 3
         .IsApproximate 1.00001, 1.00004, 5
     End With
     
-    With Tests.Test("NotApproximate")
+    With Suite.Test("NotApproximate")
         .NotApproximate 1.001, 1.009, 3
     End With
-End Function
+End Sub
+
+Sub FailingAssertions(Suite As TestSuite)
+    Dim FailingSuite As New TestSuite
+    Dim FailingTest As TestCase
+    Set FailingTest = FailingSuite.Test("FailingAssertions")
+    
+    With Suite.Test("IsEqual (fail)")
+        ' Reset FailingTest by calling Pass
+        FailingTest.Pass
+        FailingTest.IsEqual 1, 2
+        FailingTest.IsEqual Array(1, 2, 3), Array(3, 2, 1)
+        
+        .IsEqual FailingTest.Failures(1), "Expected 1 to equal 2"
+        
+        ' TODO Indentation here should be two spaces
+        .IsEqual FailingTest.Failures(2), "Expected [" & vbNewLine & " 1," & vbNewLine & " 2," & vbNewLine & " 3" & vbNewLine & "] to equal [" & vbNewLine & " 3," & vbNewLine & " 2," & vbNewLine & " 1" & vbNewLine & "]"
+    End With
+End Sub
 
