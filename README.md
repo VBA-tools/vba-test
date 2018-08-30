@@ -2,6 +2,10 @@
 
 vba-test (formerly Excel-TDD and VBA-TDD) adds testing to VBA on Windows and Mac.
 
+<a href="https://www.patreon.com/timhall">
+  <img src="https://timhall.github.io/assets/donate-patreon@2x.png" width="217" alt="Donate">
+</a>
+
 ## Example
 
 ```vb
