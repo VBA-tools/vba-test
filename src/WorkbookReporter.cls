@@ -168,9 +168,9 @@ Private Sub DisplayResults()
             Dividers.Add Rows.Count
         End If
 
-        If Suite.Description <> "" Then
+        If Suite.Name <> "" Then
             Headings.Add Rows.Count
-            Rows.Add Array(Suite.Description, ResultTypeToString(Suite.Result))
+            Rows.Add Array(Suite.Name, ResultTypeToString(Suite.Result))
         End If
 
         For Each Test In Suite.Tests

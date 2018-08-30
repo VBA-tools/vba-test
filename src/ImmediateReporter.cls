@@ -42,7 +42,7 @@ Public Sub ListenTo(Suite As TestSuite)
         Done
     End If
     
-    Debug.Print "===" & IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")
+    Debug.Print "===" & IIf(Suite.Name <> "", " " & Suite.Name & " ===", "")
     Set pSuite = Suite
     Finished = False
 End Sub

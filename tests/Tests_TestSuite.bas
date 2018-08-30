@@ -3,7 +3,7 @@ Public Function Tests() As TestSuite
     Dim Suite As New TestSuite
     
     Set Tests = New TestSuite
-    Tests.Description = "TestSuite"
+    Tests.Name = "TestSuite"
     
     Dim Reporter As New ImmediateReporter
     Reporter.ListenTo Tests
