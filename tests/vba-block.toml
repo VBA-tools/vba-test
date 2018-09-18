@@ -15,9 +15,7 @@ Test_Fixture = "Test_Fixture.cls"
 
 [dependencies]
 # TODO test = "../"
-
 dictionary = "^1"
-
 
 [targets]
 xlsm = "targets/xlsm"
