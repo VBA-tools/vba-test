@@ -10,3 +10,6 @@ ImmediateReporter = "src/ImmediateReporter.cls"
 
 [dependencies]
 dictionary = "^1"
+
+[targets]
+xlsm = { name = "vba-test-blank", path = "targets/xlsm" }
