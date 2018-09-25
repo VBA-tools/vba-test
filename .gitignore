@@ -1,4 +1,4 @@
-build/.backup
+build
 tests/build
 
 # Ignore temporary Office files and OS files

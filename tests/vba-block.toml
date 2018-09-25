@@ -4,18 +4,10 @@ version = "0.0.0"
 authors = ["Tim Hall <tim.hall.engr@gmail.com>"]
 
 [src]
-TestSuite = "../src/TestSuite.cls"
-TestCase = "../src/TestCase.cls"
-ImmediateReporter = "../src/ImmediateReporter.cls"
-
-Tests = "src/Tests.bas"
+Tests = "Tests.bas"
 Tests_TestSuite = "Tests_TestSuite.bas"
 Tests_TestCase = "Tests_TestCase.bas"
 Test_Fixture = "Test_Fixture.cls"
 
 [dependencies]
-# TODO test = "../"
-dictionary = "^1"
-
-[targets]
-xlsm = "targets/xlsm"
+test = { path = "../" }
