@@ -2,7 +2,7 @@
 name = "vba-test/tests"
 version = "0.0.0"
 dependencies = [
-  "test 2.0.0-beta.2 path+..",
+  "test 2.0.0-beta.2 path+../",
 ]
 
 [[packages]]
@@ -15,7 +15,7 @@ dependencies = [
 [[packages]]
 name = "test"
 version = "2.0.0-beta.2"
-source = "path+.."
+source = "path+../"
 dependencies = [
   "dictionary 1.4.1 registry+vba-blocks#8034e569e4efcb7bdb1a0600c0aa2d857147b8be0ccbc6764af065d45e967e46",
 ]
