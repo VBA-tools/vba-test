@@ -1,7 +1,8 @@
-[project]
+[package]
 name = "vba-test/tests"
 version = "0.0.0"
 authors = ["Tim Hall <tim.hall.engr@gmail.com>"]
+public = false
 
 [src]
 Tests = "Tests.bas"
