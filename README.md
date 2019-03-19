@@ -28,7 +28,7 @@ Function AddTests() As TestSuite
     .IsEqual Add(1, 2, 3), 6
     .IsEqual Add(1, 2, 3, 4), 10
   End With
-End Sub
+End Function
 
 Public Function Add(ParamArray Values() As Variant) As Double
   Dim i As Integer
