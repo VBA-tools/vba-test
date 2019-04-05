@@ -109,11 +109,19 @@ Sub PassingAssertions(Suite As TestSuite)
         
         .IsEqual A, B
         
+#If VBA_Test_Scripting_Dictionary=1 Then
+        Set A = New Scripting.Dictionary
+#Else
         Set A = New Dictionary
+#End If
         A("a") = 1
         A("b") = 2
         
+#If VBA_Test_Scripting_Dictionary=1 Then
+        Set B = New Scripting.Dictionary
+#Else
         Set B = New Dictionary
+#End If
         B("a") = 1
         B("b") = 2
         
@@ -136,11 +144,19 @@ Sub PassingAssertions(Suite As TestSuite)
         
         .NotEqual A, B
         
+#If VBA_Test_Scripting_Dictionary=1 Then
+        Set A = New Scripting.Dictionary
+#Else
         Set A = New Dictionary
+#End If
         A("a") = 1
         A("b") = 2
         
+#If VBA_Test_Scripting_Dictionary=1 Then
+        Set B = New Scripting.Dictionary
+#Else
         Set B = New Dictionary
+#End If
         B("a") = 2
         B("b") = 1
         
