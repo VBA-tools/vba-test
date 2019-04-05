@@ -26,7 +26,11 @@ Private pFailures As VBA.Collection
 ' --------------------------------------------- '
 
 Public Name As String
+#If VBA_Test_Scripting_Dictionary=1 Then
+Public Context As Scripting.Dictionary
+#Else
 Public Context As Dictionary
+#End If
 
 Public Planned As Long
 Public Successes As Long
@@ -575,7 +579,12 @@ Private Function Indent(Optional Indentation As Long)
 End Function
 
 Private Sub Class_Initialize()
+#If VBA_Test_Scripting_Dictionary=1 Then
+    Set Me.Context = New Scripting.Dictionary
+#Else
     Set Me.Context = New Dictionary
+#End If
+
     Set pFailures = New VBA.Collection
 End Sub
 

@@ -33,7 +33,7 @@ End Function
 Public Function Add(ParamArray Values() As Variant) As Double
   Dim i As Integer
   Add = 0
-  
+
   For i = LBound(Values) To UBound(Values)
     Add = Add + Values(i)
   Next i
@@ -57,9 +57,26 @@ For an advanced example of what is possible with vba-test, check out the [tests 
 
 1. Download the [latest release (v2.0.0-beta.3)](https://github.com/vba-tools/vba-test/releases)
 2. Add `src/TestSuite.cls`, `src/TestCase.cls`, add `src/ImmediateReporter.cls` to your project
-3. If you're starting from scratch with Excel, you can use `vba-test-blank.xlsm`
+
+If you're starting from scratch with Excel, you can use `vba-test-blank.xlsm`
 
 If you're updating from Excel-TDD v1, follow these [upgrade details](https://github.com/VBA-tools/vba-test/pull/23#issuecomment-416606307).
+
+### Microsoft Word (how to fix `Dictionary` errors)
+
+If you are using this project on Word, or otherwise see error messages
+related to `Dictionary`:
+
+- Easy option: add [@timhall's Dictionary class](https://github.com/VBA-tools/VBA-Dictionary/blob/master/Dictionary.cls)
+  to your project.
+
+- Slightly more complicated option for Windows: in the VBA Editor:
+  - select Tools | References and make sure `Microsoft Scripting Runtime` is checked
+  - select Tools | Project Properties.  In the `Conditional Compilation
+    Arguments` box, add `VBA_Test_Scripting_Dictionary=1`.
+
+The more complicated option uses the native `Scripting.Dictionary`, so does
+not require an additional VBA dependency.  Take your pick!
 
 ## TestSuite
 
@@ -108,17 +125,17 @@ With Suite.Test("specific part of your application")
   .NotIncludes Array(1, 2, 3), 4
   .IsApproximate 1.001, 1.002, 2
   .NotApproximate 1.001, 1.009, 3
-  
+
   On Error Resume Next
-  
+
   Err.Raise vbObjectError + 1, Description:="Uh oh."
   .IsError Description:="Uh oh."
-  
+
   Err.Clear
   .NotError
 
   .Pass
-  .Fail "e.g. should not have gotten here" 
+  .Fail "e.g. should not have gotten here"
   .Plan 4 ' Should only be 4 assertions, more or less fails
   .Skip ' skip this test
 End With
