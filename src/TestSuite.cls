@@ -41,7 +41,7 @@ Public Event Group(Suite As TestSuite)
 ' @property Description
 ' @type String
 ''
-Public Name As String
+Public Description As String
 
 ''
 ' @property Tests
@@ -49,6 +49,9 @@ Public Name As String
 ''
 Public Tests As VBA.Collection
 
+''
+' @internal
+''
 Public Parent As TestSuite
 
 ''
@@ -112,16 +115,16 @@ End Property
 ' ============================================= '
 
 ''
-' Create a new test case with name
+' Create a new test case with description
 '
 ' @method Test
-' @param {String} Name
+' @param {String} Description
 ' @returns {TestCase}
 ''
-Public Function Test(Name As String) As TestCase
+Public Function Test(Description As String) As TestCase
     Dim Instance As New TestCase
     
-    Instance.Name = Name
+    Instance.Description = Description
     Set Instance.Suite = Me
     
     OnTestBefore Instance
@@ -129,10 +132,10 @@ Public Function Test(Name As String) As TestCase
     Set Test = Instance
 End Function
 
-Public Function Group(Name As String) As TestSuite
+Public Function Group(Description As String) As TestSuite
     Dim Instance As New TestSuite
     
-    Instance.Name = Name
+    Instance.Description = Description
     Set Instance.Parent = Me
     
     RaiseEvent Group(Instance)

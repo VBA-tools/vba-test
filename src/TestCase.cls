@@ -25,7 +25,7 @@ Private pFailures As VBA.Collection
 ' Events and Properties
 ' --------------------------------------------- '
 
-Public Name As String
+Public Description As String
 Public Context As Dictionary
 
 Public Planned As Long

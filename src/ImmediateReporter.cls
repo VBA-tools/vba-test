@@ -42,7 +42,7 @@ Public Sub ListenTo(Suite As TestSuite)
         Done
     End If
     
-    Debug.Print "===" & IIf(Suite.Name <> "", " " & Suite.Name & " ===", "")
+    Debug.Print "===" & IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")
     Set pSuite = Suite
     Finished = False
 End Sub
@@ -109,7 +109,7 @@ Private Sub pSuite_Result(Test As TestCase)
         Exit Sub
     End If
 
-    Debug.Print ResultTypeToString(Test.Result) & " " & Test.Name
+    Debug.Print ResultTypeToString(Test.Result) & " " & Test.Description
     
     If Test.Result = TestResultType.Fail Then
         Dim Failure As Variant

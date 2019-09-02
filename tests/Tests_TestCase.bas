@@ -1,7 +1,7 @@
 Attribute VB_Name = "Tests_TestCase"
 Public Function Tests() As TestSuite
     Set Tests = New TestSuite
-    Tests.Name = "TestCase"
+    Tests.Description = "TestCase"
     
     Dim Reporter As New ImmediateReporter
     Reporter.ListenTo Tests

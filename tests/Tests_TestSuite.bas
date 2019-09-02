@@ -3,7 +3,7 @@ Public Function Tests() As TestSuite
     Dim Suite As New TestSuite
     
     Set Tests = New TestSuite
-    Tests.Name = "TestSuite"
+    Tests.Description = "TestSuite"
     
     Dim Reporter As New ImmediateReporter
     Reporter.ListenTo Tests
@@ -16,7 +16,7 @@ Public Function Tests() As TestSuite
     End With
     
     With Tests.Test("should fire Result event")
-        .IsEqual Fixture.ResultCalls(1).Name, "should fire BeforeEach event"
+        .IsEqual Fixture.ResultCalls(1).Description, "should fire BeforeEach event"
         .IsEqual Fixture.ResultCalls(1).Result, TestResultType.Pass
     End With
     
@@ -44,10 +44,10 @@ Public Function Tests() As TestSuite
         .IsEqual Suite.PendingTests.Count, 1
         .IsEqual Suite.SkippedTests.Count, 1
         
-        .IsEqual Suite.PassedTests(1).Name, "(pass)"
-        .IsEqual Suite.FailedTests(1).Name, "(fail)"
-        .IsEqual Suite.PendingTests(1).Name, "(pending)"
-        .IsEqual Suite.SkippedTests(1).Name, "(skipped)"
+        .IsEqual Suite.PassedTests(1).Description, "(pass)"
+        .IsEqual Suite.FailedTests(1).Description, "(fail)"
+        .IsEqual Suite.PendingTests(1).Description, "(pending)"
+        .IsEqual Suite.SkippedTests(1).Description, "(skipped)"
     End With
 
     With Tests.Test("should have overall result")
