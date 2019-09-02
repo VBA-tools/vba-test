@@ -33,6 +33,7 @@ End Enum
 Public Event BeforeEach(Test As TestCase)
 Public Event Result(Test As TestCase)
 Public Event AfterEach(Test As TestCase)
+Public Event Group(Suite As TestSuite)
 
 ''
 ' (Optional) description of suite for display in runners
@@ -47,6 +48,11 @@ Public Description As String
 ' @type Collection<TestCase>
 ''
 Public Tests As VBA.Collection
+
+''
+' @internal
+''
+Public Parent As TestSuite
 
 ''
 ' Compute suite result from tests
@@ -100,33 +106,84 @@ Public Property Get SkippedTests() As VBA.Collection
     Set SkippedTests = GetTestsByType(TestResultType.Skipped)
 End Property
 
+Public Property Get Self() As TestSuite
+    Set Self = Me
+End Property
+
 ' ============================================= '
 ' Public Methods
 ' ============================================= '
 
 ''
-' Create a new test case with name
+' Create a new test case with description
 '
 ' @method Test
-' @param {String} Name
+' @param {String} Description
 ' @returns {TestCase}
 ''
-Public Function Test(Name As String) As TestCase
+Public Function Test(Description As String) As TestCase
     Dim Instance As New TestCase
     
-    Instance.Name = Name
+    Instance.Description = Description
     Set Instance.Suite = Me
     
-    RaiseEvent BeforeEach(Instance)
+    OnTestBefore Instance
     
     Set Test = Instance
 End Function
 
+Public Function Group(Description As String) As TestSuite
+    Dim Instance As New TestSuite
+    
+    Instance.Description = Description
+    Set Instance.Parent = Me
+    
+    RaiseEvent Group(Instance)
+    
+    Set Group = Instance
+End Function
+
+''
+' @internal
+''
 Public Sub TestComplete(Test As TestCase)
     Tests.Add Test
 
+    OnTestResult Test
+    OnTestAfter Test
+End Sub
+
+''
+' @internal
+''
+Public Sub OnTestBefore(Test As TestCase)
+    If Not Me.Parent Is Nothing Then
+        Me.Parent.OnTestBefore Test
+    End If
+    
+    RaiseEvent BeforeEach(Test)
+End Sub
+
+''
+' @internal
+''
+Public Sub OnTestResult(Test As TestCase)
     RaiseEvent Result(Test)
+    
+    If Not Me.Parent Is Nothing Then
+        Me.Parent.OnTestResult Test
+    End If
+End Sub
+
+''
+' @internal
+''
+Public Sub OnTestAfter(Test As TestCase)
     RaiseEvent AfterEach(Test)
+    
+    If Not Me.Parent Is Nothing Then
+        Me.Parent.OnTestAfter Test
+    End If
 End Sub
 
 ' ============================================= '

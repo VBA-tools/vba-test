@@ -109,7 +109,7 @@ Private Sub pSuite_Result(Test As TestCase)
         Exit Sub
     End If
 
-    Debug.Print ResultTypeToString(Test.Result) & " " & Test.Name
+    Debug.Print ResultTypeToString(Test.Result) & " " & Test.Description
     
     If Test.Result = TestResultType.Fail Then
         Dim Failure As Variant

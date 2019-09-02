@@ -1,3 +1,5 @@
+build
+
 # Ignore temporary Office files and OS files
 */~$*
 .DS_Store
