@@ -9,7 +9,7 @@ TestCase = "src/TestCase.cls"
 ImmediateReporter = "src/ImmediateReporter.cls"
 
 [dependencies]
-dictionary = { version = "^1", registry = "vba-blocks" }
+dictionary = "^1"
 
 [dev-src]
 Tests = "tests/Tests.bas"
