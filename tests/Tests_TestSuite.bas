@@ -1,82 +1,75 @@
 Attribute VB_Name = "Tests_TestSuite"
-Public Function Tests() As TestSuite
-    Dim Suite As New TestSuite
-    
-    Set Tests = New TestSuite
-    Tests.Description = "TestSuite"
-    
-    Dim Reporter As New ImmediateReporter
-    Reporter.ListenTo Tests
-    
+Public Sub RunTests(Suite As TestSuite)
+    Dim Tests As TestSuite
     Dim Fixture As New Test_Fixture
-    Fixture.ListenTo Tests
+    Fixture.ListenTo Suite
     
-    With Tests.Test("should fire BeforeEach event")
+    With Suite.Test("should fire BeforeEach event")
         .IsEqual Fixture.BeforeEachCallCount, 1
     End With
     
-    With Tests.Test("should fire Result event")
+    With Suite.Test("should fire Result event")
         .IsEqual Fixture.ResultCalls(1).Description, "should fire BeforeEach event"
         .IsEqual Fixture.ResultCalls(1).Result, TestResultType.Pass
     End With
     
-    With Tests.Test("should fire AfterEach event")
+    With Suite.Test("should fire AfterEach event")
         .IsEqual Fixture.AfterEachCallCount, 2
     End With
     
-    With Tests.Test("should store specs")
-        Set Suite = New TestSuite
-        With Suite.Test("(pass)")
+    With Suite.Test("should store specs")
+        Set Tests = New TestSuite
+        With Tests.Test("(pass)")
             .IsEqual 4, 4
         End With
-        With Suite.Test("(fail)")
+        With Tests.Test("(fail)")
             .IsEqual 4, 3
         End With
-        With Suite.Test("(pending)")
+        With Tests.Test("(pending)")
         End With
-        With Suite.Test("(skipped)")
+        With Tests.Test("(skipped)")
             .Skip
         End With
 
-        .IsEqual Suite.Tests.Count, 4
-        .IsEqual Suite.PassedTests.Count, 1
-        .IsEqual Suite.FailedTests.Count, 1
-        .IsEqual Suite.PendingTests.Count, 1
-        .IsEqual Suite.SkippedTests.Count, 1
+        .IsEqual Tests.Tests.Count, 4
+        .IsEqual Tests.PassedTests.Count, 1
+        .IsEqual Tests.FailedTests.Count, 1
+        .IsEqual Tests.PendingTests.Count, 1
+        .IsEqual Tests.SkippedTests.Count, 1
         
-        .IsEqual Suite.PassedTests(1).Description, "(pass)"
-        .IsEqual Suite.FailedTests(1).Description, "(fail)"
-        .IsEqual Suite.PendingTests(1).Description, "(pending)"
-        .IsEqual Suite.SkippedTests(1).Description, "(skipped)"
+        .IsEqual Tests.PassedTests(1).Description, "(pass)"
+        .IsEqual Tests.FailedTests(1).Description, "(fail)"
+        .IsEqual Tests.PendingTests(1).Description, "(pending)"
+        .IsEqual Tests.SkippedTests(1).Description, "(skipped)"
     End With
 
-    With Tests.Test("should have overall result")
-        Set Suite = New TestSuite
+    With Suite.Test("should have overall result")
+        Set Tests = New TestSuite
 
-        .IsEqual Suite.Result, TestResultType.Pending
+        .IsEqual Tests.Result, TestResultType.Pending
 
-        With Suite.Test("(pending)")
+        With Tests.Test("(pending)")
         End With
 
-        .IsEqual Suite.Result, TestResultType.Pending
+        .IsEqual Tests.Result, TestResultType.Pending
 
-        With Suite.Test("(pass)")
+        With Tests.Test("(pass)")
             .IsEqual 4, 4
         End With
 
-        .IsEqual Suite.Result, TestResultType.Pass
+        .IsEqual Tests.Result, TestResultType.Pass
 
-        With Suite.Test("(fail)")
+        With Tests.Test("(fail)")
             .IsEqual 4, 3
         End With
 
-        .IsEqual Suite.Result, TestResultType.Fail
+        .IsEqual Tests.Result, TestResultType.Fail
 
-        With Suite.Test("(pass)")
+        With Tests.Test("(pass)")
             .IsEqual 2, 2
         End With
 
-        .IsEqual Suite.Result, TestResultType.Fail
+        .IsEqual Tests.Result, TestResultType.Fail
     End With
 
-End Function
+End Sub
