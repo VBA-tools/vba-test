@@ -87,7 +87,7 @@ Public Property Get Failures() As VBA.Collection
             Failures.Add Failure
         Next Failure
         
-        Message = "Total assertions, ${1}, does not equal planned, ${2}"
+        Message = "Total assertions, {0}, does not equal planned, {1}"
         Failures.Add FormatMessage(Message, Total, Me.Planned)
     Else
         Set Failures = pFailures
@@ -105,7 +105,7 @@ End Property
 ' Check if two values are deep equal (including Array, Collection, and Dictionary)
 ''
 Public Sub IsEqual(A As Variant, B As Variant, Optional Message As String = _
-    "Expected ${1} to equal ${2}")
+    "Expected {0} to equal {1}")
 
     Check IsDeepEqual(A, B), Message, A, B
 End Sub
@@ -114,7 +114,7 @@ End Sub
 ' Check if two values are not deep equal (including Array, Collection, and Dictionary)
 ''
 Public Sub NotEqual(A As Variant, B As Variant, Optional Message As String = _
-    "Expected ${1} to not equal ${2}")
+    "Expected {0} to not equal {1}")
 
     Check Not IsDeepEqual(A, B), Message, A, B
 End Sub
@@ -128,7 +128,7 @@ End Sub
 ' If the expression is a Nullable Boolean variable that evaluates to Nothing, the condition is treated as if the expression is False.
 ''
 Public Sub IsOk(Value As Variant, Optional Message As String = _
-    "Expected ${1} to be ok")
+    "Expected {0} to be ok")
 
     Check Value, Message, Value
 End Sub
@@ -137,7 +137,7 @@ End Sub
 ' Check if a value is not "truthy" (See .IsOk)
 ''
 Public Sub NotOk(Value As Variant, Optional Message As String = _
-    "Expected ${1} to not be ok")
+    "Expected {0} to not be ok")
 
     Check Not CBool(Value), Message, Value
 End Sub
@@ -146,7 +146,7 @@ End Sub
 ' Check if a value is "undefined": Nothing, Empty, Null, or Missing
 ''
 Public Sub IsUndefined(Optional Value As Variant, Optional Message As String = _
-    "Expected ${1} to be undefined")
+    "Expected {0} to be undefined")
 
     Check IsNothing(Value) Or VBA.IsEmpty(Value) Or VBA.IsNull(Value) Or VBA.IsMissing(Value), Message, Value
 End Sub
@@ -155,7 +155,7 @@ End Sub
 ' Check if a value is not "undefined": Nothing, Empty, Null, or Missing
 ''
 Public Sub NotUndefined(Value As Variant, Optional Message As String = _
-    "Expected ${1} to not be undefined")
+    "Expected {0} to not be undefined")
 
     Check Not IsNothing(Value) And Not VBA.IsEmpty(Value) And Not VBA.IsNull(Value) And Not VBA.IsMissing(Value), Message, Value
 End Sub
@@ -164,7 +164,7 @@ End Sub
 ' Check if the current Err value contains an error with values (if given)
 ''
 Public Sub IsError(Optional Number As Long, Optional Source As String, Optional Description As String, Optional Message As String = _
-    "Expected ${1} to be an error (with Number = ${2}, Source = ${3}, Description = ${4}")
+    "Expected {0} to be an error (with Number = {1}, Source = {2}, Description = {3}")
     
     If Err.Number = 0 Then
         pFailures.Add FormatMessage(Message, "[Error Number=0]", Number, Source, Description)
@@ -179,7 +179,7 @@ End Sub
 ''
 ' Check if the current Err value does not contain an error
 ''
-Public Sub NotError(Optional Message As String = "Expected ${1} to not be an error")
+Public Sub NotError(Optional Message As String = "Expected {0} to not be an error")
     Check Err.Number = 0, Message, FormattedErr
 End Sub
 
@@ -187,7 +187,7 @@ End Sub
 ' Check if a value is included in an arbitrarily nested Array or Collection
 ''
 Public Sub Includes(Values As Variant, Value As Variant, Optional Message As String = _
-    "Expected ${2} to be included in ${1}")
+    "Expected {1} to be included in {0}")
 
     If IsCollection(Values) Then
         Check CollectionIncludes(Values, Value), Message, Values, Value
@@ -202,7 +202,7 @@ End Sub
 ' Check if a value is not included in an arbitrarily nested Array or Collection
 ''
 Public Sub NotIncludes(Values As Variant, Value As Variant, Optional Message As String = _
-    "Expected ${2} not to be included in ${1}")
+    "Expected {1} not to be included in {0}")
     
     If IsCollection(Values) Then
         Check Not CollectionIncludes(Values, Value), Message, Values, Value
@@ -223,7 +223,7 @@ End Sub
 ' ```
 ''
 Public Sub IsApproximate(A As Variant, B As Variant, SignificantFigures As Integer, Optional Message As String = _
-    "Expected ${1} to be approximately equal to ${2} (with ${3} significant figures of precision)")
+    "Expected {0} to be approximately equal to {1} (with {2} significant figures of precision)")
 
     If SignificantFigures < 1 Or SignificantFigures > 15 Then
         pFailures.Add "IsApproximate can only compare from 1 to 15 significant figures"
@@ -242,7 +242,7 @@ End Sub
 ' ```
 ''
 Public Sub NotApproximate(A As Variant, B As Variant, SignificantFigures As Integer, Optional Message As String = _
-    "Expected ${1} to not be approximately equal to ${2} (with ${3} significant figures of precision)")
+    "Expected {0} to not be approximately equal to {1} (with {2} significant figures of precision)")
 
     If SignificantFigures < 1 Or SignificantFigures > 15 Then
         pFailures.Add "NotApproximate can only compare from 1 to 15 significant figures"
@@ -463,7 +463,7 @@ Private Function FormatMessage(Message As String, ParamArray Values() As Variant
     FormatMessage = Message
     For Each Value In IIf(VBA.IsArray(Values(0)), Values(0), Values)
         Index = Index + 1
-        FormatMessage = VBA.Replace(FormatMessage, "${" & Index & "}", PrettyPrint(Value))
+        FormatMessage = VBA.Replace(FormatMessage, "{" & Index & "}", PrettyPrint(Value))
     Next Value
 End Function
 
