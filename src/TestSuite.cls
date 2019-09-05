@@ -147,8 +147,6 @@ End Function
 ' @internal
 ''
 Public Sub TestComplete(Test As TestCase)
-    Tests.Add Test
-
     OnTestResult Test
     OnTestAfter Test
 End Sub
@@ -168,6 +166,7 @@ End Sub
 ' @internal
 ''
 Public Sub OnTestResult(Test As TestCase)
+    Tests.Add Test
     RaiseEvent Result(Test)
     
     If Not Me.Parent Is Nothing Then

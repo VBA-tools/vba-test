@@ -7,6 +7,7 @@ authors = ["Tim Hall <tim.hall.engr@gmail.com> (https://github.com/timhall)"]
 TestSuite = "src/TestSuite.cls"
 TestCase = "src/TestCase.cls"
 ImmediateReporter = "src/ImmediateReporter.cls"
+FileReporter = "src/FileReporter.cls"
 
 [dependencies]
 dictionary = "^1"

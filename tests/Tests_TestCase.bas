@@ -1,18 +1,12 @@
 Attribute VB_Name = "Tests_TestCase"
-Public Function Tests() As TestSuite
-    Set Tests = New TestSuite
-    Tests.Description = "TestCase"
-    
-    Dim Reporter As New ImmediateReporter
-    Reporter.ListenTo Tests
-    
-    Dim Suite As New TestSuite
+Public Sub RunTests(Suite As TestSuite)
+    Dim Tests As New TestSuite
     Dim Test As TestCase
     Dim A As Variant
     Dim B As Variant
     
-    With Tests.Test("should pass if all assertions pass")
-        Set Test = Suite.Test("should pass")
+    With Suite.Test("should pass if all assertions pass")
+        Set Test = Tests.Test("should pass")
         With Test
             .IsEqual "A", "A"
             .IsEqual 2, 2
@@ -21,8 +15,8 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Pass
     End With
     
-    With Tests.Test("should fail if any assertion fails")
-        Set Test = Suite.Test("should fail")
+    With Suite.Test("should fail if any assertion fails")
+        Set Test = Tests.Test("should fail")
         With Test
             .IsEqual "A", "A"
             .IsEqual 2, 1
@@ -31,8 +25,8 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Fail
     End With
     
-    With Tests.Test("should contain collection of failures")
-        Set Test = Suite.Test("should have failures")
+    With Suite.Test("should contain collection of failures")
+        Set Test = Tests.Test("should have failures")
         With Test
             .IsEqual "A", "A"
             .IsEqual 2, 1
@@ -43,13 +37,13 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Failures(2), "Expected True to equal False"
     End With
     
-    With Tests.Test("should be pending if there are no assertions")
-        Set Test = Suite.Test("pending")
+    With Suite.Test("should be pending if there are no assertions")
+        Set Test = Tests.Test("pending")
         .IsEqual Test.Result, TestResultType.Pending
     End With
     
-    With Tests.Test("should skip even with failed assertions")
-        Set Test = Suite.Test("skipped")
+    With Suite.Test("should skip even with failed assertions")
+        Set Test = Tests.Test("skipped")
         With Test
             .IsEqual 2, 1
             .Skip
@@ -58,8 +52,8 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Skipped
     End With
     
-    With Tests.Test("should explicitly pass test")
-        Set Test = Suite.Test("pass")
+    With Suite.Test("should explicitly pass test")
+        Set Test = Tests.Test("pass")
         With Test
             .IsEqual 2, 1
             .Pass
@@ -68,8 +62,8 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Pass
     End With
     
-    With Tests.Test("should explicitly fail test")
-        Set Test = Suite.Test("fail")
+    With Suite.Test("should explicitly fail test")
+        Set Test = Tests.Test("fail")
         With Test
             .IsEqual 2, 2
             .Fail
@@ -78,8 +72,8 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Fail
     End With
     
-    With Tests.Test("should fail if plan doesn't match")
-        Set Test = Suite.Test("plan")
+    With Suite.Test("should fail if plan doesn't match")
+        Set Test = Tests.Test("plan")
         With Test
             .Plan 2
             .IsEqual 2, 2
@@ -88,9 +82,9 @@ Public Function Tests() As TestSuite
         .IsEqual Test.Result, TestResultType.Fail
     End With
     
-    PassingAssertions Tests
-    FailingAssertions Tests
-End Function
+    PassingAssertions Suite
+    FailingAssertions Suite
+End Sub
 
 Sub PassingAssertions(Suite As TestSuite)
     With Suite.Test("IsEqual")
