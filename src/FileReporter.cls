@@ -8,15 +8,24 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' FileReporter v2.0.0-beta.3
-' (c) Tim Hall - https://github.com/vba-tools/vba-test
+' # FileReporter
 '
-' Report results to file
+' Append test results to the given file
+'
+' ```vba
+' Dim Suite As New TestSuite
+' ...
+'
+' Dim Reporter As New FileReporter
+' Reporter.WriteTo "path/to/file"
+' Reporter.ListenTo Suite 
+' ```
 '
 ' @class FileReporter
-' @author tim.hall.engr@gmail.com
-' @license MIT (https://opensource.org/licenses/MIT)
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' @author Tim Hall <tim.hall.engr@gmail.com>
+' @repository https://github.com/vba-tools/vba-test 
+' @license MIT
+'' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
 Private WithEvents pSuite As TestSuite
@@ -36,6 +45,8 @@ Public Sub ListenTo(Suite As TestSuite)
     Set pSuite = Suite
     PrintHeader Suite
 End Sub
+
+' ============================================= '
 
 Private Sub PrintHeader(Suite As TestSuite)
     AppendToFile "===" & VBA.IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")

@@ -8,15 +8,23 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' ImmediateReporter v2.0.0-beta.3
-' (c) Tim Hall - https://github.com/vba-tools/vba-test
+' # ImmediateReporter
 '
 ' Report results to Immediate Window
 '
+' ```vba
+' Dim Suite As New TestSuite
+' ...
+'
+' Dim Reporter As New ImmediateReporter
+' Reporter.ListenTo Suite
+' ```
+'
 ' @class ImmediateReporter
 ' @author tim.hall.engr@gmail.com
-' @license MIT (https://opensource.org/licenses/MIT)
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' @repository https://github.com/vba-tools/vba-test
+' @license MIT
+'' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
 Private WithEvents pSuite As TestSuite
@@ -28,19 +36,25 @@ Private Finished As Boolean
 ''
 Public Sub ListenTo(Suite As TestSuite)
     If Not pSuite Is Nothing Then
+        ' If already listening to suite,
+        ' report summary before moving on to next suite
         PrintSummary
     End If
     
     Finished = False
     Set pSuite = Suite
     PrintHeader Suite
+
+    ' Report any tests added prior to listening
+    Dim Test As TestCase
+    For Each Test In Suite.Tests
+        PrintResult Test
+    Next Test
 End Sub
+
+' ============================================= '
 
 Private Sub PrintHeader(Suite As TestSuite)
-    Debug.Print "===" & IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")
-End Sub
-
-Private Sub PrintGroup(Suite As TestSuite)
     Debug.Print "===" & IIf(Suite.Description <> "", " " & Suite.Description & " ===", "")
 End Sub
 
@@ -102,7 +116,7 @@ Private Function ResultTypeToString(ResultType As TestResultType) As String
 End Function
 
 Private Sub pSuite_Group(Suite As TestSuite)
-    PrintGroup Suite
+    PrintHeader Suite
 End Sub
 
 Private Sub pSuite_Result(Test As TestCase)

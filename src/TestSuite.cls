@@ -8,20 +8,25 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' TestSuite v2.0.0-beta.3
-' (c) Tim Hall - https://github.com/vba-tools/vba-test
+' # TestSuite
 '
 ' A collection of tests, with events and results
 '
+' ```vba
+' Dim Suite As New TestSuite
+' Suite.Description = "Name"
+'
+' With Suite.Test("A")
+'   .IsEqual 2 + 2, 4
+' End With
+' ```
+' 
 ' @class TestSuite
 ' @author tim.hall.engr@gmail.com
-' @license MIT (https://opensource.org/licenses/MIT)
+' @repository https://github.com/vba-tools/vba-test
+' @license MIT
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
-
-' --------------------------------------------- '
-' Types, Events, and Properties
-' --------------------------------------------- '
 
 Public Enum TestResultType
     Pass
@@ -37,14 +42,10 @@ Public Event Group(Suite As TestSuite)
 
 ''
 ' (Optional) description of suite for display in runners
-'
-' @property Description
-' @type String
 ''
 Public Description As String
 
 ''
-' @property Tests
 ' @type Collection<TestCase>
 ''
 Public Tests As VBA.Collection
@@ -56,9 +57,6 @@ Public Parent As TestSuite
 
 ''
 ' Compute suite result from tests
-'
-' @property Result
-' @type SpecResultType
 ''
 Public Property Get Result() As TestResultType
     Result = TestResultType.Pending
@@ -75,7 +73,6 @@ Public Property Get Result() As TestResultType
 End Property
 
 ''
-' @property PassedTests
 ' @type Collection<TestCase>
 ''
 Public Property Get PassedTests() As VBA.Collection
@@ -83,7 +80,6 @@ Public Property Get PassedTests() As VBA.Collection
 End Property
 
 ''
-' @property FailedTests
 ' @type Collection<TestCase>
 ''
 Public Property Get FailedTests() As VBA.Collection
@@ -91,7 +87,6 @@ Public Property Get FailedTests() As VBA.Collection
 End Property
 
 ''
-' @property PendingTests
 ' @type Collection<TestCase>
 ''
 Public Property Get PendingTests() As VBA.Collection
@@ -99,7 +94,6 @@ Public Property Get PendingTests() As VBA.Collection
 End Property
 
 ''
-' @property SkippedTests
 ' @type Collection<TestCase>
 ''
 Public Property Get SkippedTests() As VBA.Collection
@@ -110,16 +104,8 @@ Public Property Get Self() As TestSuite
     Set Self = Me
 End Property
 
-' ============================================= '
-' Public Methods
-' ============================================= '
-
 ''
 ' Create a new test case with description
-'
-' @method Test
-' @param {String} Description
-' @returns {TestCase}
 ''
 Public Function Test(Description As String) As TestCase
     Dim Instance As New TestCase
@@ -132,6 +118,9 @@ Public Function Test(Description As String) As TestCase
     Set Test = Instance
 End Function
 
+''
+' Create a new group of tests with description
+''
 Public Function Group(Description As String) As TestSuite
     Dim Instance As New TestSuite
     
@@ -186,10 +175,8 @@ Public Sub OnTestAfter(Test As TestCase)
 End Sub
 
 ' ============================================= '
-' Private Functions
-' ============================================= '
 
-Private Function GetTestsByType(ResultType As TestResultType) As Collection
+Private Function GetTestsByType(ResultType As TestResultType) As VBA.Collection
     Dim Test As TestCase
     Dim Filtered As New VBA.Collection
     For Each Test In Me.Tests

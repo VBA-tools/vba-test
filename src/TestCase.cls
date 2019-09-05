@@ -8,30 +8,58 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = True
 ''
-' TestCase v2.0.0-beta.3
-' (c) Tim Hall - https://github.com/vba-tools/vba-test
+' # TestCase
 '
 ' Verify a single test case with assertions
 '
+' ```vba
+' Dim Test As New TestCase
+'
+' Test.Description = "should add many numbers
+' With Test
+'   .IsEqual Add(2, 2), 4
+'   .IsEqual Add(1, 2, 3), 6
+' End With
+' ```
+'
 ' @class TestCase
 ' @author tim.hall.engr@gmail.com
-' @license MIT (https://opensource.org/licenses/MIT)
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+' @repository https://github.com/vba-tools/vba-test
+' @license MIT
+'' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
 Private pFailures As VBA.Collection
 
-' --------------------------------------------- '
-' Events and Properties
-' --------------------------------------------- '
-
+''
+' Set test description as displayed in reporter
+''
 Public Description As String
+
+''
+' Get/set values for test context
+' (useful for passing values to BeforeEach/AfterEach)
+''
 Public Context As Dictionary
 
+''
+' @internal
+''
 Public Planned As Long
+
+''
+' @internal
+''
 Public Successes As Long
+
+''
+' @internal
+''
 Public Skipped As Boolean
 
+''
+' @internal
+''
 Public Suite As TestSuite
 
 Public Property Get Result() As TestResultType
@@ -46,7 +74,7 @@ Public Property Get Result() As TestResultType
     End If
 End Property
 
-Public Property Get Failures() As Collection
+Public Property Get Failures() As VBA.Collection
     Dim Total As Long
     Total = Me.Successes + pFailures.Count
     
@@ -54,7 +82,7 @@ Public Property Get Failures() As Collection
         Dim Message As String
         Dim Failure As Variant
         
-        Set Failures = New Collection
+        Set Failures = New VBA.Collection
         For Each Failure In pFailures
             Failures.Add Failure
         Next Failure
@@ -66,20 +94,15 @@ Public Property Get Failures() As Collection
     End If
 End Property
 
+''
+' Access test instance (e.g. for passing to custom matchers)
+''
 Public Property Get Self() As TestCase
     Self = Me
 End Property
 
-' ============================================= '
-' Public Methods
-' ============================================= '
-
 ''
 ' Check if two values are deep equal (including Array, Collection, and Dictionary)
-'
-' @param {Variant} A
-' @param {Variant} B
-' @param {String} [Message]
 ''
 Public Sub IsEqual(A As Variant, B As Variant, Optional Message As String = _
     "Expected ${1} to equal ${2}")
@@ -89,10 +112,6 @@ End Sub
 
 ''
 ' Check if two values are not deep equal (including Array, Collection, and Dictionary)
-'
-' @param {Variant} A
-' @param {Variant} B
-' @param {String} [Message]
 ''
 Public Sub NotEqual(A As Variant, B As Variant, Optional Message As String = _
     "Expected ${1} to not equal ${2}")
@@ -107,9 +126,6 @@ End Sub
 '
 ' Must evaluate to True or False, or to a data type that is implicitly convertible to Boolean.
 ' If the expression is a Nullable Boolean variable that evaluates to Nothing, the condition is treated as if the expression is False.
-'
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub IsOk(Value As Variant, Optional Message As String = _
     "Expected ${1} to be ok")
@@ -119,9 +135,6 @@ End Sub
 
 ''
 ' Check if a value is not "truthy" (See .IsOk)
-'
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub NotOk(Value As Variant, Optional Message As String = _
     "Expected ${1} to not be ok")
@@ -131,9 +144,6 @@ End Sub
 
 ''
 ' Check if a value is "undefined": Nothing, Empty, Null, or Missing
-'
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub IsUndefined(Optional Value As Variant, Optional Message As String = _
     "Expected ${1} to be undefined")
@@ -143,9 +153,6 @@ End Sub
 
 ''
 ' Check if a value is not "undefined": Nothing, Empty, Null, or Missing
-'
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub NotUndefined(Value As Variant, Optional Message As String = _
     "Expected ${1} to not be undefined")
@@ -155,11 +162,6 @@ End Sub
 
 ''
 ' Check if the current Err value contains an error with values (if given)
-'
-' @param {Long} [Number]
-' @param {String} [Source]
-' @param {String} [Description]
-' @param {String} [Message}
 ''
 Public Sub IsError(Optional Number As Long, Optional Source As String, Optional Description As String, Optional Message As String = _
     "Expected ${1} to be an error (with Number = ${2}, Source = ${3}, Description = ${4}")
@@ -183,10 +185,6 @@ End Sub
 
 ''
 ' Check if a value is included in an arbitrarily nested Array or Collection
-'
-' @param {Array|Collection} Values
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub Includes(Values As Variant, Value As Variant, Optional Message As String = _
     "Expected ${2} to be included in ${1}")
@@ -202,10 +200,6 @@ End Sub
 
 ''
 ' Check if a value is not included in an arbitrarily nested Array or Collection
-'
-' @param {Array|Collection} Values
-' @param {Variant} Value
-' @param {String} [Message]
 ''
 Public Sub NotIncludes(Values As Variant, Value As Variant, Optional Message As String = _
     "Expected ${2} not to be included in ${1}")
@@ -222,15 +216,11 @@ End Sub
 ''
 ' Check if two values are approximately equal, up to the given amount of significant figures
 '
-' @example
-' ```vb
+' ```vba
 ' .IsApproximate 1.001, 1.002, 3
 '
 ' ' Equivalent to .IsEqual 1.00e+0, 1.00e+0
 ' ```
-' @param {Variant} A
-' @param {Variant} B
-' @param {String} [Message]
 ''
 Public Sub IsApproximate(A As Variant, B As Variant, SignificantFigures As Integer, Optional Message As String = _
     "Expected ${1} to be approximately equal to ${2} (with ${3} significant figures of precision)")
@@ -245,15 +235,11 @@ End Sub
 ''
 ' Check if two values are approximately equal, up to the given amount of significant figures
 '
-' @example
-' ```vb
+' ```vba
 ' .NotApproximate 1.001, 1.009, 3
 '
 ' ' Equivalent to .IsEqual 1.00e+0, 1.01e+0
 ' ```
-' @param {Variant} A
-' @param {Variant} B
-' @param {String} [Message]
 ''
 Public Sub NotApproximate(A As Variant, B As Variant, SignificantFigures As Integer, Optional Message As String = _
     "Expected ${1} to not be approximately equal to ${2} (with ${3} significant figures of precision)")
@@ -270,13 +256,11 @@ End Sub
 ''
 Public Sub Pass()
     Me.Successes = 1
-    Set pFailures = New Collection
+    Set pFailures = New VBA.Collection
 End Sub
 
 ''
 ' Mark the test as failing
-'
-' @param {String} {Message]
 ''
 Public Sub Fail(Optional Message As String = _
     "Test failed unexpectedly")
@@ -286,8 +270,6 @@ End Sub
 
 ''
 ' Set the planned number of assertions for the test
-'
-' @param {Long} Count
 ''
 Public Sub Plan(Count As Long)
     Planned = Count
@@ -300,8 +282,6 @@ Public Sub Skip()
     Me.Skipped = True
 End Sub
 
-' ============================================= '
-' Private Functions
 ' ============================================= '
 
 Private Sub Check(Assertion As Variant, Message As String, ParamArray Values() As Variant)
