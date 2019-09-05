@@ -1,6 +1,6 @@
 [package]
 name = "test"
-version = "2.0.0-beta.2"
+version = "2.0.0-beta.3"
 authors = ["Tim Hall <tim.hall.engr@gmail.com> (https://github.com/timhall)"]
 
 [src]
