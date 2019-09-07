@@ -462,8 +462,8 @@ Private Function FormatMessage(Message As String, ParamArray Values() As Variant
     
     FormatMessage = Message
     For Each Value In IIf(VBA.IsArray(Values(0)), Values(0), Values)
-        Index = Index + 1
         FormatMessage = VBA.Replace(FormatMessage, "{" & Index & "}", PrettyPrint(Value))
+        Index = Index + 1
     Next Value
 End Function
 
