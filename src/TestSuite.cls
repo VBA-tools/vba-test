@@ -20,12 +20,12 @@ Attribute VB_Exposed = True
 '   .IsEqual 2 + 2, 4
 ' End With
 ' ```
-' 
+'
 ' @class TestSuite
 ' @author tim.hall.engr@gmail.com
 ' @repository https://github.com/vba-tools/vba-test
 ' @license MIT
-' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+'' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
 Public Enum TestResultType

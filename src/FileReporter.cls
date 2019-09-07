@@ -18,24 +18,31 @@ Attribute VB_Exposed = True
 '
 ' Dim Reporter As New FileReporter
 ' Reporter.WriteTo "path/to/file"
-' Reporter.ListenTo Suite 
+' Reporter.ListenTo Suite
 ' ```
 '
 ' @class FileReporter
 ' @author Tim Hall <tim.hall.engr@gmail.com>
-' @repository https://github.com/vba-tools/vba-test 
+' @repository https://github.com/vba-tools/vba-test
 ' @license MIT
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 Option Explicit
 
 Private WithEvents pSuite As TestSuite
+Attribute pSuite.VB_VarHelpID = -1
 Private FilePath As String
 Private Finished As Boolean
 
+''
+' Report test results to the given file path
+''
 Public Sub WriteTo(Path As Variant)
     FilePath = Path
 End Sub
 
+''
+' Report test results from the given TestSuite
+''
 Public Sub ListenTo(Suite As TestSuite)
     If Not pSuite Is Nothing Then
         PrintSummary
