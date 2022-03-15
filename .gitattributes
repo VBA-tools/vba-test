@@ -14,3 +14,7 @@
 *.PDF  diff=astextplain
 *.rtf  diff=astextplain
 *.RTF  diff=astextplain
+
+# Clarify that the source language is VBA (Auto-detection not always accurate)
+*.bas linguist-language=VBA
+*.cls linguist-language=VBA
